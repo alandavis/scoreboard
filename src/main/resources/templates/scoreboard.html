@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Getting Started: Serving Web Content</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="refresh" content="1">
+
+</head>
+    <div th:if="${scoreboard.result} == false">
+        <body style="background-color:blue;">
+            <table width="100%" style="color:white;font-size:300%;">
+                <tr>
+                    <td colspan="2" th:text="${scoreboard.title}">x</td>
+                    <td colspan="2" th:text="${scoreboard.subTitle}">x</td>
+                    <td rowspan="2"  style="font-size:150%;" th:text="${scoreboard.clock}">x</td>
+                </tr>
+                <tr>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Lane</td>
+                    <td>Swimmer</td>
+                    <td>Club</td>
+                    <td>Time</td>
+                    <td>Place</td>
+                </tr>
+                <tr th:each="swimmer : ${scoreboard.swimmers}">
+                    <td width="10%" th:text="${swimmer.lane}">x</td>
+                    <td width="30%" th:text="${swimmer.name}">x</td>
+                    <td width="20%" th:text="${swimmer.club}">x</td>
+                    <td width="30%" th:text="${swimmer.time}">x</td>
+                    <td width="10%" th:text="${swimmer.place}">x</td>
+                </tr>
+            </table>
+        </body>
+    </div>
+    <div th:if="${scoreboard.result} == true" style="background-color:green;">
+        <body style="background-color:green;">
+            <table width="100%" style="color:white;font-size:300%;">
+                <tr>
+                    <td colspan="2" th:text="${scoreboard.title}">x</td>
+                    <td colspan="2" th:text="${scoreboard.subTitle}">x</td>
+                    <td rowspan="2"  style="font-size:150%;" th:text="${scoreboard.swimmers[0].time}">x</td>
+                </tr>
+                <tr>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Place</td>
+                    <td>Swimmer</td>
+                    <td>Club</td>
+                    <td>Time</td>
+                    <td>Lane</td>
+                </tr>
+               <tr th:each="swimmer : ${scoreboard.swimmers}">
+                   <td width="10%" th:text="${swimmer.place}">x</td>
+                   <td width="30%" th:text="${swimmer.name}">x</td>
+                   <td width="20%" th:text="${swimmer.club}">x</td>
+                   <td width="30%" th:text="${swimmer.time}">x</td>
+                   <td width="10%" th:text="${swimmer.lane}">x</td>
+                </tr>
+            </table>
+        </body>
+    </div>
+</html>

@@ -42,7 +42,20 @@ public class Swimmer
 
     public String getPlace()
     {
-        return place >= 1 ? Integer.toString(place) : "";
+        switch (place)
+        {
+            case -1:
+            case 0:
+                return "";
+            case 1:
+                return "1st";
+            case 2:
+                return "2nd";
+            case 3:
+                return "3rd";
+            default:
+                return Integer.toString(place)+"th";
+        }
     }
 
     public void setPlace(int place)

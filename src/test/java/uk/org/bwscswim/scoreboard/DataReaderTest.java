@@ -324,7 +324,7 @@ public class DataReaderTest
         long ms = System.currentTimeMillis() - start;
         System.out.println(ms + "ms: " + sb);
         assertEquals(" The cat\t and the dog.", sb.toString());
-        assertTrue("The wait time looks wrong. It was " + ms + "ms", ms >= 200 && ms < 250);
+        assertTrue("The wait time looks wrong. It was " + ms + "ms", ms >= 190 && ms < 250);
     }
 
     @Test

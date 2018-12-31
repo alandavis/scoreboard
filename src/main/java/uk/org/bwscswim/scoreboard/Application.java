@@ -32,9 +32,9 @@ import java.io.File;
 @SpringBootApplication
 public class Application
 {
-    private static SerialPort port;
-    private static String dummyFilename;
-    private static Boolean trace;
+    private static SerialPort port = listPorts()[0];
+    private static String dummyFilename = "";
+    private static Boolean trace = false;
 
     @Bean
     public SerialPort port()
@@ -67,22 +67,16 @@ public class Application
         if (args.length == 0)
         {
             System.err.println("Add the port number to the end of the command. Use a negative number to add trace output.");
-            return false;
+            return useTestFileInput("src/main/resources/test_data.txt");
         }
 
         if (args[0].startsWith("-test="))
         {
-            port = listPorts()[0]; // so the beans exists
-            trace = false;
-
-            dummyFilename = args[0].substring("-test=".length());
-            File file = new File(dummyFilename);
-            return file.canRead();
+            String filename = args[0].substring("-test=".length());
+            return useTestFileInput(filename);
         }
         else
         {
-            dummyFilename = ""; // so the bean exists
-
             int portNumber;
             try
             {
@@ -110,6 +104,16 @@ public class Application
                 return false;
             }
         }
+    }
+
+    private static boolean useTestFileInput(String filename)
+    {
+        port = listPorts()[0]; // so the beans exists
+        trace = false;
+        dummyFilename = filename;
+
+        File file = new File(dummyFilename);
+        return file.canRead();
     }
 
     private static SerialPort[] listPorts()
