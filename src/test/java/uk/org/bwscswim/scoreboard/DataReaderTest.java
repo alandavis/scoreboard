@@ -423,7 +423,7 @@ public class DataReaderTest
                 "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
                 "Swimmer{name='James Jones', club='AMES', lane='4', place='', time=''}, " +
                 "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='', time=''}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='1', time='9.06'}]}", scoreboard.toString());
+                "Swimmer{name='Millie sab', club='', lane='6', place='1st', time='9.06'}]}", scoreboard.toString());
     }
 
     @Test
@@ -440,12 +440,12 @@ public class DataReaderTest
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
         assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='11.0', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6', time='11.07'}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='5', time='10.60'}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='4', time='10.19'}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='3', time='9.77'}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='2', time='9.40'}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='1', time='9.06'}]}", scoreboard.toString());
+                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6th', time='11.07'}, " +
+                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='5th', time='10.60'}, " +
+                "Swimmer{name='John Smith', club='REAS', lane='3', place='4th', time='10.19'}, " +
+                "Swimmer{name='James Jones', club='AMES', lane='4', place='3rd', time='9.77'}, " +
+                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='2nd', time='9.40'}, " +
+                "Swimmer{name='Millie sab', club='', lane='6', place='1st', time='9.06'}]}", scoreboard.toString());
     }
 
     @Test
@@ -463,12 +463,12 @@ public class DataReaderTest
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
         assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='19.1', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6', time='11.07'}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='5', time='10.60'}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='4', time='10.19'}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='3', time='9.77'}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='2', time='9.40'}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='1', time='9.06'}]}", scoreboard.toString());
+                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6th', time='11.07'}, " +
+                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='5th', time='10.60'}, " +
+                "Swimmer{name='John Smith', club='REAS', lane='3', place='4th', time='10.19'}, " +
+                "Swimmer{name='James Jones', club='AMES', lane='4', place='3rd', time='9.77'}, " +
+                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='2nd', time='9.40'}, " +
+                "Swimmer{name='Millie sab', club='', lane='6', place='1st', time='9.06'}]}", scoreboard.toString());
     }
 
     @Test
@@ -487,10 +487,10 @@ public class DataReaderTest
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
         assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='19.4', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6', time='11.07'}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='5', time='10.60'}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='4', time='10.19'}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='3', time='9.77'}, " +
+                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6th', time='11.07'}, " +
+                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='5th', time='10.60'}, " +
+                "Swimmer{name='John Smith', club='REAS', lane='3', place='4th', time='10.19'}, " +
+                "Swimmer{name='James Jones', club='AMES', lane='4', place='3rd', time='9.77'}, " +
                 "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='', time=''}, " +
                 "Swimmer{name='Millie sab', club='', lane='6', place='', time=''}]}", scoreboard.toString());
     }
@@ -512,7 +512,7 @@ public class DataReaderTest
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
         assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='21.1', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6', time='11.07'}, " +
+                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6th', time='11.07'}, " +
                 "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
                 "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
                 "Swimmer{name='James Jones', club='AMES', lane='4', place='', time=''}, " +
@@ -538,12 +538,12 @@ public class DataReaderTest
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
         assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='21.10', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='2', time='21.39'}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='1', time='21.10'}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='3', time='21.72'}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='4', time='22.06'}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='5', time='22.42'}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='6', time='23.24'}]}", scoreboard.toString());
+                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='2nd', time='21.39'}, " +
+                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='1st', time='21.10'}, " +
+                "Swimmer{name='John Smith', club='REAS', lane='3', place='3rd', time='21.72'}, " +
+                "Swimmer{name='James Jones', club='AMES', lane='4', place='4th', time='22.06'}, " +
+                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='5th', time='22.42'}, " +
+                "Swimmer{name='Millie sab', club='', lane='6', place='6th', time='23.24'}]}", scoreboard.toString());
     }
 
     @Test
@@ -587,11 +587,11 @@ public class DataReaderTest
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
         assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=true, clock='', swimmers=[" +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='1', time='21.10'}, " +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='2', time='21.39'}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='3', time='21.72'}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='4', time='22.06'}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='5', time='22.42'}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='6', time='23.24'}]}", scoreboard.toString());
+                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='1st', time='21.10'}, " +
+                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='2nd', time='21.39'}, " +
+                "Swimmer{name='John Smith', club='REAS', lane='3', place='3rd', time='21.72'}, " +
+                "Swimmer{name='James Jones', club='AMES', lane='4', place='4th', time='22.06'}, " +
+                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='5th', time='22.42'}, " +
+                "Swimmer{name='Millie sab', club='', lane='6', place='6th', time='23.24'}]}", scoreboard.toString());
     }
 }
