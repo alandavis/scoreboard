@@ -66,6 +66,8 @@ public class DataReader
     @Autowired
     private Boolean trace;
 
+    private int prevByte;
+
     private InputStream inputStream;
 
     void setScoreboard(Scoreboard scoreboard)
@@ -86,6 +88,15 @@ public class DataReader
     @PostConstruct
     public void readDataInBackground()
     {
+        if (logger.isInfoEnabled())
+        {
+            logger.info("Available serial ports:");
+            SerialPort[] commPorts = SerialPort.getCommPorts();
+            for (int i = 0; i < commPorts.length; i++)
+            {
+                logger.info((i+1) + ". " + commPorts[i].getPortDescription());
+            }
+        }
         Thread t = new Thread(new Runnable()
         {
             public void run()
@@ -136,7 +147,7 @@ public class DataReader
                             }
                             else
                             {
-                                System.err.println("The port " + port.getPortDescription() + " failed to open for an unknown reason.");
+                                System.err.println("The port " + port.getSystemPortName() + " failed to open for an unknown reason.");
                             }
                             Thread.sleep(2000);
                         }
@@ -258,11 +269,15 @@ public class DataReader
             else
             {
                 traceZeroCount = 0;
-                System.err.print(format(b));
-                if (b == ETB)
+                if (prevByte != ETB || b != ETB)
                 {
-                    System.err.println("");
+                    System.err.print(format(b));
+                    if (b == ETB)
+                    {
+                        System.err.println("");
+                    }
                 }
+                prevByte = b;
             }
         }
 

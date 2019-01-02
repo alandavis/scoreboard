@@ -29,10 +29,15 @@ import org.springframework.context.annotation.Bean;
 
 import java.io.File;
 
+import static com.fazecast.jSerialComm.SerialPort.FLOW_CONTROL_DISABLED;
+import static com.fazecast.jSerialComm.SerialPort.NO_PARITY;
+import static com.fazecast.jSerialComm.SerialPort.ONE_STOP_BIT;
+import static com.fazecast.jSerialComm.SerialPort.TIMEOUT_READ_BLOCKING;
+
 @SpringBootApplication
 public class Application
 {
-    private static SerialPort port = listPorts()[0];
+    private static SerialPort port = SerialPort.getCommPort("COM1");
     private static String dummyFilename = "";
     private static Boolean trace = false;
 
@@ -54,75 +59,113 @@ public class Application
         return trace;
     }
 
-    public static void main(String[] args)
+    public static void main(String[] args) // Spring reloads this class and runs this method again, so it gets called twice.
     {
-        if (validArgs(args))
-        {
-            SpringApplication.run(Application.class, args);
-        }
+        validArgs(args);
+        SpringApplication.run(Application.class, args);
     }
 
-    private static boolean validArgs(String[] args)
+    private static void validArgs(String[] args)
     {
-        if (args.length == 0)
-        {
-            System.err.println("Add the port number to the end of the command. Use a negative number to add trace output.");
-            return useTestFileInput("src/main/resources/test_data.txt");
-        }
+        int baudRate = 19200;
+        int dataBits = 8;
+        int stopBits = ONE_STOP_BIT;
+        int parity = NO_PARITY;
+        int flow = FLOW_CONTROL_DISABLED;
+        int timeoutMode = TIMEOUT_READ_BLOCKING;
+        int readTimeout = 0;
 
-        if (args[0].startsWith("-test="))
+        for (String arg: args)
         {
-            String filename = args[0].substring("-test=".length());
-            return useTestFileInput(filename);
-        }
-        else
-        {
-            int portNumber;
-            try
+            if (arg.equals("-test1"))
             {
-                portNumber = Integer.parseInt(args[0]);
-                if (portNumber < 0)
-                {
-                    trace = true;
-                    portNumber = Math.abs(portNumber);
-                }
-                else
-                {
-                    trace = false;
-                }
-                SerialPort[] commPorts = listPorts();
-                if (portNumber == 0 || --portNumber >= commPorts.length)
-                {
-                    throw new NumberFormatException("");
-                }
-                port = commPorts[portNumber];
-                return true;
+                dummyFilename = ":test1.txt";
             }
-            catch (NumberFormatException e)
+            else if (arg.startsWith("-testFile="))
             {
-                System.err.println("Invalid port number: " + args[0]);
-                return false;
+                dummyFilename = arg.substring("-testFile=".length());
+                File file = new File(dummyFilename);
+                if (!file.canRead())
+                {
+                    error("Cannot read test file: "+dummyFilename);
+                }
+
             }
+            else if (arg.startsWith("-port="))
+            {
+                String portName = arg.substring("-port=".length());
+                port = SerialPort.getCommPort(portName);
+                if (port.getPortDescription().equals("Bad Port"))
+                {
+                    error("Cannot read serial port: "+portName);
+                }
+            }
+            else if (arg.equalsIgnoreCase("-trace"))
+            {
+                trace = true;
+            }
+            else if (arg.startsWith("-baudRate="))
+            {
+                baudRate = parseInt(arg, "baudRate");
+            }
+            else if (arg.startsWith("-dataBits="))
+            {
+                dataBits = parseInt(arg, "dataBits");
+            }
+            else if (arg.startsWith("-stopBits="))
+            {
+                stopBits = parseInt(arg, "stopBits");
+            }
+            else if (arg.startsWith("-parity="))
+            {
+                parity = parseInt(arg, "parity");
+            }
+            else if (arg.startsWith("-flow="))
+            {
+                flow = parseInt(arg, "flow");
+            }
+            else if (arg.startsWith("-timeoutMode="))
+            {
+                timeoutMode = parseInt(arg, "timeoutMode");
+            }
+            else if (arg.startsWith("-readTimeout="))
+            {
+                readTimeout = parseInt(arg, "readTimeout");
+            }
+        }
+
+        port.setBaudRate(baudRate);
+        port.setNumDataBits(dataBits);
+        port.setNumStopBits(stopBits);
+        port.setParity(parity);
+        port.setFlowControl(flow);
+        port.setComPortTimeouts(timeoutMode, readTimeout, 0);
+    }
+
+    private static int parseInt(String arg, String flagName)
+    {
+        String n = arg.substring(flagName.length()+2);
+        try
+        {
+            return Integer.parseInt(n);
+        }
+        catch (NumberFormatException e)
+        {
+            String message = "Invalid " + flagName + ": " + n;
+            error(message);
+            return -1;
         }
     }
 
-    private static boolean useTestFileInput(String filename)
-    {
-        port = listPorts()[0]; // so the beans exists
-        trace = false;
-        dummyFilename = filename;
-
-        File file = new File(dummyFilename);
-        return file.canRead();
-    }
-
-    private static SerialPort[] listPorts()
+    private static void error(String message)
     {
         SerialPort[] commPorts = SerialPort.getCommPorts();
         for (int i = 0; i < commPorts.length; i++)
         {
-            System.out.println((i+1) + ". " + commPorts[i].getPortDescription());
+            System.err.println((i+1) + ". " + commPorts[i].getPortDescription());
         }
-        return commPorts;
+        System.err.println("");
+        System.err.println(message);
+        System.exit(-1);
     }
 }

@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 
 /**
@@ -36,7 +37,6 @@ import java.io.StringReader;
  */
 public class DummyInputStream extends InputStream
 {
-    private FileReader fileReader;
     private boolean includeDelay = true;
     private BufferedReader reader;
     private String line;
@@ -51,17 +51,26 @@ public class DummyInputStream extends InputStream
 
     public DummyInputStream(String filename) throws FileNotFoundException
     {
-        fileReader = new FileReader(filename);
-        reader = new BufferedReader(fileReader);
+        try
+        {
+            InputStreamReader inputStreamReader = filename.startsWith(":")
+                    ? new InputStreamReader(getClass().getClassLoader().getResource(filename.substring(1)).openStream())
+                    : new FileReader(filename);
+            reader = new BufferedReader(inputStreamReader);
+        }
+        catch (IOException e)
+        {
+            throw new FileNotFoundException(e.getMessage());
+        }
     }
 
     @Override
     public void close() throws IOException
     {
         super.close();
-        if (fileReader != null)
+        if (reader != null)
         {
-            fileReader.close();
+            reader.close();
         }
     }
 

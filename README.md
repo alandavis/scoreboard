@@ -24,9 +24,17 @@ mvn clean install
 
 BWSC Scoreboard is built as an executable jar file which takes one argument.
 ~~~
-java -jar scoreboard-<version>.jar <arg>
+java -jar scoreboard-<version>.jar <args>
 ~~~
-* When started without any arguments, the program lists all available serial ports.
-* The argument should be the number of the serial port to which the SWISS TIMING equipment is connected.
-* To trace the output from the port make the argument a negative number.
-* There is an alternative form -test=\<filename>. In this case a file matching the trace output format is read rather than the serial port.
+#### Args
+Arguments may be added to the command to modify the default behaviour.
+ * -port=<portName> serial port description. Default: COM1
+ * -baudRate=\<baudRate> serial port baud rate. Default 19200
+ * -stopBits=\<stopBits> serial port stop bits. Default: 8
+ * -parity=\<parity> serial port parity. Default: NO_PARITY
+ * -flow=\<flowControl> serial port flow control. Default: FLOW_CONTROL_DISABLED
+ * -timeoutMode=\<mode> jSerialComm timeoutMode. Default: TIMEOUT_READ_BLOCKING
+ * -readTimeout=\<ms> jSerialComm readTimeout. Default: 0 (none)
+ * -trace data read from the the port to stderr. Default: not set (no trace)
+ * -testFile=\<path> use data from a test file rather than a port
+ * -test1 use data from a test file included in the jar file rather than a port
