@@ -26,6 +26,15 @@ BWSC Scoreboard is built as an executable jar file which takes one argument.
 ~~~
 java -jar scoreboard-<version>.jar <args>
 ~~~
+To access the user interface:
+~~~
+http://localhost:8080
+~~~
+To access the JSON interface:
+~~~
+http://localhost:8080/data
+~~~
+
 #### Args
 Arguments may be added to the command to modify the default behaviour.
  * -port=<portName> serial port description. Default: COM1
