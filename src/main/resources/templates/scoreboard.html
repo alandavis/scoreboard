@@ -5,11 +5,29 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
     <script src="scoreboard.js"></script>
+    <style>
+html, body, table {
+  width: 100%;
+  margin: 0;
+}
+</style>
 </head>
     <body>
         <div ng-controller="Scoreboard" style="color:white;font-size:500%;">
             <div ng-if="scoreboard.swimmers.length == 0">
-                <p style="background-color:blue;" align="center">{{scoreboard.clock}}</p>
+                <table style="background-color:blue;">
+                    <tr>
+                        <td width="90%">&nbsp;</td>
+                        <td width="10%">{{scoreboard.clock}}</td>
+                    </tr>
+                    <tr colspan="5"><td>&nbsp;</td>
+                    <tr colspan="5"><td>&nbsp;</td>
+                    <tr colspan="5"><td>&nbsp;</td>
+                    <tr colspan="5"><td>&nbsp;</td>
+                    <tr colspan="5"><td>&nbsp;</td>
+                    <tr colspan="5"><td>&nbsp;</td>
+                    <tr colspan="5"><td>&nbsp;</td>
+                </table>
             </div>
             <div ng-if="scoreboard.swimmers.length != 0 && !scoreboard.result">
                 <table style="background-color:blue;">
@@ -17,7 +35,7 @@
                         <td colspan="4">{{scoreboard.title+"&nbsp;&nbsp;&nbsp;"+scoreboard.subTitle}}</td>
                         <td>{{scoreboard.clock}}</td>
                     </tr>
-                    <tr/>
+                    <tr colspan="5"><td>&nbsp;</td>
                     <tr ng-repeat="swimmer in scoreboard.swimmers">
                         <td width="10%">{{swimmer.lane }}</td>
                         <td width="35%">{{swimmer.name}}</td>
@@ -33,7 +51,7 @@
                         <td colspan="4">{{scoreboard.title+"&nbsp;&nbsp;&nbsp;"+scoreboard.subTitle}}</td>
                         <td>{{scoreboard.clock}}</td>
                     </tr>
-                    <tr/>
+                    <tr colspan="5"><td>&nbsp;</td>
                     <tr ng-repeat="swimmer in scoreboard.swimmers">
                         <td width="10%">{{swimmer.place}}</td>
                         <td width="35%">{{swimmer.name}}</td>

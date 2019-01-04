@@ -6,5 +6,5 @@ angular.module('bwsc', [])
                 $scope.scoreboard = response.data;
                 $scope.scoreboard.background = $scope.scoreboard.result ? "green" : "blue";
         });
-      }, 333);
+      }, 200);
 });
