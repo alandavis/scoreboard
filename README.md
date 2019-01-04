@@ -37,7 +37,7 @@ http://localhost:8080/data
 
 #### Args
 Arguments may be added to the command to modify the default behaviour.
- * -port=<portName> serial port description. Default: COM1
+ * -port=\<portName> serial port description. Default: COM4
  * -baudRate=\<baudRate> serial port baud rate. Default 19200
  * -stopBits=\<stopBits> serial port stop bits. Default: 8
  * -parity=\<parity> serial port parity. Default: NO_PARITY

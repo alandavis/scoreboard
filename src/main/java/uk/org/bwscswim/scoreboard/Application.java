@@ -37,7 +37,7 @@ import static com.fazecast.jSerialComm.SerialPort.TIMEOUT_READ_BLOCKING;
 @SpringBootApplication
 public class Application
 {
-    private static SerialPort port = SerialPort.getCommPort("COM1");
+    private static SerialPort port = SerialPort.getCommPort("COM4");
     private static String dummyFilename = "";
     private static Boolean testLoop = false;
     private static Boolean trace = false;
