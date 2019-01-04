@@ -39,6 +39,7 @@ public class Application
 {
     private static SerialPort port = SerialPort.getCommPort("COM1");
     private static String dummyFilename = "";
+    private static Boolean testLoop = false;
     private static Boolean trace = false;
 
     @Bean
@@ -51,6 +52,12 @@ public class Application
     public String dummyFilename()
     {
         return dummyFilename;
+    }
+
+    @Bean
+    public Boolean testLoop()
+    {
+        return testLoop;
     }
 
     @Bean
@@ -99,6 +106,10 @@ public class Application
                 {
                     error("Cannot read serial port: "+portName);
                 }
+            }
+            else if (arg.equalsIgnoreCase("-testLoop"))
+            {
+                testLoop = true;
             }
             else if (arg.equalsIgnoreCase("-trace"))
             {

@@ -47,3 +47,4 @@ Arguments may be added to the command to modify the default behaviour.
  * -trace data read from the the port to stderr. Default: not set (no trace)
  * -testFile=\<path> use data from a test file rather than a port
  * -test1 use data from a test file included in the jar file rather than a port
+ * -testLoop results in the data in the test file being repeated once it has been read.

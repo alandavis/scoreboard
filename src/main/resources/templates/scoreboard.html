@@ -1,65 +1,48 @@
 <!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
+<html ng-app="bwsc">
 <head>
     <title>Getting Started: Serving Web Content</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="refresh" content="1">
-
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="scoreboard.js"></script>
 </head>
-    <div th:if="${scoreboard.result} == false">
-        <body style="background-color:blue;">
-            <table width="100%" style="color:white;font-size:300%;">
-                <tr>
-                    <td colspan="2" th:text="${scoreboard.title}">x</td>
-                    <td colspan="2" th:text="${scoreboard.subTitle}">x</td>
-                    <td rowspan="2"  style="font-size:150%;" th:text="${scoreboard.clock}">x</td>
-                </tr>
-                <tr>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>Lane</td>
-                    <td>Swimmer</td>
-                    <td>Club</td>
-                    <td>Time</td>
-                    <td>Place</td>
-                </tr>
-                <tr th:each="swimmer : ${scoreboard.swimmers}">
-                    <td width="10%" th:text="${swimmer.lane}">x</td>
-                    <td width="30%" th:text="${swimmer.name}">x</td>
-                    <td width="20%" th:text="${swimmer.club}">x</td>
-                    <td width="30%" th:text="${swimmer.time}">x</td>
-                    <td width="10%" th:text="${swimmer.place}">x</td>
-                </tr>
-            </table>
-        </body>
-    </div>
-    <div th:if="${scoreboard.result} == true" style="background-color:green;">
-        <body style="background-color:green;">
-            <table width="100%" style="color:white;font-size:300%;">
-                <tr>
-                    <td colspan="2" th:text="${scoreboard.title}">x</td>
-                    <td colspan="2" th:text="${scoreboard.subTitle}">x</td>
-                    <td rowspan="2"  style="font-size:150%;" th:text="${scoreboard.swimmers[0].time}">x</td>
-                </tr>
-                <tr>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td>Place</td>
-                    <td>Swimmer</td>
-                    <td>Club</td>
-                    <td>Time</td>
-                    <td>Lane</td>
-                </tr>
-               <tr th:each="swimmer : ${scoreboard.swimmers}">
-                   <td width="10%" th:text="${swimmer.place}">x</td>
-                   <td width="30%" th:text="${swimmer.name}">x</td>
-                   <td width="20%" th:text="${swimmer.club}">x</td>
-                   <td width="30%" th:text="${swimmer.time}">x</td>
-                   <td width="10%" th:text="${swimmer.lane}">x</td>
-                </tr>
-            </table>
-        </body>
-    </div>
+    <body>
+        <div ng-controller="Scoreboard" style="color:white;font-size:500%;">
+            <div ng-if="scoreboard.swimmers.length == 0">
+                <p style="background-color:blue;" align="center">{{scoreboard.clock}}</p>
+            </div>
+            <div ng-if="scoreboard.swimmers.length != 0 && !scoreboard.result">
+                <table style="background-color:blue;">
+                    <tr>
+                        <td colspan="4">{{scoreboard.title+"&nbsp;&nbsp;&nbsp;"+scoreboard.subTitle}}</td>
+                        <td>{{scoreboard.clock}}</td>
+                    </tr>
+                    <tr/>
+                    <tr ng-repeat="swimmer in scoreboard.swimmers">
+                        <td width="10%">{{swimmer.lane }}</td>
+                        <td width="35%">{{swimmer.name}}</td>
+                        <td width="20%">{{swimmer.club}}</td>
+                        <td width="25%">{{swimmer.time}}</td>
+                        <td width="10%">{{swimmer.place}}</td>
+                    </tr>
+                </table>
+            </div>
+            <div ng-if="scoreboard.swimmers.length != 0 && scoreboard.result">
+                <table style="background-color:green;">
+                    <tr>
+                        <td colspan="4">{{scoreboard.title+"&nbsp;&nbsp;&nbsp;"+scoreboard.subTitle}}</td>
+                        <td>{{scoreboard.clock}}</td>
+                    </tr>
+                    <tr/>
+                    <tr ng-repeat="swimmer in scoreboard.swimmers">
+                        <td width="10%">{{swimmer.place}}</td>
+                        <td width="35%">{{swimmer.name}}</td>
+                        <td width="20%">{{swimmer.club}}</td>
+                        <td width="25%">{{swimmer.time}}</td>
+                        <td width="10%">{{swimmer.lane }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </body>
 </html>

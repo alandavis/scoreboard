@@ -64,6 +64,9 @@ public class DataReader
     private String dummyFilename;
 
     @Autowired
+    private Boolean testLoop;
+
+    @Autowired
     private Boolean trace;
 
     private int prevByte;
@@ -103,29 +106,32 @@ public class DataReader
             {
                 if (dummyFilename != null && !dummyFilename.isEmpty())
                 {
-                    try
-                    {
-                        inputStream = new DummyInputStream(dummyFilename);
-                        readInputStream();
-                    }
-                    catch (InterruptedException ignore)
-                    {
-                    }
-                    catch (FileNotFoundException e)
-                    {
-                        System.err.println("The test file " + dummyFilename + " could not be found.");
-                    }
-                    finally
+                    do
                     {
                         try
                         {
-                            inputStream.close();
+                            inputStream = new DummyInputStream(dummyFilename);
+                            readInputStream();
                         }
-                        catch (IOException ignore)
+                        catch (InterruptedException ignore)
                         {
                         }
-                        System.exit(0);
-                    }
+                        catch (FileNotFoundException e)
+                        {
+                            System.err.println("The test file " + dummyFilename + " could not be found.");
+                        }
+                        finally
+                        {
+                            try
+                            {
+                                inputStream.close();
+                            }
+                            catch (IOException ignore)
+                            {
+                            }
+                        }
+                    } while (testLoop);
+                    System.exit(0);
                 }
                 else
                 {

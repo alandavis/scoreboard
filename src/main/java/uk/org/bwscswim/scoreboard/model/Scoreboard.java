@@ -46,6 +46,7 @@ public class Scoreboard
         title = "";
         subTitle = "";
         clock = "";
+        result = false;
         swimmers = new ArrayList<>();
     }
 
