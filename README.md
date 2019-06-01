@@ -1,6 +1,7 @@
+# This version has been mothballed in favor of a Java Application version.
+
 ### BWSC Scoreboard
 BWSC Scoreboard is a Spring Boot application using [jSerialComm](http://fazecast.github.io/jSerialComm/) for connectivity to the SWISS TIMING equipment used by the [BWSC](https://www.bwscswim.org.uk/).
-
 
 ### Building and testing
 The project can be built and tested by running Maven command:
