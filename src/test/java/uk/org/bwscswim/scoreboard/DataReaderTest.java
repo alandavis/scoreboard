@@ -292,14 +292,16 @@ public class DataReaderTest
 
     private DataReader dataReader = new DataReader();
     private Scoreboard scoreboard = new Scoreboard();
+    private Args args = new Args();
     private InputStream inputStream;
 
     @Before
     public void before()
     {
         MockitoAnnotations.initMocks(this);
-        dataReader.setTrace(false);
         dataReader.setScoreboard(scoreboard);
+        dataReader.setArgs(args);
+        args.setTrace(false);
     }
 
     @After
@@ -410,10 +412,10 @@ public class DataReaderTest
     {
         inputStream = new DummyInputStream(
                 RESET +
-                NEW_EVENT +
-                TIMER_ZEROED +
-                TIMER_STARTED +
-                SPLIT_1, false);
+                        NEW_EVENT +
+                        TIMER_ZEROED +
+                        TIMER_STARTED +
+                        SPLIT_1, false);
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
@@ -424,6 +426,27 @@ public class DataReaderTest
                 "Swimmer{name='James Jones', club='AMES', lane='4', place='', time=''}, " +
                 "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='', time=''}, " +
                 "Swimmer{name='Millie sab', club='', lane='6', place='1st', time='9.06'}]}", scoreboard.toString());
+    }
+
+    @Test
+    public void testBadSplit() throws InterruptedException
+    {
+        inputStream = new DummyInputStream(
+                NEW_EVENT +
+                        TIMER_ZEROED +
+                        TIMER_STARTED +
+                "060 [16]00000000[01]0040100700[02]too short[04]F9[17]\n",
+                false);
+
+        dataReader.setInputStream(inputStream);
+        dataReader.readInputStream();
+        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='9.0', swimmers=[" +
+                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='', time=''}, " +
+                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
+                "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
+                "Swimmer{name='James Jones', club='AMES', lane='4', place='', time=''}, " +
+                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='', time=''}, " +
+                "Swimmer{name='Millie sab', club='', lane='6', place='', time=''}]}", scoreboard.toString());  // place and time not set
     }
 
     @Test

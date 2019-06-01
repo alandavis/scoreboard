@@ -22,14 +22,6 @@
  */
 package uk.org.bwscswim.scoreboard;
 
-import java.io.EOFException;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StreamCorruptedException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fazecast.jSerialComm.SerialPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +30,13 @@ import org.springframework.stereotype.Component;
 import uk.org.bwscswim.scoreboard.model.Scoreboard;
 
 import javax.annotation.PostConstruct;
+import java.io.EOFException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StreamCorruptedException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class DataReader
@@ -58,16 +57,7 @@ public class DataReader
     private Scoreboard scoreboard;
 
     @Autowired
-    private SerialPort port;
-
-    @Autowired
-    private String dummyFilename;
-
-    @Autowired
-    private Boolean testLoop;
-
-    @Autowired
-    private Boolean trace;
+    private Args args;
 
     private int prevByte;
 
@@ -78,9 +68,9 @@ public class DataReader
         this.scoreboard = scoreboard;
     }
 
-    void setTrace(boolean trace)
+    public void setArgs(Args args)
     {
-        this.trace = trace;
+        this.args = args;
     }
 
     void setInputStream(InputStream inputStream)
@@ -104,13 +94,14 @@ public class DataReader
         {
             public void run()
             {
-                if (dummyFilename != null && !dummyFilename.isEmpty())
+                String testFilename = args.getTestFilename();
+                if (testFilename != null && !testFilename.isEmpty())
                 {
                     do
                     {
                         try
                         {
-                            inputStream = new DummyInputStream(dummyFilename);
+                            inputStream = new DummyInputStream(testFilename);
                             readInputStream();
                         }
                         catch (InterruptedException ignore)
@@ -118,7 +109,7 @@ public class DataReader
                         }
                         catch (FileNotFoundException e)
                         {
-                            System.err.println("The test file " + dummyFilename + " could not be found.");
+                            System.err.println("The test file " + testFilename + " could not be found.");
                         }
                         finally
                         {
@@ -130,7 +121,7 @@ public class DataReader
                             {
                             }
                         }
-                    } while (testLoop);
+                    } while (args.isTestLoop());
                     System.exit(0);
                 }
                 else
@@ -140,6 +131,7 @@ public class DataReader
                     {
                         try
                         {
+                            SerialPort port = args.getPort();
                             if (port.openPort())
                             {
                                 try
@@ -242,7 +234,7 @@ public class DataReader
             throw new EOFException("Unexpected end of data from timing equipment");
         }
 
-        if (trace)
+        if (args.isTrace())
         {
             if (b == SOL)
             {
@@ -337,8 +329,9 @@ public class DataReader
             String data = fields[2];
             if (control.startsWith(CONTROL_SUFFIX))
             {
+                int position = parseInt(control, CONTROL_SUFFIX.length(), 4);
                 int lineNumber = parseInt(control, CONTROL_SUFFIX.length(), 2);
-                if (lineNumber < 2 || lineNumber == 11)
+                if (position == 230 || lineNumber < 2 || lineNumber == 11)
                 {
                     data = data.trim();
                     if (lineNumber == 0)
@@ -356,26 +349,32 @@ public class DataReader
                 }
                 else
                 {
-                    if (data.length() != 37)
+                    int f0 = args.getF0();
+                    int f1 = args.getF1();
+                    int f2 = args.getF2();
+                    int f3 = args.getF3();
+                    int f4 = args.getF4();
+
+                    if (data.length() < f4)
                     {
-                        throw new StreamCorruptedException("Expected data to be 36 characters long. "+format(data));
+                        throw new StreamCorruptedException("Expected data to be at lease "+(f4+1)+ " characters long. "+format(data));
                     }
 
                     boolean result = false;
-                    int p = 34;
-                    int l = 0;
+                    int p = f4;
+                    int l = f0;
                     if (data.charAt(0) == 'P')
                     {
                         result = true;
-                        p = 0;
-                        l = 34;
+                        p = f0;
+                        l = f4;
                         data = data.substring(1);
                     }
-                    int lane = parseInt(data, l, 2);
-                    int place = parseInt(data, p, 2);
-                    String name = data.substring(3, 16).trim();
-                    String club = data.substring(20, 24).trim();
-                    String time = data.substring(25, 33).trim();
+                    int lane = parseInt(data, l, (f1-f0-1));
+                    String name = data.substring(f1, f2).trim();
+                    String club = data.substring(f2, f3).trim();
+                    String time = data.substring(f3, f4).trim();
+                    int place = parseInt(data, p, (f1-f0-1));
 
                     scoreboard.setResult(result);
                     scoreboard.setLaneValues(lineNumber-2, lane, place, name, club, time);
