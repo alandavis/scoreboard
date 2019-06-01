@@ -36,7 +36,6 @@ import static org.junit.Assert.assertEquals;
 
 public class DataReaderTest
 {
-
     public static final String RESET =
                 "[16]00000000[01]008010000002048000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000[04]4c[17]\n"; // Opens a new race
     public static final String NEW_EVENT =
@@ -290,18 +289,17 @@ public class DataReaderTest
                 "[16]00000000[01]0040100600[02]P5  Rob Moore        BRKS    22.42 5 [04]9B[17]\n" +
                 "[16]00000000[01]0040100700[02]P6  Millie sab               23.24 6 [04]3A[17]\n";
 
-    private DataReader dataReader = new DataReader();
-    private Scoreboard scoreboard = new Scoreboard();
-    private Args args = new Args();
+    private Config config = new Config(null);
+    private Scoreboard scoreboard = new Scoreboard(config);
+    private StandardDisplay display = new StandardDisplay(config);
+    private DataReader dataReader = new DataReader(config, scoreboard, display);
     private InputStream inputStream;
 
     @Before
     public void before()
     {
         MockitoAnnotations.initMocks(this);
-        dataReader.setScoreboard(scoreboard);
-        dataReader.setArgs(args);
-        args.setTrace(false);
+        config.setTrace(false);
     }
 
     @After

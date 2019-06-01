@@ -22,72 +22,128 @@
  */
 package uk.org.bwscswim.scoreboard.model;
 
-import org.springframework.stereotype.Component;
+import uk.org.bwscswim.scoreboard.Config;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
-public class Scoreboard
+public class Scoreboard extends javax.swing.JFrame
 {
-    private String title;
-    private String subTitle;
-    private boolean result;
-    private String clock;
+    private JLabel title = new JLabel();
+    private JLabel subTitle = new JLabel();
+    private JLabel clock  = new JLabel();
     private List<Swimmer> swimmers;
+    private boolean result;
+    private final Config config;
 
-    public Scoreboard()
+    public Scoreboard(Config config)
     {
-        reset();
+        this.config = config;
+        Container contentPane = getContentPane();
+        JPanel line1 = new JPanel();
+        JPanel lanes = new JPanel();
+
+        contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+//        contentPane.setBackground(config.getBackground());
+        contentPane.add(title);
+        contentPane.add(line1);
+        contentPane.add(lanes);
+
+        line1.setLayout(new BoxLayout(line1, BoxLayout.X_AXIS));
+        line1.add(subTitle);
+        line1.add(clock);
+
+//        int lineCount = config.getLineCount();
+//        lines = new ArrayList<>(lineCount);
+//        for (int lineNumber=0; lineNumber<lineCount; lineNumber++)
+//        {
+//            JLabel line = new JLabel();
+//            line.setForeground(config.getForeground(lineNumber));
+//            line.setBackground(config.getBackground(lineNumber));
+//            line.setFont(config.getFont(lineNumber));
+//
+//            int lineLength = config.getLineLength(lineNumber);
+//            lineLengths.add(lineLength);
+//            lines.add(line);
+//
+//            if (config.isLineVisible(lineNumber))
+//            {
+//                contentPane.add(line);
+//            }
+//
+//            setText(lineNumber, lineLength-1, " ");
+//        }
+
+        exitOnEscapeOrEnter();
+        pack();
+    }
+
+    private void exitOnEscapeOrEnter()
+    {
+        setFocusable(true);
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e)
+            {
+                char c = e.getKeyChar();
+                if (c == '\n' || c == 27)
+                {
+                    System.exit(0);
+                }
+                super.keyTyped(e);
+            }
+        });
+    }
+
+    public void makeFrameFullSize()
+    {
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        if (gd.isFullScreenSupported())
+        {
+            gd.setFullScreenWindow(this);
+        }
+        else
+        {
+            System.err.println("Full screen not supported by defaultScreenDevice.");
+        }
     }
 
     public void reset()
     {
-        title = "";
-        subTitle = "";
-        clock = "";
-        result = false;
+        setResult(false);
+        setTitle("");
+        setSubTitle("");
+        setClock("");
         swimmers = new ArrayList<>();
-    }
-
-    public String getTitle()
-    {
-        return title;
     }
 
     public void setTitle(String title)
     {
-        this.title = title;
-    }
-
-    public String getSubTitle()
-    {
-        return subTitle;
+        this.title.setText(title);
+        setVisible(true);
     }
 
     public void setSubTitle(String subTitle)
     {
-        this.subTitle = subTitle;
-    }
-
-    public String getClock()
-    {
-        return clock;
+        this.subTitle.setText(subTitle);
+        setVisible(true);
     }
 
     public void setClock(String clock)
     {
-        this.clock = clock;
-    }
-
-    public boolean isResult()
-    {
-        return result;
+        this.clock.setText(clock);
+        setVisible(true);
     }
 
     public void setResult(boolean result)
     {
         this.result = result;
+        Container contentPane = getContentPane();
+//        contentPane.setBackground(config.);
     }
 
     public List<Swimmer> getSwimmers()
@@ -129,5 +185,14 @@ public class Scoreboard
                 ", clock='" + clock + '\'' +
                 ", swimmers=" + swimmers +
                 '}';
+    }
+
+    @Override
+    public void setVisible(boolean visible)
+    {
+        if (config.isScoreboardVisible())
+        {
+            super.setVisible(visible);
+        }
     }
 }

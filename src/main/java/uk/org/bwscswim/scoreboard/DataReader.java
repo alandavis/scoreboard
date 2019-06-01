@@ -23,13 +23,9 @@
 package uk.org.bwscswim.scoreboard;
 
 import com.fazecast.jSerialComm.SerialPort;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.apache.log4j.Logger;
 import uk.org.bwscswim.scoreboard.model.Scoreboard;
 
-import javax.annotation.PostConstruct;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,10 +34,9 @@ import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
 public class DataReader
 {
-    private static final Logger logger = LoggerFactory.getLogger(DataReader.class);
+    private static final Logger logger = Logger.getLogger(DataReader.class);
 
     private static final int SOL = 0x16; // Start of transmission
     private static final int SOH = 0x01; // Separator 1
@@ -53,24 +48,19 @@ public class DataReader
     private static final String CONTROL_SUFFIX = "004010";
     private static final int CONTROL_SUFFIX_LENGTH = CONTROL_SUFFIX.length();
 
-    @Autowired
-    private Scoreboard scoreboard;
-
-    @Autowired
-    private Args args;
+    private final Scoreboard scoreboard;
+    private final StandardDisplay display;
+    private final Config config;
 
     private int prevByte;
 
     private InputStream inputStream;
 
-    void setScoreboard(Scoreboard scoreboard)
+    public DataReader(Config config, Scoreboard scoreboard, StandardDisplay display)
     {
+        this.config = config;
         this.scoreboard = scoreboard;
-    }
-
-    public void setArgs(Args args)
-    {
-        this.args = args;
+        this.display = display;
     }
 
     void setInputStream(InputStream inputStream)
@@ -78,7 +68,6 @@ public class DataReader
         this.inputStream = inputStream;
     }
 
-    @PostConstruct
     public void readDataInBackground()
     {
         if (logger.isInfoEnabled())
@@ -94,7 +83,7 @@ public class DataReader
         {
             public void run()
             {
-                String testFilename = args.getTestFilename();
+                String testFilename = config.getTestFilename();
                 if (testFilename != null && !testFilename.isEmpty())
                 {
                     do
@@ -121,7 +110,7 @@ public class DataReader
                             {
                             }
                         }
-                    } while (args.isTestLoop());
+                    } while (config.isTestLoop());
                     System.exit(0);
                 }
                 else
@@ -131,7 +120,7 @@ public class DataReader
                     {
                         try
                         {
-                            SerialPort port = args.getPort();
+                            SerialPort port = config.getPort();
                             if (port.openPort())
                             {
                                 try
@@ -234,7 +223,7 @@ public class DataReader
             throw new EOFException("Unexpected end of data from timing equipment");
         }
 
-        if (args.isTrace())
+        if (config.isTrace())
         {
             if (b == SOL)
             {
@@ -322,6 +311,7 @@ public class DataReader
         if (fields.length == 3)
         {
             scoreboard.reset();
+            display.clear();
         }
         else if (fields.length == 4)
         {
@@ -330,30 +320,34 @@ public class DataReader
             if (control.startsWith(CONTROL_SUFFIX))
             {
                 int position = parseInt(control, CONTROL_SUFFIX.length(), 4);
-                int lineNumber = parseInt(control, CONTROL_SUFFIX.length(), 2);
+                int lineNumber = position / 100;
+                int offset = position % 100;
+                display.setText(lineNumber, offset, data);
+
                 if (position == 230 || lineNumber < 2 || lineNumber == 11)
                 {
+                    int l = lineNumber == 11 ? 0 : lineNumber;
                     data = data.trim();
                     if (lineNumber == 0)
                     {
-                        scoreboard.setTitle(data.trim());
+                        scoreboard.setTitle(data);
                     }
                     else if (lineNumber == 1)
                     {
-                        scoreboard.setSubTitle(data.trim());
+                        scoreboard.setSubTitle(data);
                     }
                     else
                     {
-                        scoreboard.setClock(data.trim());
+                        scoreboard.setClock(data);
                     }
                 }
                 else
                 {
-                    int f0 = args.getF0();
-                    int f1 = args.getF1();
-                    int f2 = args.getF2();
-                    int f3 = args.getF3();
-                    int f4 = args.getF4();
+                    int f0 = config.getF0();
+                    int f1 = config.getF1();
+                    int f2 = config.getF2();
+                    int f3 = config.getF3();
+                    int f4 = config.getF4();
 
                     if (data.length() < f4)
                     {
