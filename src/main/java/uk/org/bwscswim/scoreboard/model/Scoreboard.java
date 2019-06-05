@@ -36,7 +36,7 @@ public class Scoreboard extends javax.swing.JFrame
     private JLabel title = new JLabel();
     private JLabel subTitle = new JLabel();
     private JLabel clock  = new JLabel();
-    private List<Swimmer> swimmers;
+    private List<Swimmer> swimmers = new ArrayList<>();
     private boolean result;
     private final Config config;
 
@@ -118,7 +118,7 @@ public class Scoreboard extends javax.swing.JFrame
         setTitle("");
         setSubTitle("");
         setClock("");
-        swimmers = new ArrayList<>();
+        swimmers.clear();
     }
 
     public void setTitle(String title)
@@ -179,10 +179,10 @@ public class Scoreboard extends javax.swing.JFrame
     public String toString()
     {
         return "Scoreboard{" +
-                "title='" + title + '\'' +
-                ", subTitle='" + subTitle + '\'' +
+                "title='" + title.getText() + '\'' +
+                ", subTitle='" + subTitle.getText() + '\'' +
                 ", result=" + result +
-                ", clock='" + clock + '\'' +
+                ", clock='" + clock.getText() + '\'' +
                 ", swimmers=" + swimmers +
                 '}';
     }

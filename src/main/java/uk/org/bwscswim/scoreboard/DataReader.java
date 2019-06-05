@@ -53,8 +53,8 @@ public class DataReader
     private final Config config;
 
     private int prevByte;
-
     private InputStream inputStream;
+    private boolean trace = true;
 
     public DataReader(Config config, Scoreboard scoreboard, StandardDisplay display)
     {
@@ -66,6 +66,11 @@ public class DataReader
     void setInputStream(InputStream inputStream)
     {
         this.inputStream = inputStream;
+    }
+
+    public void setTrace(boolean trace)
+    {
+        this.trace = trace;
     }
 
     public void readDataInBackground()
@@ -110,7 +115,7 @@ public class DataReader
                             {
                             }
                         }
-                    } while (config.isTestLoop());
+                    } while (config.isTestLoop() && !trace);
                     System.exit(0);
                 }
                 else
@@ -223,7 +228,7 @@ public class DataReader
             throw new EOFException("Unexpected end of data from timing equipment");
         }
 
-        if (config.isTrace())
+        if (trace)
         {
             if (b == SOL)
             {
@@ -321,8 +326,6 @@ public class DataReader
             {
                 int position = parseInt(control, CONTROL_SUFFIX.length(), 4);
                 int lineNumber = position / 100;
-                int offset = position % 100;
-                display.setText(lineNumber, offset, data);
 
                 if (position == 230 || lineNumber < 2 || lineNumber == 11)
                 {
@@ -370,9 +373,13 @@ public class DataReader
                     String time = data.substring(f3, f4).trim();
                     int place = parseInt(data, p, (f1-f0-1));
 
+                    display.setResult(result);
                     scoreboard.setResult(result);
                     scoreboard.setLaneValues(lineNumber-2, lane, place, name, club, time);
                 }
+
+                int offset = position % 100;
+                display.setText(lineNumber, offset, data);
             }
         }
     }

@@ -299,7 +299,7 @@ public class DataReaderTest
     public void before()
     {
         MockitoAnnotations.initMocks(this);
-        config.setTrace(false);
+        dataReader.setTrace(false);
     }
 
     @After

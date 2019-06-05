@@ -11,7 +11,6 @@ import java.util.Properties;
 public class Config
 {
     private final Properties properties;
-    private Boolean trace;
 
     Config(String configFilename)
     {
@@ -214,23 +213,9 @@ public class Config
         return getString("testFilename", null);
     }
 
-    public void setTrace(boolean trace)
-    {
-        this.trace = trace;
-    }
-
     public boolean isTestLoop()
     {
-        if (trace == null)
-        {
-            trace = getBoolean("testLoop", false);
-        }
-        return trace;
-    }
-
-    public boolean isTrace()
-    {
-        return getBoolean("trace", false);
+        return getBoolean("testLoop", false);
     }
 
     public int getF0()

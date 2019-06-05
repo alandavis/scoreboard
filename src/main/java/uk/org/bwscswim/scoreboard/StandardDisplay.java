@@ -9,6 +9,7 @@ import java.util.List;
 
 public class StandardDisplay extends javax.swing.JFrame
 {
+    private boolean result;
     private List<JLabel> lines = new ArrayList<>();
     private List<Integer> lineLengths = new ArrayList<>();
     private final Config config;
@@ -39,9 +40,8 @@ public class StandardDisplay extends javax.swing.JFrame
             if (config.isLineVisible(lineNumber))
             {
                 contentPane.add(line);
+                setText(lineNumber, lineLength-1, " ");
             }
-
-            setText(lineNumber, lineLength-1, " ");
         }
 
 //        GraphicsEnvironment g = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -129,6 +129,11 @@ public class StandardDisplay extends javax.swing.JFrame
             line.setText(" ");
         }
         setVisible(true);
+    }
+
+    public void setResult(boolean result)
+    {
+        this.result = result;
     }
 
     public void setText(int line, String text)
