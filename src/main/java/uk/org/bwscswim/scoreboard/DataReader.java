@@ -315,7 +315,7 @@ public class DataReader
     {
         if (fields.length == 3)
         {
-            scoreboard.reset();
+            scoreboard.clear();
             display.clear();
         }
         else if (fields.length == 4)

@@ -112,7 +112,7 @@ public class Scoreboard extends javax.swing.JFrame
         }
     }
 
-    public void reset()
+    public void clear()
     {
         setResult(false);
         setTitle("");
