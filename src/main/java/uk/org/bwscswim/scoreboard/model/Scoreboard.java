@@ -33,7 +33,7 @@ import java.util.List;
 
 public class Scoreboard extends javax.swing.JFrame
 {
-    class Swimmer extends JPanel
+    class Swimmer
     {
         private JLabel lane = new JLabel();
         private JLabel name = new JLabel();
@@ -45,6 +45,7 @@ public class Scoreboard extends javax.swing.JFrame
     private JLabel title = new JLabel();
     private JLabel subTitle = new JLabel();
     private JLabel clock  = new JLabel();
+    private JPanel lanes = new JPanel();
     JPanel subTitleAndClock = new JPanel();
     private List<Swimmer> swimmers = new ArrayList<>();
     private boolean result;
@@ -55,13 +56,28 @@ public class Scoreboard extends javax.swing.JFrame
         this.config = config;
         Container contentPane = getContentPane();
 
-        subTitleAndClock.setLayout(new BoxLayout(subTitleAndClock, BoxLayout.X_AXIS));
-        subTitleAndClock.add(subTitle);
-        subTitleAndClock.add(clock);
+        {
+            GroupLayout layout = new GroupLayout(contentPane);
+            contentPane.setLayout(layout);
 
-        contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-        contentPane.add(title);
-        contentPane.add(subTitleAndClock);
+            layout.setAutoCreateGaps(true);
+            layout.setAutoCreateContainerGaps(true);
+
+            layout.setHorizontalGroup(
+                    layout.createParallelGroup()
+                            .addComponent(title)
+                            .addGroup(layout.createSequentialGroup()
+                                    .addComponent(subTitle)
+                                    .addComponent(clock))
+                            .addComponent(lanes));
+            layout.setVerticalGroup(
+                    layout.createSequentialGroup()
+                            .addComponent(title)
+                            .addGroup(layout.createParallelGroup()
+                                    .addComponent(subTitle)
+                                    .addComponent(clock))
+                            .addComponent(lanes));
+        }
 
         title.setFont(config.getFont("title"));
         subTitle.setFont(config.getFont("subTitle"));
@@ -71,30 +87,63 @@ public class Scoreboard extends javax.swing.JFrame
         subTitle.setText(config.getTest("SubTitle"));
         clock.setText(config.getTest("Clock"));
 
-        int laneCount = config.getLaneCount();
-        for (int lane=0; lane<laneCount; lane++)
         {
-            Swimmer swimmer = new Swimmer();
-            swimmer.add(swimmer.lane);
-            swimmer.add(swimmer.name);
-            swimmer.add(swimmer.club);
-            swimmer.add(swimmer.time);
-            swimmer.add(swimmer.place);
+            GroupLayout layout = new GroupLayout(lanes);
+            lanes.setLayout(layout);
 
-            swimmers.add(swimmer);
-            contentPane.add(swimmer);
+            layout.setAutoCreateGaps(true);
+            layout.setAutoCreateContainerGaps(true);
 
-            swimmer.lane.setFont(config.getFont("lane"));
-            swimmer.name.setFont(config.getFont("name"));
-            swimmer.club.setFont(config.getFont("club"));
-            swimmer.time.setFont(config.getFont("time"));
-            swimmer.place.setFont(config.getFont("place"));
+            GroupLayout.SequentialGroup row = layout.createSequentialGroup();
 
-            swimmer.lane.setText(config.getTest("Lane"));
-            swimmer.name.setText(config.getTest("Name"));
-            swimmer.club.setText(config.getTest("Club"));
-            swimmer.time.setText(config.getTest("Time"));
-            swimmer.place.setText(config.getTest("Place"));
+            GroupLayout.ParallelGroup lanes = layout.createParallelGroup();
+            GroupLayout.ParallelGroup names = layout.createParallelGroup();
+            GroupLayout.ParallelGroup clubs = layout.createParallelGroup();
+            GroupLayout.ParallelGroup times = layout.createParallelGroup();
+            GroupLayout.ParallelGroup places = layout.createParallelGroup();
+
+            layout.setHorizontalGroup(
+                    layout.createSequentialGroup()
+                            .addGroup(lanes)
+                            .addGroup(names)
+                            .addGroup(clubs)
+                            .addGroup(times)
+                            .addGroup(places));
+
+            GroupLayout.SequentialGroup rows = layout.createSequentialGroup();
+            layout.setVerticalGroup(rows);
+
+            int laneCount = config.getLaneCount();
+            for (int lane=0; lane<laneCount; lane++)
+            {
+                Swimmer swimmer = new Swimmer();
+                swimmers.add(swimmer);
+
+                rows.addGroup(layout.createParallelGroup()
+                        .addComponent(swimmer.lane)
+                        .addComponent(swimmer.name)
+                        .addComponent(swimmer.club)
+                        .addComponent(swimmer.time)
+                        .addComponent(swimmer.place));
+
+                lanes.addComponent(swimmer.lane);
+                names.addComponent(swimmer.name);
+                clubs.addComponent(swimmer.club);
+                times.addComponent(swimmer.time);
+                places.addComponent(swimmer.place);
+
+                swimmer.lane.setFont(config.getFont("lane"));
+                swimmer.name.setFont(config.getFont("name"));
+                swimmer.club.setFont(config.getFont("club"));
+                swimmer.time.setFont(config.getFont("time"));
+                swimmer.place.setFont(config.getFont("place"));
+
+                swimmer.lane.setText(config.getTest("Lane"));
+                swimmer.name.setText(config.getTest("Name"));
+                swimmer.club.setText(config.getTest("Club"));
+                swimmer.time.setText(config.getTest("Time"));
+                swimmer.place.setText(config.getTest("Place"));
+            }
         }
         setColors();
 
@@ -119,7 +168,6 @@ public class Scoreboard extends javax.swing.JFrame
 
         for (Swimmer swimmer : swimmers)
         {
-            swimmer.setBackground(config.getBackground(result));
             swimmer.lane.setForeground(config.getForeground("lane", result));
             swimmer.lane.setBackground(config.getBackground("lane", result));
 
@@ -152,19 +200,6 @@ public class Scoreboard extends javax.swing.JFrame
                 super.keyTyped(e);
             }
         });
-    }
-
-    public void makeFrameFullSize()
-    {
-        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        if (gd.isFullScreenSupported())
-        {
-            gd.setFullScreenWindow(this);
-        }
-        else
-        {
-            System.err.println("Full screen not supported by defaultScreenDevice.");
-        }
     }
 
     public void clear()
@@ -221,9 +256,25 @@ public class Scoreboard extends javax.swing.JFrame
     @Override
     public void setVisible(boolean visible)
     {
-        if (config.isScoreboardVisible())
+        if (!config.isRawDisplayVisible())
         {
             super.setVisible(visible);
+        }
+    }
+
+    public void makeFrameFullSize()
+    {
+        if (!config.isRawDisplayVisible())
+        {
+            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            if (gd.isFullScreenSupported())
+            {
+                gd.setFullScreenWindow(this);
+            }
+            else
+            {
+                System.err.println("Full screen not supported by defaultScreenDevice.");
+            }
         }
     }
 }

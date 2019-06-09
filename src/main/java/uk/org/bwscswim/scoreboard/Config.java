@@ -79,18 +79,10 @@ public class Config
         return getBoolean("rawDisplayVisible", false);
     }
 
-    public boolean isScoreboardVisible()
-    {
-        return getBoolean("scoreboardVisible", true);
-    }
-
-
     public boolean isFullScreen()
     {
         return getBoolean("fullScreen", true);
     }
-
-
 
     public String getTest(String name)
     {

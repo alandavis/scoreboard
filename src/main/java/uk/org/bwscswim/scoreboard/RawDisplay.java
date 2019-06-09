@@ -119,19 +119,6 @@ public class RawDisplay extends javax.swing.JFrame
         });
     }
 
-    public void makeFrameFullSize()
-    {
-        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        if (gd.isFullScreenSupported())
-        {
-            gd.setFullScreenWindow(this);
-        }
-        else
-        {
-            System.err.println("Full screen not supported by defaultScreenDevice.");
-        }
-    }
-
     public void clear()
     {
         int i = 0;
@@ -181,6 +168,22 @@ public class RawDisplay extends javax.swing.JFrame
         if (config.isRawDisplayVisible())
         {
             super.setVisible(visible);
+        }
+    }
+
+    public void makeFrameFullSize()
+    {
+        if (config.isRawDisplayVisible())
+        {
+            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            if (gd.isFullScreenSupported())
+            {
+                gd.setFullScreenWindow(this);
+            }
+            else
+            {
+                System.err.println("Full screen not supported by defaultScreenDevice.");
+            }
         }
     }
 }

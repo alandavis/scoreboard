@@ -17,8 +17,9 @@ public class Application
                 if (config.isFullScreen())
                 {
                     rawDisplay.makeFrameFullSize();
+                    scoreboard.makeFrameFullSize();
                 }
-                scoreboard.setVisible(true);
+//                scoreboard.setVisible(true);
                 dataReader.readDataInBackground();
             }
             catch (Exception e)
