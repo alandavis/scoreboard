@@ -19,7 +19,11 @@ public class Application
                     rawDisplay.makeFrameFullSize();
                     scoreboard.makeFrameFullSize();
                 }
-//                scoreboard.setVisible(true);
+                else
+                {
+                    rawDisplay.setVisible(true);
+                    scoreboard.setVisible(true);
+                }
                 dataReader.readDataInBackground();
             }
             catch (Exception e)

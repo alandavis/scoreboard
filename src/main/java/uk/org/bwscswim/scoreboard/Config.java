@@ -89,6 +89,16 @@ public class Config
         return getString("test"+name, "unknown");
     }
 
+    public int getHorizontalGap()
+    {
+        return getInt("horizontalGap", 40);
+    }
+
+    public int getPreLaneGap()
+    {
+        return getInt("preLaneGap", 80);
+    }
+
     // Font
 
     public Font getFont(String name)

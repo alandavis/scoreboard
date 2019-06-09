@@ -45,8 +45,6 @@ public class Scoreboard extends javax.swing.JFrame
     private JLabel title = new JLabel();
     private JLabel subTitle = new JLabel();
     private JLabel clock  = new JLabel();
-    private JPanel lanes = new JPanel();
-    JPanel subTitleAndClock = new JPanel();
     private List<Swimmer> swimmers = new ArrayList<>();
     private boolean result;
     private final Config config;
@@ -56,28 +54,47 @@ public class Scoreboard extends javax.swing.JFrame
         this.config = config;
         Container contentPane = getContentPane();
 
-        {
-            GroupLayout layout = new GroupLayout(contentPane);
-            contentPane.setLayout(layout);
+        GroupLayout layout = new GroupLayout(contentPane);
+        contentPane.setLayout(layout);
 
-            layout.setAutoCreateGaps(true);
-            layout.setAutoCreateContainerGaps(true);
+//        layout.setAutoCreateGaps(true);
+//        layout.setAutoCreateContainerGaps(true);
 
-            layout.setHorizontalGroup(
-                    layout.createParallelGroup()
-                            .addComponent(title)
-                            .addGroup(layout.createSequentialGroup()
-                                    .addComponent(subTitle)
-                                    .addComponent(clock))
-                            .addComponent(lanes));
-            layout.setVerticalGroup(
-                    layout.createSequentialGroup()
-                            .addComponent(title)
-                            .addGroup(layout.createParallelGroup()
-                                    .addComponent(subTitle)
-                                    .addComponent(clock))
-                            .addComponent(lanes));
-        }
+        GroupLayout.ParallelGroup lanes = layout.createParallelGroup();
+        GroupLayout.ParallelGroup names = layout.createParallelGroup();
+        GroupLayout.ParallelGroup clubs = layout.createParallelGroup();
+        GroupLayout.ParallelGroup times = layout.createParallelGroup();
+        GroupLayout.ParallelGroup places = layout.createParallelGroup();
+
+        GroupLayout.SequentialGroup rows = layout.createSequentialGroup();
+
+        int horizontalGap = config.getHorizontalGap();
+
+        layout.setHorizontalGroup(
+                layout.createParallelGroup()
+                        .addComponent(title)
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(subTitle)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE) // force apart
+                                .addComponent(clock))
+                        .addGroup(layout.createSequentialGroup()
+                                .addGroup(lanes)
+                                .addGap(horizontalGap)
+                                .addGroup(names)
+                                .addGap(horizontalGap)
+                                .addGroup(clubs)
+                                .addGap(horizontalGap)
+                                .addGroup(times)
+                                .addGap(horizontalGap)
+                                .addGroup(places)));
+        layout.setVerticalGroup(
+                layout.createSequentialGroup()
+                        .addComponent(title)
+                        .addGroup(layout.createParallelGroup()
+                                .addComponent(subTitle)
+                                .addComponent(clock))
+                        .addGap(config.getPreLaneGap())
+                        .addGroup(rows));
 
         title.setFont(config.getFont("title"));
         subTitle.setFont(config.getFont("subTitle"));
@@ -88,31 +105,6 @@ public class Scoreboard extends javax.swing.JFrame
         clock.setText(config.getTest("Clock"));
 
         {
-            GroupLayout layout = new GroupLayout(lanes);
-            lanes.setLayout(layout);
-
-            layout.setAutoCreateGaps(true);
-            layout.setAutoCreateContainerGaps(true);
-
-            GroupLayout.SequentialGroup row = layout.createSequentialGroup();
-
-            GroupLayout.ParallelGroup lanes = layout.createParallelGroup();
-            GroupLayout.ParallelGroup names = layout.createParallelGroup();
-            GroupLayout.ParallelGroup clubs = layout.createParallelGroup();
-            GroupLayout.ParallelGroup times = layout.createParallelGroup();
-            GroupLayout.ParallelGroup places = layout.createParallelGroup();
-
-            layout.setHorizontalGroup(
-                    layout.createSequentialGroup()
-                            .addGroup(lanes)
-                            .addGroup(names)
-                            .addGroup(clubs)
-                            .addGroup(times)
-                            .addGroup(places));
-
-            GroupLayout.SequentialGroup rows = layout.createSequentialGroup();
-            layout.setVerticalGroup(rows);
-
             int laneCount = config.getLaneCount();
             for (int lane=0; lane<laneCount; lane++)
             {
@@ -155,7 +147,6 @@ public class Scoreboard extends javax.swing.JFrame
     {
         Container contentPane = getContentPane();
         contentPane.setBackground(config.getBackground(result));
-        subTitleAndClock.setBackground(config.getBackground(result));
 
         title.setForeground(config.getForeground("title", result));
         title.setBackground(config.getBackground("title", result));
@@ -235,7 +226,11 @@ public class Scoreboard extends javax.swing.JFrame
 
     public void setResult(boolean result)
     {
-        this.result = result;
+        if (this.result != result)
+        {
+            this.result = result;
+            setColors();
+        }
     }
 
     public void setLaneValues(int line, int lane, int place, String name, String club, String time)
