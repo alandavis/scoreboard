@@ -49,14 +49,14 @@ public class DataReader
     private static final int CONTROL_SUFFIX_LENGTH = CONTROL_SUFFIX.length();
 
     private final Scoreboard scoreboard;
-    private final StandardDisplay display;
+    private final RawDisplay display;
     private final Config config;
 
     private int prevByte;
     private InputStream inputStream;
     private boolean trace = true;
 
-    public DataReader(Config config, Scoreboard scoreboard, StandardDisplay display)
+    public DataReader(Config config, Scoreboard scoreboard, RawDisplay display)
     {
         this.config = config;
         this.scoreboard = scoreboard;
@@ -115,7 +115,7 @@ public class DataReader
                             {
                             }
                         }
-                    } while (config.isTestLoop() && !trace);
+                    } while (config.isTestLoop() && trace);
                     System.exit(0);
                 }
                 else
@@ -315,6 +315,8 @@ public class DataReader
     {
         if (fields.length == 3)
         {
+            display.setResult(false);
+            scoreboard.setResult(false);
             scoreboard.clear();
             display.clear();
         }
@@ -327,7 +329,18 @@ public class DataReader
                 int position = parseInt(control, CONTROL_SUFFIX.length(), 4);
                 int lineNumber = position / 100;
 
-                if (position == 230 || lineNumber < 2 || lineNumber == 11)
+                boolean swimmerLine = position != 230 && lineNumber >= 2 && lineNumber != 11;
+                if (swimmerLine)
+                {
+                    boolean result = data.charAt(0) == 'P';
+                    display.setResult(result);
+                    scoreboard.setResult(result);
+                }
+
+                int offset = position % 100;
+                display.setText(lineNumber, offset, data);
+
+                if (!swimmerLine)
                 {
                     int l = lineNumber == 11 ? 0 : lineNumber;
                     data = data.trim();
@@ -357,12 +370,10 @@ public class DataReader
                         throw new StreamCorruptedException("Expected data to be at lease "+(f4+1)+ " characters long. "+format(data));
                     }
 
-                    boolean result = false;
                     int p = f4;
                     int l = f0;
                     if (data.charAt(0) == 'P')
                     {
-                        result = true;
                         p = f0;
                         l = f4;
                         data = data.substring(1);
@@ -373,14 +384,10 @@ public class DataReader
                     String time = data.substring(f3, f4).trim();
                     int place = parseInt(data, p, (f1-f0-1));
 
-                    display.setResult(result);
-                    scoreboard.setResult(result);
                     scoreboard.setLaneValues(lineNumber-2, lane, place, name, club, time);
                 }
-
-                int offset = position % 100;
-                display.setText(lineNumber, offset, data);
             }
         }
+        scoreboard.setVisible(true);
     }
 }

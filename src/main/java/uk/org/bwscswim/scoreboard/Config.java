@@ -51,7 +51,12 @@ public class Config
 
     public int getLineCount()
     {
-        return getInt("lineCount", 6);
+        return getInt("lineCount", 12);
+    }
+
+    public int getLaneCount()
+    {
+        return getInt("laneCount", 6);
     }
 
     public int getLineLength()
@@ -69,9 +74,9 @@ public class Config
         return getBoolean("line"+lineNumber+"Visible", true);
     }
 
-    public boolean isStandardDisplayVisible()
+    public boolean isRawDisplayVisible()
     {
-        return getBoolean("standardDisplayVisible", false);
+        return getBoolean("rawDisplayVisible", false);
     }
 
     public boolean isScoreboardVisible()
@@ -79,7 +84,30 @@ public class Config
         return getBoolean("scoreboardVisible", true);
     }
 
+
+    public boolean isFullScreen()
+    {
+        return getBoolean("fullScreen", true);
+    }
+
+
+
+    public String getTest(String name)
+    {
+        return getString("test"+name, "unknown");
+    }
+
     // Font
+
+    public Font getFont(String name)
+    {
+        return new Font(getFontName(name), getFontStyle(name), getFontSize(name));
+    }
+
+    private String getFontName(String name)
+    {
+        return getFontName(name+"Font", getDefaultFontName());
+    }
 
     public Font getFont(int lineNumber)
     {
@@ -113,6 +141,11 @@ public class Config
         return value == null ? defaultValue : value;
     }
 
+    private int getFontStyle(String name)
+    {
+        return getFontStyle(name+"FontStyle", getDefaultFontStyle());
+    }
+
     private int getFontStyle(int lineNumber)
     {
         return getFontStyle("line" + lineNumber + "FontStyle", getDefaultFontStyle());
@@ -139,6 +172,11 @@ public class Config
         return style == -1 ? defaultValue : style;
     }
 
+    private int getFontSize(String name)
+    {
+        return getInt(name+"FontSize", getDefaultFontSize());
+    }
+
     private int getFontSize(int lineNumber)
     {
         return getInt("line"+lineNumber+"FontSize", getDefaultFontSize());
@@ -151,26 +189,36 @@ public class Config
 
     // Foreground Color
 
-    private Color getForeground()
+    private Color getForeground(boolean result)
     {
-        return getColor("foreground", Color.WHITE);
+        return getColor(result ? "resultForeground" : "foreground", Color.WHITE);
     }
 
-    public Color getForeground(int lineNumber)
+    public Color getForeground(String name, boolean result)
     {
-        return getColor("line" + lineNumber + "Foreground", getForeground());
+        return getColor(name + (result ? "Result" : "") + "Foreground", getForeground(result));
+    }
+
+    public Color getForeground(int lineNumber, boolean result)
+    {
+        return getColor("line" + lineNumber + (result ? "Result" : "") + "Foreground", getForeground(result));
     }
 
     // Background Color
 
-    public Color getBackground()
+    public Color getBackground(boolean result)
     {
-        return getColor("background", Color.BLACK);
+        return getColor(result ? "resultBackground" : "background", Color.BLACK);
     }
 
-    public Color getBackground(int lineNumber)
+    public Color getBackground(String name, boolean result)
     {
-        return getColor("line" + lineNumber + "Background", getBackground());
+        return getColor(name + (result ? "Result" : "") + "Background", getBackground(result));
+    }
+
+    public Color getBackground(int lineNumber, boolean result)
+    {
+        return getColor("line" + lineNumber + (result ? "Result" : "") + "Background", getBackground(result));
     }
 
     private Color getColor(String key, Color defaultValue)
@@ -179,7 +227,7 @@ public class Config
         String value = properties.getProperty(key);
         if (value != null)
         {
-            if (value.startsWith("0x") && value.length() ==8)
+            if (value.startsWith("#") && value.length() == 7)
             {
                 int rgb = Integer.parseInt(value.substring(2), 16);
                 color = new Color(rgb);

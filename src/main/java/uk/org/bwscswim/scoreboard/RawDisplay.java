@@ -7,14 +7,14 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StandardDisplay extends javax.swing.JFrame
+public class RawDisplay extends javax.swing.JFrame
 {
     private boolean result;
     private List<JLabel> lines = new ArrayList<>();
     private List<Integer> lineLengths = new ArrayList<>();
     private final Config config;
 
-    public StandardDisplay(Config config)
+    public RawDisplay(Config config)
     {
         this.config = config;
 
@@ -22,15 +22,11 @@ public class StandardDisplay extends javax.swing.JFrame
         BoxLayout layout = new BoxLayout(contentPane, BoxLayout.Y_AXIS);
         contentPane.setLayout(layout);
 
-        contentPane.setBackground(config.getBackground());
-
         int lineCount = config.getLineCount();
         lines = new ArrayList<>(lineCount);
         for (int lineNumber=0; lineNumber<lineCount; lineNumber++)
         {
             JLabel line = new JLabel();
-            line.setForeground(config.getForeground(lineNumber));
-            line.setBackground(config.getBackground(lineNumber));
             line.setFont(config.getFont(lineNumber));
 
             int lineLength = config.getLineLength(lineNumber);
@@ -43,6 +39,7 @@ public class StandardDisplay extends javax.swing.JFrame
                 setText(lineNumber, lineLength-1, " ");
             }
         }
+        setColors();
 
 //        GraphicsEnvironment g = GraphicsEnvironment.getLocalGraphicsEnvironment();
 //        GraphicsDevice gd = g.getDefaultScreenDevice();
@@ -72,6 +69,20 @@ public class StandardDisplay extends javax.swing.JFrame
 
         exitOnEscapeOrEnter();
         pack();
+    }
+
+    private void setColors()
+    {
+        Container contentPane = getContentPane();
+        contentPane.setBackground(config.getBackground(result));
+
+        int lineCount = config.getLineCount();
+        for (int lineNumber=0; lineNumber<lineCount; lineNumber++)
+        {
+            JLabel line = lines.get(lineNumber);
+            line.setForeground(config.getForeground(lineNumber, result));
+            line.setBackground(config.getBackground(lineNumber, result));
+        }
     }
 
 //    private String getText(int lineNumber)
@@ -133,13 +144,11 @@ public class StandardDisplay extends javax.swing.JFrame
 
     public void setResult(boolean result)
     {
-        this.result = result;
-    }
-
-    public void setText(int line, String text)
-    {
-        lines.get(line).setText(text);
-        setVisible(true);
+        if (this.result != result)
+        {
+            this.result = result;
+            setColors();
+        }
     }
 
     public void setText(int lineNumber, int offset, String text)
@@ -169,7 +178,7 @@ public class StandardDisplay extends javax.swing.JFrame
     @Override
     public void setVisible(boolean visible)
     {
-        if (config.isStandardDisplayVisible())
+        if (config.isRawDisplayVisible())
         {
             super.setVisible(visible);
         }

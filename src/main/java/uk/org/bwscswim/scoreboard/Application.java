@@ -12,11 +12,13 @@ public class Application
             {
                 Config config = new Config("config.properties");
                 Scoreboard scoreboard = new Scoreboard(config);
-                StandardDisplay display = new StandardDisplay(config);
-                DataReader dataReader = new DataReader(config, scoreboard, display);
-//                display.makeFrameFullSize();
-//                display.setVisible(true);
-//                scoreboard.setVisible(true);
+                RawDisplay rawDisplay = new RawDisplay(config);
+                DataReader dataReader = new DataReader(config, scoreboard, rawDisplay);
+                if (config.isFullScreen())
+                {
+                    rawDisplay.makeFrameFullSize();
+                }
+                scoreboard.setVisible(true);
                 dataReader.readDataInBackground();
             }
             catch (Exception e)

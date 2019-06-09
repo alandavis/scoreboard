@@ -33,9 +33,19 @@ import java.util.List;
 
 public class Scoreboard extends javax.swing.JFrame
 {
+    class Swimmer extends JPanel
+    {
+        private JLabel lane = new JLabel();
+        private JLabel name = new JLabel();
+        private JLabel club = new JLabel();
+        private JLabel time = new JLabel();
+        private JLabel place = new JLabel();
+    }
+
     private JLabel title = new JLabel();
     private JLabel subTitle = new JLabel();
     private JLabel clock  = new JLabel();
+    JPanel subTitleAndClock = new JPanel();
     private List<Swimmer> swimmers = new ArrayList<>();
     private boolean result;
     private final Config config;
@@ -44,42 +54,87 @@ public class Scoreboard extends javax.swing.JFrame
     {
         this.config = config;
         Container contentPane = getContentPane();
-        JPanel line1 = new JPanel();
-        JPanel lanes = new JPanel();
+
+        subTitleAndClock.setLayout(new BoxLayout(subTitleAndClock, BoxLayout.X_AXIS));
+        subTitleAndClock.add(subTitle);
+        subTitleAndClock.add(clock);
 
         contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-//        contentPane.setBackground(config.getBackground());
         contentPane.add(title);
-        contentPane.add(line1);
-        contentPane.add(lanes);
+        contentPane.add(subTitleAndClock);
 
-        line1.setLayout(new BoxLayout(line1, BoxLayout.X_AXIS));
-        line1.add(subTitle);
-        line1.add(clock);
+        title.setFont(config.getFont("title"));
+        subTitle.setFont(config.getFont("subTitle"));
+        clock.setFont(config.getFont("clock"));
 
-//        int lineCount = config.getLineCount();
-//        lines = new ArrayList<>(lineCount);
-//        for (int lineNumber=0; lineNumber<lineCount; lineNumber++)
-//        {
-//            JLabel line = new JLabel();
-//            line.setForeground(config.getForeground(lineNumber));
-//            line.setBackground(config.getBackground(lineNumber));
-//            line.setFont(config.getFont(lineNumber));
-//
-//            int lineLength = config.getLineLength(lineNumber);
-//            lineLengths.add(lineLength);
-//            lines.add(line);
-//
-//            if (config.isLineVisible(lineNumber))
-//            {
-//                contentPane.add(line);
-//            }
-//
-//            setText(lineNumber, lineLength-1, " ");
-//        }
+        title.setText(config.getTest("Title"));
+        subTitle.setText(config.getTest("SubTitle"));
+        clock.setText(config.getTest("Clock"));
+
+        int laneCount = config.getLaneCount();
+        for (int lane=0; lane<laneCount; lane++)
+        {
+            Swimmer swimmer = new Swimmer();
+            swimmer.add(swimmer.lane);
+            swimmer.add(swimmer.name);
+            swimmer.add(swimmer.club);
+            swimmer.add(swimmer.time);
+            swimmer.add(swimmer.place);
+
+            swimmers.add(swimmer);
+            contentPane.add(swimmer);
+
+            swimmer.lane.setFont(config.getFont("lane"));
+            swimmer.name.setFont(config.getFont("name"));
+            swimmer.club.setFont(config.getFont("club"));
+            swimmer.time.setFont(config.getFont("time"));
+            swimmer.place.setFont(config.getFont("place"));
+
+            swimmer.lane.setText(config.getTest("Lane"));
+            swimmer.name.setText(config.getTest("Name"));
+            swimmer.club.setText(config.getTest("Club"));
+            swimmer.time.setText(config.getTest("Time"));
+            swimmer.place.setText(config.getTest("Place"));
+        }
+        setColors();
 
         exitOnEscapeOrEnter();
         pack();
+    }
+
+    private void setColors()
+    {
+        Container contentPane = getContentPane();
+        contentPane.setBackground(config.getBackground(result));
+        subTitleAndClock.setBackground(config.getBackground(result));
+
+        title.setForeground(config.getForeground("title", result));
+        title.setBackground(config.getBackground("title", result));
+
+        subTitle.setForeground(config.getForeground("subTitle", result));
+        subTitle.setBackground(config.getBackground("subTitle", result));
+
+        clock.setForeground(config.getForeground("clock", result));
+        clock.setBackground(config.getBackground("clock", result));
+
+        for (Swimmer swimmer : swimmers)
+        {
+            swimmer.setBackground(config.getBackground(result));
+            swimmer.lane.setForeground(config.getForeground("lane", result));
+            swimmer.lane.setBackground(config.getBackground("lane", result));
+
+            swimmer.name.setForeground(config.getForeground("name", result));
+            swimmer.name.setBackground(config.getBackground("name", result));
+
+            swimmer.club.setForeground(config.getForeground("club", result));
+            swimmer.club.setBackground(config.getBackground("club", result));
+
+            swimmer.time.setForeground(config.getForeground("time", result));
+            swimmer.time.setBackground(config.getBackground("time", result));
+
+            swimmer.place.setForeground(config.getForeground("place", result));
+            swimmer.place.setBackground(config.getBackground("place", result));
+        }
     }
 
     private void exitOnEscapeOrEnter()
@@ -118,73 +173,49 @@ public class Scoreboard extends javax.swing.JFrame
         setTitle("");
         setSubTitle("");
         setClock("");
-        swimmers.clear();
+        for (Swimmer swimmer : swimmers)
+        {
+            swimmer.lane.setText("");
+            swimmer.name.setText("");
+            swimmer.club.setText("");
+            swimmer.time.setText("");
+            swimmer.place.setText("");
+        }
     }
 
     public void setTitle(String title)
     {
         this.title.setText(title);
-        setVisible(true);
     }
 
     public void setSubTitle(String subTitle)
     {
         this.subTitle.setText(subTitle);
-        setVisible(true);
     }
 
     public void setClock(String clock)
     {
         this.clock.setText(clock);
-        setVisible(true);
     }
 
     public void setResult(boolean result)
     {
         this.result = result;
-        Container contentPane = getContentPane();
-//        contentPane.setBackground(config.);
-    }
-
-    public List<Swimmer> getSwimmers()
-    {
-        return swimmers;
     }
 
     public void setLaneValues(int line, int lane, int place, String name, String club, String time)
     {
-        while (line >= swimmers.size())
-        {
-            Swimmer scoreboardSwimmer = new Swimmer();
-            swimmers.add(scoreboardSwimmer);
-            if (result)
-            {
-                scoreboardSwimmer.setPlace(swimmers.size());
-            }
-            else
-            {
-                scoreboardSwimmer.setLane(swimmers.size());
-            }
-        }
-        Swimmer scoreboardSwimmer = swimmers.get(line);
-
-        scoreboardSwimmer.setLane(lane);
-        scoreboardSwimmer.setPlace(place);
-        scoreboardSwimmer.setName(name);
-        scoreboardSwimmer.setClub(club);
-        scoreboardSwimmer.setTime(time);
-    }
-
-    @Override
-    public String toString()
-    {
-        return "Scoreboard{" +
-                "title='" + title.getText() + '\'' +
-                ", subTitle='" + subTitle.getText() + '\'' +
-                ", result=" + result +
-                ", clock='" + clock.getText() + '\'' +
-                ", swimmers=" + swimmers +
-                '}';
+        Swimmer swimmer = swimmers.get(line);
+        swimmer.lane.setText(Integer.toString(lane));
+        swimmer.place.setText(
+            place <= 0 ? "" :
+            place == 1 ? "1st" :
+            place == 2 ? "2nd" :
+            place == 3 ? "3rd" :
+            place + "th");
+        swimmer.name.setText(name);
+        swimmer.club.setText(club);
+        swimmer.time.setText(time);
     }
 
     @Override

@@ -291,7 +291,7 @@ public class DataReaderTest
 
     private Config config = new Config(null);
     private Scoreboard scoreboard = new Scoreboard(config);
-    private StandardDisplay display = new StandardDisplay(config);
+    private RawDisplay display = new RawDisplay(config);
     private DataReader dataReader = new DataReader(config, scoreboard, display);
     private InputStream inputStream;
 
