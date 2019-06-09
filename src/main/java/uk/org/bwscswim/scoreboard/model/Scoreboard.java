@@ -211,17 +211,17 @@ public class Scoreboard extends javax.swing.JFrame
 
     public void setTitle(String title)
     {
-        this.title.setText(title);
+        this.title.setText(pad(title, config.getInt("titleLength", 30)));
     }
 
     public void setSubTitle(String subTitle)
     {
-        this.subTitle.setText(subTitle);
+        this.subTitle.setText(pad(subTitle, config.getInt("subTitleLength", 17)));
     }
 
     public void setClock(String clock)
     {
-        this.clock.setText(clock);
+        this.clock.setText(pad(clock, config.getInt("clockLength", 8)));
     }
 
     public void setResult(boolean result)
@@ -243,9 +243,27 @@ public class Scoreboard extends javax.swing.JFrame
             place == 2 ? "2nd" :
             place == 3 ? "3rd" :
             place + "th");
-        swimmer.name.setText(name);
-        swimmer.club.setText(club);
-        swimmer.time.setText(time);
+        swimmer.name.setText(pad(name, config.getInt("nameLength", 16)));
+        swimmer.club.setText(pad(club, config.getInt("clubLength", 4)));
+        swimmer.time.setText(pad(time, config.getInt("timeLength", 8)));
+    }
+
+    private String pad(String value, int length)
+    {
+        if (value.length() >= length)
+        {
+            value = value.substring(0, length);
+        }
+        else
+        {
+            StringBuilder sb = new StringBuilder(value);
+            while (sb.length() < length)
+            {
+                sb.append(' ');
+            }
+            value = sb.toString();
+        }
+        return value;
     }
 
     @Override

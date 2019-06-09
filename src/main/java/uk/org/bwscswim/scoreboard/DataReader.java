@@ -348,7 +348,7 @@ public class DataReader
                     {
                         scoreboard.setTitle(data);
                     }
-                    else if (lineNumber == 1)
+                    else if (lineNumber == 1 && position != 120)
                     {
                         scoreboard.setSubTitle(data);
                     }

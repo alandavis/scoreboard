@@ -307,7 +307,7 @@ public class Config
         return value == null ? defaultValue : Boolean.parseBoolean(value);
     }
 
-    private int getInt(String key, int defaultValue)
+    public int getInt(String key, int defaultValue)
     {
         String value = properties.getProperty(key);
         try
