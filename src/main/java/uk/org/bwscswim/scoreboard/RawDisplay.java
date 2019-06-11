@@ -7,135 +7,71 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RawDisplay extends javax.swing.JFrame
+public class RawDisplay extends BaseBorad
 {
-    private boolean result;
     private List<JLabel> lines = new ArrayList<>();
     private List<Integer> lineLengths = new ArrayList<>();
-    private final Config config;
 
     public RawDisplay(Config config)
     {
-        this.config = config;
+        super(config, "raw".equals(config.getDisplayName()));
 
-        Container contentPane = getContentPane();
         BoxLayout layout = new BoxLayout(contentPane, BoxLayout.Y_AXIS);
         contentPane.setLayout(layout);
 
+        Font titleFont = config.getFont("title");
+        Font laneFont = config.getFont("lane");
+
+        String testLine0 = config.getTest("title");
+        String testLine1 = config.getTest("subTitle")+"          "+config.getTest("clock");
+        String testLane =
+                config.getTest("lane")+"  "+
+                config.getTest("name")+" "+
+                config.getTest("club")+" "+
+                config.getTest("time")+" "+
+                config.getTest("place")+" ";
+
         int lineCount = config.getLineCount();
+        int titleLineLength = config.getTitleLineLength();
+        int laneLineLength = config.getLaneLineLength();
         lines = new ArrayList<>(lineCount);
         for (int lineNumber=0; lineNumber<lineCount; lineNumber++)
         {
             JLabel line = new JLabel();
-            line.setFont(config.getFont(lineNumber));
-
-            int lineLength = config.getLineLength(lineNumber);
-            lineLengths.add(lineLength);
+            line.setFont(lineNumber <= 1 ? titleFont : laneFont);
+            String text = lineNumber == 0 ? testLine0 : lineNumber == 1 ? testLine1 : testLane;
+            lineLengths.add(lineNumber <= 1 ? titleLineLength : laneLineLength);
             lines.add(line);
 
             if (config.isLineVisible(lineNumber))
             {
                 contentPane.add(line);
-                setText(lineNumber, lineLength-1, " ");
+                setText(lineNumber, 0, text);
             }
         }
-        setColors();
-
-//        GraphicsEnvironment g = GraphicsEnvironment.getLocalGraphicsEnvironment();
-//        GraphicsDevice gd = g.getDefaultScreenDevice();
-//        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-//        String text = "         1         2         3         4         5         6         7         8";
-//               text = "P6  Millie sab               23.24 6 ";
-//        line1.setText(text);
-//        line1.setForeground(Color.WHITE);
-////        line1.setSize(500, 500);
-//        Font font = line1.getFont();
-////        float size = font.getSize()*5;
-//        int size = 86; //screenSize.height/3;
-//        line1.setFont(font.deriveFont(size));
-//        font = new Font("Monospaced", Font.PLAIN, size);
-//        line1.setFont(font);
-//
-//        // get metrics from the graphics
-//        FontMetrics metrics = getFontMetrics(font);
-//        // get the height of a line of text in this font and render context
-//        int hgt = metrics.getHeight();
-//        // get the advance of my text in this font and render context
-//        int adv = metrics.stringWidth(text);
-//        // calculate the size of a box to hold the text with some padding.
-//        Dimension s = new Dimension(adv + 2, hgt + 2);
-//        System.out.println("size: " + size + " screenSize: " + screenSize + " Dim " + s);
-
-        exitOnEscapeOrEnter();
-        pack();
+        postConstructor();
     }
 
-    private void setColors()
+    @Override
+    public void setColors(Color background, Color titleForeground, Color laneForeground)
     {
-        Container contentPane = getContentPane();
-        contentPane.setBackground(config.getBackground(result));
-
         int lineCount = config.getLineCount();
         for (int lineNumber=0; lineNumber<lineCount; lineNumber++)
         {
             JLabel line = lines.get(lineNumber);
-            line.setForeground(config.getForeground(lineNumber, result));
-            line.setBackground(config.getBackground(lineNumber, result));
+            line.setForeground(lineNumber <= 1 ? titleForeground : laneForeground);
+            line.setBackground(background);
         }
     }
 
-//    private String getText(int lineNumber)
-//    {
-//        String text = null;
-//        switch (lineNumber)
-//        {
-//            case 0: text = "Ev16/2 100m Freestyle                      X"; break;
-//            case 1: text = "Girls                                       "; break;
-//            case 2: text = "P1  Emily Norris     BRKS    36.10 3        "; break;
-//            case 3: text = "P2  Nora Djotni      BRKS    36.62 6       X"; break;
-//            case 4: text = "P3  K Martin         BRKS    36.94 5        "; break;
-//            case 5: text = "P4  Evie Mackay      WOKS    37.60 1        "; break;
-//            case 6: text = "P5  Keeley Rees      BRKS    37.78 2        "; break;
-//            case 7: text = "P6  Amber Moir       BRKS    38.13 4        "; break;
-//        }
-//        return text;
-//    }
-
-    private void exitOnEscapeOrEnter()
-    {
-        setFocusable(true);
-        addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e)
-            {
-                char c = e.getKeyChar();
-                if (c == '\n' || c == 27)
-                {
-                    System.exit(0);
-                }
-                super.keyTyped(e);
-            }
-        });
-    }
-
+    @Override
     public void clear()
     {
-        int i = 0;
         for (JLabel line : lines)
         {
             line.setText(" ");
         }
         setVisible(true);
-    }
-
-    public void setResult(boolean result)
-    {
-        if (this.result != result)
-        {
-            this.result = result;
-            setColors();
-        }
     }
 
     public void setText(int lineNumber, int offset, String text)
@@ -160,30 +96,5 @@ public class RawDisplay extends javax.swing.JFrame
         text = sb.toString();
         line.setText(text);
         setVisible(true);
-    }
-
-    @Override
-    public void setVisible(boolean visible)
-    {
-        if (config.isRawDisplayVisible())
-        {
-            super.setVisible(visible);
-        }
-    }
-
-    public void makeFrameFullSize()
-    {
-        if (config.isRawDisplayVisible())
-        {
-            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-            if (gd.isFullScreenSupported())
-            {
-                gd.setFullScreenWindow(this);
-            }
-            else
-            {
-                System.err.println("Full screen not supported by defaultScreenDevice.");
-            }
-        }
     }
 }

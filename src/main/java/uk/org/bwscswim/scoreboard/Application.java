@@ -1,7 +1,5 @@
 package uk.org.bwscswim.scoreboard;
 
-import uk.org.bwscswim.scoreboard.model.Scoreboard;
-
 public class Application
 {
     public static void main(String args[])
@@ -14,16 +12,6 @@ public class Application
                 Scoreboard scoreboard = new Scoreboard(config);
                 RawDisplay rawDisplay = new RawDisplay(config);
                 DataReader dataReader = new DataReader(config, scoreboard, rawDisplay);
-                if (config.isFullScreen())
-                {
-                    rawDisplay.makeFrameFullSize();
-                    scoreboard.makeFrameFullSize();
-                }
-                else
-                {
-                    rawDisplay.setVisible(true);
-                    scoreboard.setVisible(true);
-                }
                 dataReader.readDataInBackground();
             }
             catch (Exception e)

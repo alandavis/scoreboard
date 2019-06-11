@@ -54,24 +54,29 @@ public class Config
         return getInt("lineCount", 12);
     }
 
+    public int getTitleLineLength()
+    {
+        return getInt("titleLineLength", 38);
+    }
+
+    public int getLaneLineLength()
+    {
+        return getInt("laneLineLength", 38);
+    }
+
     public int getLaneCount()
     {
         return getInt("laneCount", 6);
     }
 
-    public int getLineLength()
-    {
-        return getInt("lineLength", 38);
-    }
-
-    public int getLineLength(int lineNumber)
-    {
-        return getInt("line" + lineNumber + "Length", getLineLength());
-    }
-
     public boolean isLineVisible(int lineNumber)
     {
         return getBoolean("line"+lineNumber+"Visible", true);
+    }
+
+    public String getDisplayName()
+    {
+        return getString("displayName", "scoreboard");
     }
 
     public boolean isRawDisplayVisible()
@@ -86,7 +91,7 @@ public class Config
 
     public String getTest(String name)
     {
-        return getString("test"+name, "unknown");
+        return getString(name+"Test", "unknown");
     }
 
     public int getHorizontalGap()
@@ -108,17 +113,7 @@ public class Config
 
     private String getFontName(String name)
     {
-        return getFontName(name+"Font", getDefaultFontName());
-    }
-
-    public Font getFont(int lineNumber)
-    {
-        return new Font(getFontName(lineNumber), getFontStyle(lineNumber), getFontSize(lineNumber));
-    }
-
-    private String getFontName(int lineNumber)
-    {
-        return getFontName("line"+lineNumber+"Font", getDefaultFontName());
+        return getFontName(name+"FontName", getDefaultFontName());
     }
 
     private String getDefaultFontName()
@@ -148,11 +143,6 @@ public class Config
         return getFontStyle(name+"FontStyle", getDefaultFontStyle());
     }
 
-    private int getFontStyle(int lineNumber)
-    {
-        return getFontStyle("line" + lineNumber + "FontStyle", getDefaultFontStyle());
-    }
-
     private int getDefaultFontStyle()
     {
         return getInt("fontStyle", Font.PLAIN);
@@ -177,11 +167,6 @@ public class Config
     private int getFontSize(String name)
     {
         return getInt(name+"FontSize", getDefaultFontSize());
-    }
-
-    private int getFontSize(int lineNumber)
-    {
-        return getInt("line"+lineNumber+"FontSize", getDefaultFontSize());
     }
 
     private int getDefaultFontSize()
@@ -211,16 +196,6 @@ public class Config
     public Color getBackground(boolean result)
     {
         return getColor(result ? "resultBackground" : "background", Color.BLACK);
-    }
-
-    public Color getBackground(String name, boolean result)
-    {
-        return getColor(name + (result ? "Result" : "") + "Background", getBackground(result));
-    }
-
-    public Color getBackground(int lineNumber, boolean result)
-    {
-        return getColor("line" + lineNumber + (result ? "Result" : "") + "Background", getBackground(result));
     }
 
     private Color getColor(String key, Color defaultValue)
@@ -255,7 +230,7 @@ public class Config
     public SerialPort getPort()
     {
         String port = getString("port", "COM4");
-        return SerialPort.getCommPort("COM4");
+        return SerialPort.getCommPort(port);
     }
 
     public String getTestFilename()

@@ -20,7 +20,7 @@
  * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
  * #L%
  */
-package uk.org.bwscswim.scoreboard.model;
+package uk.org.bwscswim.scoreboard;
 
 import uk.org.bwscswim.scoreboard.Config;
 
@@ -31,7 +31,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Scoreboard extends javax.swing.JFrame
+public class Scoreboard extends BaseBorad
 {
     class Swimmer
     {
@@ -46,13 +46,10 @@ public class Scoreboard extends javax.swing.JFrame
     private JLabel subTitle = new JLabel();
     private JLabel clock  = new JLabel();
     private List<Swimmer> swimmers = new ArrayList<>();
-    private boolean result;
-    private final Config config;
 
     public Scoreboard(Config config)
     {
-        this.config = config;
-        Container contentPane = getContentPane();
+        super(config, "scoreboard".equals(config.getDisplayName()));
 
         GroupLayout layout = new GroupLayout(contentPane);
         contentPane.setLayout(layout);
@@ -96,106 +93,90 @@ public class Scoreboard extends javax.swing.JFrame
                         .addGap(config.getPreLaneGap())
                         .addGroup(rows));
 
-        title.setFont(config.getFont("title"));
-        subTitle.setFont(config.getFont("subTitle"));
-        clock.setFont(config.getFont("clock"));
+        Font titleFont = config.getFont("title");
+        Font laneFont = config.getFont("lane");
 
-        title.setText(config.getTest("Title"));
-        subTitle.setText(config.getTest("SubTitle"));
-        clock.setText(config.getTest("Clock"));
+        String testTitle = config.getTest("title");
+        String testSubTitle = config.getTest("subTitle");
+        String testClock = config.getTest("clock");
+        String testLane = config.getTest("lane");
+        String testName = config.getTest("name");
+        String testClub = config.getTest("club");
+        String testTime = config.getTest("time");
+        String testPlace = config.getTest("place");
 
+        title.setFont(titleFont);
+        subTitle.setFont(titleFont);
+        clock.setFont(titleFont);
+
+        title.setText(testTitle);
+        subTitle.setText(testSubTitle);
+        clock.setText(testClock);
+
+        int laneCount = config.getLaneCount();
+        for (int lane=0; lane<laneCount; lane++)
         {
-            int laneCount = config.getLaneCount();
-            for (int lane=0; lane<laneCount; lane++)
-            {
-                Swimmer swimmer = new Swimmer();
-                swimmers.add(swimmer);
+            Swimmer swimmer = new Swimmer();
+            swimmers.add(swimmer);
 
-                rows.addGroup(layout.createParallelGroup()
-                        .addComponent(swimmer.lane)
-                        .addComponent(swimmer.name)
-                        .addComponent(swimmer.club)
-                        .addComponent(swimmer.time)
-                        .addComponent(swimmer.place));
+            rows.addGroup(layout.createParallelGroup()
+                    .addComponent(swimmer.lane)
+                    .addComponent(swimmer.name)
+                    .addComponent(swimmer.club)
+                    .addComponent(swimmer.time)
+                    .addComponent(swimmer.place));
 
-                lanes.addComponent(swimmer.lane);
-                names.addComponent(swimmer.name);
-                clubs.addComponent(swimmer.club);
-                times.addComponent(swimmer.time);
-                places.addComponent(swimmer.place);
+            lanes.addComponent(swimmer.lane);
+            names.addComponent(swimmer.name);
+            clubs.addComponent(swimmer.club);
+            times.addComponent(swimmer.time);
+            places.addComponent(swimmer.place);
 
-                swimmer.lane.setFont(config.getFont("lane"));
-                swimmer.name.setFont(config.getFont("name"));
-                swimmer.club.setFont(config.getFont("club"));
-                swimmer.time.setFont(config.getFont("time"));
-                swimmer.place.setFont(config.getFont("place"));
+            swimmer.lane.setFont(laneFont);
+            swimmer.name.setFont(laneFont);
+            swimmer.club.setFont(laneFont);
+            swimmer.time.setFont(laneFont);
+            swimmer.place.setFont(laneFont);
 
-                swimmer.lane.setText(config.getTest("Lane"));
-                swimmer.name.setText(config.getTest("Name"));
-                swimmer.club.setText(config.getTest("Club"));
-                swimmer.time.setText(config.getTest("Time"));
-                swimmer.place.setText(config.getTest("Place"));
-            }
+            swimmer.lane.setText(testLane);
+            swimmer.name.setText(testName);
+            swimmer.club.setText(testClub);
+            swimmer.time.setText(testTime);
+            swimmer.place.setText(testPlace);
         }
-        setColors();
-
-        exitOnEscapeOrEnter();
-        pack();
+        postConstructor();
+        setVisible(true);
     }
 
-    private void setColors()
+    @Override
+    public void setColors(Color background, Color titleForeground, Color laneForeground)
     {
-        Container contentPane = getContentPane();
-        contentPane.setBackground(config.getBackground(result));
+        title.setForeground(titleForeground);
+        subTitle.setForeground(titleForeground);
+        clock.setForeground(titleForeground);
 
-        title.setForeground(config.getForeground("title", result));
-        title.setBackground(config.getBackground("title", result));
-
-        subTitle.setForeground(config.getForeground("subTitle", result));
-        subTitle.setBackground(config.getBackground("subTitle", result));
-
-        clock.setForeground(config.getForeground("clock", result));
-        clock.setBackground(config.getBackground("clock", result));
+        title.setBackground(background);
+        subTitle.setBackground(background);
+        clock.setBackground(background);
 
         for (Swimmer swimmer : swimmers)
         {
-            swimmer.lane.setForeground(config.getForeground("lane", result));
-            swimmer.lane.setBackground(config.getBackground("lane", result));
+            swimmer.lane.setForeground(laneForeground);
+            swimmer.name.setForeground(laneForeground);
+            swimmer.club.setForeground(laneForeground);
+            swimmer.time.setForeground(laneForeground);
+            swimmer.place.setForeground(laneForeground);
 
-            swimmer.name.setForeground(config.getForeground("name", result));
-            swimmer.name.setBackground(config.getBackground("name", result));
-
-            swimmer.club.setForeground(config.getForeground("club", result));
-            swimmer.club.setBackground(config.getBackground("club", result));
-
-            swimmer.time.setForeground(config.getForeground("time", result));
-            swimmer.time.setBackground(config.getBackground("time", result));
-
-            swimmer.place.setForeground(config.getForeground("place", result));
-            swimmer.place.setBackground(config.getBackground("place", result));
+            swimmer.lane.setBackground(background);
+            swimmer.name.setBackground(background);
+            swimmer.club.setBackground(background);
+            swimmer.time.setBackground(background);
+            swimmer.place.setBackground(background);
         }
-    }
-
-    private void exitOnEscapeOrEnter()
-    {
-        setFocusable(true);
-        addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e)
-            {
-                char c = e.getKeyChar();
-                if (c == '\n' || c == 27)
-                {
-                    System.exit(0);
-                }
-                super.keyTyped(e);
-            }
-        });
     }
 
     public void clear()
     {
-        setResult(false);
         setTitle("");
         setSubTitle("");
         setClock("");
@@ -222,15 +203,6 @@ public class Scoreboard extends javax.swing.JFrame
     public void setClock(String clock)
     {
         this.clock.setText(pad(clock, config.getInt("clockLength", 8)));
-    }
-
-    public void setResult(boolean result)
-    {
-        if (this.result != result)
-        {
-            this.result = result;
-            setColors();
-        }
     }
 
     public void setLaneValues(int line, int lane, int place, String name, String club, String time)
@@ -264,30 +236,5 @@ public class Scoreboard extends javax.swing.JFrame
             value = sb.toString();
         }
         return value;
-    }
-
-    @Override
-    public void setVisible(boolean visible)
-    {
-        if (!config.isRawDisplayVisible())
-        {
-            super.setVisible(visible);
-        }
-    }
-
-    public void makeFrameFullSize()
-    {
-        if (!config.isRawDisplayVisible())
-        {
-            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-            if (gd.isFullScreenSupported())
-            {
-                gd.setFullScreenWindow(this);
-            }
-            else
-            {
-                System.err.println("Full screen not supported by defaultScreenDevice.");
-            }
-        }
     }
 }

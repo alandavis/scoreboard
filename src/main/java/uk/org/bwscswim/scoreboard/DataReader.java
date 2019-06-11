@@ -24,7 +24,6 @@ package uk.org.bwscswim.scoreboard;
 
 import com.fazecast.jSerialComm.SerialPort;
 import org.apache.log4j.Logger;
-import uk.org.bwscswim.scoreboard.model.Scoreboard;
 
 import java.io.EOFException;
 import java.io.FileNotFoundException;
