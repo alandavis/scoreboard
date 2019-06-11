@@ -75,10 +75,29 @@ public abstract class BaseBorad extends javax.swing.JFrame
 
     private void makeFrameFullSize()
     {
-//        GraphicsEnvironment g = GraphicsEnvironment.getLocalGraphicsEnvironment();
-//        GraphicsDevice gd1 = g.getDefaultScreenDevice();
-//        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-//
+        if (displayVisible)
+        {
+            String graphicsDeviceId = config.getString("graphicsDevice", null);
+            GraphicsDevice graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            for (GraphicsDevice device : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices())
+            {
+                String id = device.getIDstring();
+                System.out.println("GraphicsDevice "+ id);
+                if (id.equals(graphicsDeviceId))
+                {
+                    graphicsDevice = device;
+                }
+            }
+            System.out.println("Using GraphicsDevice \""+ graphicsDevice.getIDstring()+"\"");
+
+            if (graphicsDevice.isFullScreenSupported())
+            {
+                graphicsDevice.setFullScreenWindow(this);
+
+//            GraphicsDevice gd1 = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+//            Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
+//            Dimension screenSize = defaultToolkit.getScreenSize();
+
 //        line1.setForeground(Color.WHITE);
 ////        line1.setSize(500, 500);
 //        Font font = line1.getFont();
@@ -98,13 +117,6 @@ public abstract class BaseBorad extends javax.swing.JFrame
 //        // calculate the size of a box to hold the text with some padding.
 //        Dimension s = new Dimension(adv + 2, hgt + 2);
 //        System.out.println("size: " + size + " screenSize: " + screenSize + " Dim " + s);
-
-        if (displayVisible)
-        {
-            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-            if (gd.isFullScreenSupported())
-            {
-                gd.setFullScreenWindow(this);
             }
             else
             {

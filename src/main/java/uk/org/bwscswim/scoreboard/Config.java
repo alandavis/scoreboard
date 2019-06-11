@@ -270,7 +270,7 @@ public class Config
 
     // Basic types
 
-    private String getString(String key, String defaultValue)
+    public String getString(String key, String defaultValue)
     {
         String value = properties.getProperty(key);
         return value == null ? defaultValue : value;
