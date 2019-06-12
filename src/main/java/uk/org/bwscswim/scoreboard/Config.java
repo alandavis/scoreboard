@@ -245,27 +245,27 @@ public class Config
 
     public int getF0()
     {
-        return getInt("f0", 0);
+        return getInt("laneOffset", 0);
     }
 
-    public int getF1()
+    public int getNameOffset()
     {
-        return getInt("f1", 3);
+        return getInt("nameOffset", 3);
     }
 
-    public int getF2()
+    public int getClubOffset()
     {
-        return getInt("f2", 20);
+        return getInt("clubOffset", 20);
     }
 
-    public int getF3()
+    public int getTimeOffset()
     {
-        return getInt("f3", 25);
+        return getInt("timeOffset", 25);
     }
 
-    public int getF4()
+    public int getPlaceOffset()
     {
-        return getInt("f4", 34);
+        return getInt("placeOffset", 34);
     }
 
     // Basic types
@@ -276,7 +276,7 @@ public class Config
         return value == null ? defaultValue : value;
     }
 
-    private Boolean getBoolean(String key, Boolean defaultValue)
+    public Boolean getBoolean(String key, Boolean defaultValue)
     {
         String value = properties.getProperty(key);
         return value == null ? defaultValue : Boolean.parseBoolean(value);
