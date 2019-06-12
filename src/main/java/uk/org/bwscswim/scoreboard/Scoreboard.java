@@ -29,6 +29,7 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class Scoreboard extends BaseBorad
@@ -99,11 +100,9 @@ public class Scoreboard extends BaseBorad
         String testTitle = config.getTest("title");
         String testSubTitle = config.getTest("subTitle");
         String testClock = config.getTest("clock");
-        String testLane = config.getTest("lane");
         String testName = config.getTest("name");
         String testClub = config.getTest("club");
         String testTime = config.getTest("time");
-        String testPlace = config.getTest("place");
 
         title.setFont(titleFont);
         subTitle.setFont(titleFont);
@@ -114,7 +113,7 @@ public class Scoreboard extends BaseBorad
         clock.setText(testClock);
 
         int laneCount = config.getLaneCount();
-        for (int lane=0; lane<laneCount; lane++)
+        for (int lane=1; lane<=laneCount; lane++)
         {
             Swimmer swimmer = new Swimmer();
             swimmers.add(swimmer);
@@ -138,11 +137,11 @@ public class Scoreboard extends BaseBorad
             swimmer.time.setFont(laneFont);
             swimmer.place.setFont(laneFont);
 
-            swimmer.lane.setText(testLane);
+            swimmer.lane.setText(Integer.toString(lane));
             swimmer.name.setText(testName);
             swimmer.club.setText(testClub);
             swimmer.time.setText(testTime);
-            swimmer.place.setText(testPlace);
+            swimmer.place.setText(getPlace(lane));
         }
         postConstructor();
         setVisible(true);
@@ -209,15 +208,20 @@ public class Scoreboard extends BaseBorad
     {
         Swimmer swimmer = swimmers.get(line);
         swimmer.lane.setText(Integer.toString(lane));
-        swimmer.place.setText(
+        swimmer.place.setText(getPlace(place));
+        swimmer.name.setText(pad(name, config.getInt("nameLength", 16)));
+        swimmer.club.setText(pad(club, config.getInt("clubLength", 4)));
+        swimmer.time.setText(pad(time, config.getInt("timeLength", 8)));
+    }
+
+    private String getPlace(int place)
+    {
+        return
             place <= 0 ? "" :
             place == 1 ? "1st" :
             place == 2 ? "2nd" :
             place == 3 ? "3rd" :
-            place + "th");
-        swimmer.name.setText(pad(name, config.getInt("nameLength", 16)));
-        swimmer.club.setText(pad(club, config.getInt("clubLength", 4)));
-        swimmer.time.setText(pad(time, config.getInt("timeLength", 8)));
+            place + "th";
     }
 
     private String pad(String value, int length)
@@ -236,5 +240,37 @@ public class Scoreboard extends BaseBorad
             value = sb.toString();
         }
         return value;
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder("Scoreboard{").
+                append("title='").append(title.getText().trim()).append("', ").
+                append("subTitle='").append(subTitle.getText().trim()).append("', ").
+                append("result=").append(result).append(", ").
+                append("clock='").append(clock.getText().trim()).append("', ").
+                append("swimmers=[");
+        Iterator<Swimmer> iterator = swimmers.iterator();
+        while (iterator.hasNext())
+        {
+            Swimmer swimmer = iterator.next();
+            String lane = swimmer.lane.getText().trim();
+            if (!lane.isEmpty())
+            {
+                sb.append("Swimmer{").
+                        append("name='").append(swimmer.name.getText().trim()).append("', ").
+                        append("club='").append(swimmer.club.getText().trim()).append("', ").
+                        append("lane='").append(lane).append("', ").
+                        append("place='").append(swimmer.place.getText().trim()).append("', ").
+                        append("time='").append(swimmer.time.getText().trim()).append("'}");
+                if (iterator.hasNext())
+                {
+                    sb.append(", ");
+                }
+            }
+        }
+        sb.append("]}");
+        return sb.toString();
     }
 }

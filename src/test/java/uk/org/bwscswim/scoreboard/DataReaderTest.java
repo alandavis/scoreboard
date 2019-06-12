@@ -333,7 +333,16 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='', subTitle='', result=false, clock='', swimmers=[]}", scoreboard.toString());
+        assertEquals("Scoreboard{title='|---------> Title <----------|', " +
+                        "subTitle='|--> SubTitle <-|', result=false, clock='MM.SS.hh', swimmers=[" +
+                        "Swimmer{name='|---> Name <---|', club='CLUB', lane='1', place='1st', time='MM.SS.hh'}, " +
+                        "Swimmer{name='|---> Name <---|', club='CLUB', lane='2', place='2nd', time='MM.SS.hh'}, " +
+                        "Swimmer{name='|---> Name <---|', club='CLUB', lane='3', place='3rd', time='MM.SS.hh'}, " +
+                        "Swimmer{name='|---> Name <---|', club='CLUB', lane='4', place='4th', time='MM.SS.hh'}, " +
+                        "Swimmer{name='|---> Name <---|', club='CLUB', lane='5', place='5th', time='MM.SS.hh'}, " +
+                        "Swimmer{name='|---> Name <---|', club='CLUB', lane='6', place='6th', time='MM.SS.hh'}]}",
+                scoreboard.toString());
+//        assertEquals("Scoreboard{title='', subTitle='', result=false, clock='', swimmers=[]}", scoreboard.toString());
     }
 
     @Test

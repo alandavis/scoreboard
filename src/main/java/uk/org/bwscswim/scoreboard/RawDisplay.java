@@ -25,11 +25,9 @@ public class RawDisplay extends BaseBorad
         String testLine0 = config.getTest("title");
         String testLine1 = config.getTest("subTitle")+"          "+config.getTest("clock");
         String testLane =
-                config.getTest("lane")+"  "+
                 config.getTest("name")+" "+
                 config.getTest("club")+" "+
-                config.getTest("time")+" "+
-                config.getTest("place")+" ";
+                config.getTest("time")+" ";
 
         int lineCount = config.getLineCount();
         int titleLineLength = config.getTitleLineLength();
@@ -39,7 +37,8 @@ public class RawDisplay extends BaseBorad
         {
             JLabel line = new JLabel();
             line.setFont(lineNumber <= 1 ? titleFont : laneFont);
-            String text = lineNumber == 0 ? testLine0 : lineNumber == 1 ? testLine1 : testLane;
+            int lane = lineNumber-2;
+            String text = lineNumber == 0 ? testLine0 : lineNumber == 1 ? testLine1 : lane+"  "+testLane+" "+lane;
             lineLengths.add(lineNumber <= 1 ? titleLineLength : laneLineLength);
             lines.add(line);
 
