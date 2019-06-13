@@ -9,7 +9,7 @@ public class Application
             try
             {
                 Config config = new Config("config.properties");
-                Scoreboard scoreboard = new Scoreboard(config);
+                AbstractScoreboard scoreboard = new OriginalScoreboard(config);
                 RawDisplay rawDisplay = new RawDisplay(config);
                 DataReader dataReader = new DataReader(config, scoreboard, rawDisplay);
                 dataReader.readDataInBackground();

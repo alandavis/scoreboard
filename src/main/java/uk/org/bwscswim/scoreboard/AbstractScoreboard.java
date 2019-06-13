@@ -1,102 +1,79 @@
 /*
  * #%L
- * BWSC Scoreboard
+ * BWSC AbstractScoreboard
  * %%
  * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
  * %%
- * This file is part of BWSC Scoreboard.
+ * This file is part of BWSC AbstractScoreboard.
  *
- * BWSC Scoreboard is free software: you can redistribute it and/or modify
+ * BWSC AbstractScoreboard is free software: you can redistribute it and/or modify
  * it under the terms of the LGNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * BWSC Scoreboard is distributed in the hope that it will be useful,
+ * BWSC AbstractScoreboard is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * LGNU Lesser General Public License for more details.
  *
  * You should have received a copy of the LGNU Lesser General Public License
- * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
+ * along with BWSC AbstractScoreboard.  If not, see <https://www.gnu.org/licenses/>.
  * #L%
  */
 package uk.org.bwscswim.scoreboard;
 
-import uk.org.bwscswim.scoreboard.Config;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Scoreboard extends BaseBorad
+public abstract class AbstractScoreboard extends BaseBorad
 {
     class Swimmer
     {
-        private JLabel lane = new JLabel();
-        private JLabel name = new JLabel();
-        private JLabel club = new JLabel();
-        private JLabel time = new JLabel();
-        private JLabel place = new JLabel();
+        protected JLabel lane = new JLabel();
+        protected JLabel name = new JLabel();
+        protected JLabel club = new JLabel();
+        protected JLabel time = new JLabel();
+        protected JLabel place = new JLabel();
     }
 
-    private JLabel title = new JLabel();
-    private JLabel subTitle = new JLabel();
-    private JLabel clock  = new JLabel();
-    private List<Swimmer> swimmers = new ArrayList<>();
+    protected JLabel title = new JLabel();
+    protected JLabel subTitle = new JLabel();
+    protected JLabel clock  = new JLabel();
+    protected List<Swimmer> swimmers = new ArrayList<>();
+    protected GroupLayout layout = new GroupLayout(contentPane);
+    protected int laneCount;
 
-    public Scoreboard(Config config)
+    public AbstractScoreboard(Config config, String name)
     {
-        super(config, "scoreboard".equals(config.getDisplayName()));
-
-        GroupLayout layout = new GroupLayout(contentPane);
+        super(config, name.equals(config.getDisplayName()));
+        laneCount = config.getLaneCount();
         contentPane.setLayout(layout);
+        createSwimmers();
+    }
 
-//        layout.setAutoCreateGaps(true);
-//        layout.setAutoCreateContainerGaps(true);
+    @Override
+    protected void postConstructor()
+    {
+        setTestText();
+        setFonts();
 
-        GroupLayout.ParallelGroup lanes = layout.createParallelGroup();
-        GroupLayout.ParallelGroup names = layout.createParallelGroup();
-        GroupLayout.ParallelGroup clubs = layout.createParallelGroup();
-        GroupLayout.ParallelGroup times = layout.createParallelGroup();
-        GroupLayout.ParallelGroup places = layout.createParallelGroup();
+        super.postConstructor();
+    }
 
-        GroupLayout.SequentialGroup rows = layout.createSequentialGroup();
+    protected void createSwimmers()
+    {
+        for (int lane=1; lane<=laneCount; lane++)
+        {
+            Swimmer swimmer = new Swimmer();
+            swimmers.add(swimmer);
+        }
+    }
 
-        int horizontalGap = config.getHorizontalGap();
-
-        layout.setHorizontalGroup(
-                layout.createParallelGroup()
-                        .addComponent(title)
-                        .addGroup(layout.createSequentialGroup()
-                                .addComponent(subTitle)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE) // force apart
-                                .addComponent(clock))
-                        .addGroup(layout.createSequentialGroup()
-                                .addGroup(lanes)
-                                .addGap(horizontalGap)
-                                .addGroup(names)
-                                .addGap(horizontalGap)
-                                .addGroup(clubs)
-                                .addGap(horizontalGap)
-                                .addGroup(times)
-                                .addGap(horizontalGap)
-                                .addGroup(places)));
-        layout.setVerticalGroup(
-                layout.createSequentialGroup()
-                        .addComponent(title)
-                        .addGroup(layout.createParallelGroup()
-                                .addComponent(subTitle)
-                                .addComponent(clock))
-                        .addGap(config.getPreLaneGap())
-                        .addGroup(rows));
-
-        Font titleFont = config.getFont("title");
-        Font laneFont = config.getFont("lane");
-
+    private void setTestText()
+    {
         String testTitle = config.getTest("title");
         testTitle = testTitle.substring(0,1)+"SB "+testTitle.substring(4);
         String testSubTitle = config.getTest("subTitle");
@@ -105,47 +82,38 @@ public class Scoreboard extends BaseBorad
         String testClub = config.getTest("club");
         String testTime = config.getTest("time");
 
-        title.setFont(titleFont);
-        subTitle.setFont(titleFont);
-        clock.setFont(titleFont);
-
         title.setText(testTitle);
         subTitle.setText(testSubTitle);
         clock.setText(testClock);
 
-        int laneCount = config.getLaneCount();
-        for (int lane=1; lane<=laneCount; lane++)
+        int lane=1;
+        for (Swimmer swimmer : swimmers)
         {
-            Swimmer swimmer = new Swimmer();
-            swimmers.add(swimmer);
+            swimmer.lane.setText(Integer.toString(lane));
+            swimmer.name.setText(testName);
+            swimmer.club.setText(testClub);
+            swimmer.time.setText(testTime);
+            swimmer.place.setText(getPlace(lane++));
+        }
+    }
 
-            rows.addGroup(layout.createParallelGroup()
-                    .addComponent(swimmer.lane)
-                    .addComponent(swimmer.name)
-                    .addComponent(swimmer.club)
-                    .addComponent(swimmer.time)
-                    .addComponent(swimmer.place));
+    private void setFonts()
+    {
+        Font titleFont = config.getFont("title");
+        Font laneFont = config.getFont("lane");
 
-            lanes.addComponent(swimmer.lane);
-            names.addComponent(swimmer.name);
-            clubs.addComponent(swimmer.club);
-            times.addComponent(swimmer.time);
-            places.addComponent(swimmer.place);
+        title.setFont(titleFont);
+        subTitle.setFont(titleFont);
+        clock.setFont(titleFont);
 
+        for (Swimmer swimmer : swimmers)
+        {
             swimmer.lane.setFont(laneFont);
             swimmer.name.setFont(laneFont);
             swimmer.club.setFont(laneFont);
             swimmer.time.setFont(laneFont);
             swimmer.place.setFont(laneFont);
-
-            swimmer.lane.setText(Integer.toString(lane));
-            swimmer.name.setText(testName);
-            swimmer.club.setText(testClub);
-            swimmer.time.setText(testTime);
-            swimmer.place.setText(getPlace(lane));
         }
-        postConstructor();
-        setVisible(true);
     }
 
     @Override

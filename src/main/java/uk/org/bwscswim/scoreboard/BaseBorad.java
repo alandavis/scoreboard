@@ -28,10 +28,7 @@ public abstract class BaseBorad extends javax.swing.JFrame
         {
             makeFrameFullSize();
         }
-        else
-        {
-            setVisible(true);
-        }
+        setVisible(true);
     }
 
     protected void exitOnEscapeOrEnter()

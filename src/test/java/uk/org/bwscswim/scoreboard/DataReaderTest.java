@@ -1,23 +1,23 @@
 /*
  * #%L
- * BWSC Scoreboard
+ * BWSC AbstractScoreboard
  * %%
  * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
  * %%
- * This file is part of BWSC Scoreboard.
+ * This file is part of BWSC AbstractScoreboard.
  *
- * BWSC Scoreboard is free software: you can redistribute it and/or modify
+ * BWSC AbstractScoreboard is free software: you can redistribute it and/or modify
  * it under the terms of the LGNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * BWSC Scoreboard is distributed in the hope that it will be useful,
+ * BWSC AbstractScoreboard is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * LGNU Lesser General Public License for more details.
  *
  * You should have received a copy of the LGNU Lesser General Public License
- * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
+ * along with BWSC AbstractScoreboard.  If not, see <https://www.gnu.org/licenses/>.
  * #L%
  */
 package uk.org.bwscswim.scoreboard;
@@ -289,7 +289,7 @@ public class DataReaderTest
                 "[16]00000000[01]0040100700[02]P6  Millie sab               23.24 6 [04]3A[17]\n";
 
     private Config config = new Config(null);
-    private Scoreboard scoreboard = new Scoreboard(config);
+    private AbstractScoreboard scoreboard = new OriginalScoreboard(config);
     private RawDisplay display = new RawDisplay(config);
     private DataReader dataReader = new DataReader(config, scoreboard, display);
     private InputStream inputStream;
@@ -332,7 +332,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='|SB ------> Title <----------|', " +
+        assertEquals("AbstractScoreboard{title='|SB ------> Title <----------|', " +
                         "subTitle='|--> SubTitle <-|', result=false, clock='MM.SS.hh', swimmers=[" +
                         "Swimmer{name='|---> Name <---|', club='CLUB', lane='1', place='1st', time='MM.SS.hh'}, " +
                         "Swimmer{name='|---> Name <---|', club='CLUB', lane='2', place='2nd', time='MM.SS.hh'}, " +
@@ -351,7 +351,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='', subTitle='', result=false, clock='', swimmers=[]}", scoreboard.toString());
+        assertEquals("AbstractScoreboard{title='', subTitle='', result=false, clock='', swimmers=[]}", scoreboard.toString());
     }
 
     @Test
@@ -363,7 +363,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='', swimmers=[" +
+        assertEquals("AbstractScoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='', swimmers=[" +
                 "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='', time=''}, " +
                 "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
                 "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
@@ -382,7 +382,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='0.0', swimmers=[" +
+        assertEquals("AbstractScoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='0.0', swimmers=[" +
                 "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='', time=''}, " +
                 "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
                 "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
@@ -402,7 +402,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='9.0', swimmers=[" +
+        assertEquals("AbstractScoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='9.0', swimmers=[" +
                 "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='', time=''}, " +
                 "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
                 "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
@@ -423,7 +423,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='9.06', swimmers=[" +
+        assertEquals("AbstractScoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='9.06', swimmers=[" +
                 "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='', time=''}, " +
                 "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
                 "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
@@ -444,7 +444,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='9.0', swimmers=[" +
+        assertEquals("AbstractScoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='9.0', swimmers=[" +
                 "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='', time=''}, " +
                 "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
                 "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
@@ -466,7 +466,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='11.0', swimmers=[" +
+        assertEquals("AbstractScoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='11.0', swimmers=[" +
                 "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6th', time='11.07'}, " +
                 "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='5th', time='10.60'}, " +
                 "Swimmer{name='John Smith', club='REAS', lane='3', place='4th', time='10.19'}, " +
@@ -489,7 +489,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='19.1', swimmers=[" +
+        assertEquals("AbstractScoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='19.1', swimmers=[" +
                 "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6th', time='11.07'}, " +
                 "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='5th', time='10.60'}, " +
                 "Swimmer{name='John Smith', club='REAS', lane='3', place='4th', time='10.19'}, " +
@@ -513,7 +513,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='19.4', swimmers=[" +
+        assertEquals("AbstractScoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='19.4', swimmers=[" +
                 "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6th', time='11.07'}, " +
                 "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='5th', time='10.60'}, " +
                 "Swimmer{name='John Smith', club='REAS', lane='3', place='4th', time='10.19'}, " +
@@ -538,7 +538,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='21.1', swimmers=[" +
+        assertEquals("AbstractScoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='21.1', swimmers=[" +
                 "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6th', time='11.07'}, " +
                 "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
                 "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
@@ -564,7 +564,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='21.10', swimmers=[" +
+        assertEquals("AbstractScoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='21.10', swimmers=[" +
                 "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='2nd', time='21.39'}, " +
                 "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='1st', time='21.10'}, " +
                 "Swimmer{name='John Smith', club='REAS', lane='3', place='3rd', time='21.72'}, " +
@@ -591,7 +591,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='', subTitle='', result=false, clock='', swimmers=[]}", scoreboard.toString());
+        assertEquals("AbstractScoreboard{title='', subTitle='', result=false, clock='', swimmers=[]}", scoreboard.toString());
     }
 
     @Test
@@ -613,7 +613,7 @@ public class DataReaderTest
 
         dataReader.setInputStream(inputStream);
         dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=true, clock='', swimmers=[" +
+        assertEquals("AbstractScoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=true, clock='', swimmers=[" +
                 "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='1st', time='21.10'}, " +
                 "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='2nd', time='21.39'}, " +
                 "Swimmer{name='John Smith', club='REAS', lane='3', place='3rd', time='21.72'}, " +

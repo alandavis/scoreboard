@@ -1,23 +1,23 @@
 /*
  * #%L
- * BWSC Scoreboard
+ * BWSC AbstractScoreboard
  * %%
  * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
  * %%
- * This file is part of BWSC Scoreboard.
+ * This file is part of BWSC AbstractScoreboard.
  *
- * BWSC Scoreboard is free software: you can redistribute it and/or modify
+ * BWSC AbstractScoreboard is free software: you can redistribute it and/or modify
  * it under the terms of the LGNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * BWSC Scoreboard is distributed in the hope that it will be useful,
+ * BWSC AbstractScoreboard is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * LGNU Lesser General Public License for more details.
  *
  * You should have received a copy of the LGNU Lesser General Public License
- * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
+ * along with BWSC AbstractScoreboard.  If not, see <https://www.gnu.org/licenses/>.
  * #L%
  */
 package uk.org.bwscswim.scoreboard;
@@ -47,7 +47,7 @@ public class DataReader
     private static final String CONTROL_SUFFIX = "004010";
     private static final int CONTROL_SUFFIX_LENGTH = CONTROL_SUFFIX.length();
 
-    private final Scoreboard scoreboard;
+    private final AbstractScoreboard scoreboard;
     private final RawDisplay display;
     private final Config config;
 
@@ -56,7 +56,7 @@ public class DataReader
     private boolean trace = true;
     private Text text = new Text();
 
-    public DataReader(Config config, Scoreboard scoreboard, RawDisplay display)
+    public DataReader(Config config, AbstractScoreboard scoreboard, RawDisplay display)
     {
         this.config = config;
         this.scoreboard = scoreboard;
