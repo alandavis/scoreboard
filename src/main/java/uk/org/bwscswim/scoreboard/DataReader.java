@@ -61,6 +61,7 @@ public class DataReader
         this.config = config;
         this.scoreboard = scoreboard;
         this.display = display;
+        setTrace(config.getBoolean("trace", true));
     }
 
     void setInputStream(InputStream inputStream)

@@ -230,7 +230,28 @@ public class Config
     public SerialPort getPort()
     {
         String port = getString("port", "COM4");
-        return SerialPort.getCommPort(port);
+        SerialPort commPort = SerialPort.getCommPort(port);
+
+        commPort.setBaudRate(getInt("baudRate", 19200));
+        commPort.setNumDataBits(getInt("numDataBits", 8));
+        commPort.setNumStopBits(getInt("numStopBits", 1));
+        commPort.setParity(getInt("parity", SerialPort.NO_PARITY)); // 0
+        commPort.setFlowControl(getInt("flowControl", SerialPort.FLOW_CONTROL_DISABLED)); // 0
+        commPort.setComPortTimeouts(
+                getInt("timeoutMode", SerialPort.TIMEOUT_READ_BLOCKING), // 2
+                getInt("readTimeout", 0),
+                getInt("writeTimeout", 0));
+
+        System.err.println(
+                "baudRate="+commPort.getBaudRate()+
+                " numDataBits="+commPort.getNumDataBits()+
+                " numStopBits="+commPort.getNumStopBits()+
+                " parity="+commPort.getParity()+
+                " flowControl="+commPort.getFlowControlSettings()+
+                " readTimeout="+commPort.getReadTimeout()+
+                " writeTimeout="+commPort.getWriteTimeout());
+
+         return commPort;
     }
 
     public String getTestFilename()

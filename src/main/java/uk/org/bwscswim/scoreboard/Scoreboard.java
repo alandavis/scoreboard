@@ -98,6 +98,7 @@ public class Scoreboard extends BaseBorad
         Font laneFont = config.getFont("lane");
 
         String testTitle = config.getTest("title");
+        testTitle = testTitle.substring(0,1)+"SB "+testTitle.substring(4);
         String testSubTitle = config.getTest("subTitle");
         String testClock = config.getTest("clock");
         String testName = config.getTest("name");

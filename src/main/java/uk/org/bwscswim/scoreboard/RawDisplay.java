@@ -23,6 +23,7 @@ public class RawDisplay extends BaseBorad
         Font laneFont = config.getFont("lane");
 
         String testLine0 = config.getTest("title");
+        testLine0 = testLine0.substring(0,1)+"RAW "+testLine0.substring(5);
         String testLine1 = config.getTest("subTitle")+"          "+config.getTest("clock");
         String testLane =
                 config.getTest("name")+" "+
