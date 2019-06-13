@@ -243,7 +243,8 @@ public class Config
                 getInt("writeTimeout", 0));
 
         System.err.println(
-                "baudRate="+commPort.getBaudRate()+
+                "port="+port+
+                " baudRate="+commPort.getBaudRate()+
                 " numDataBits="+commPort.getNumDataBits()+
                 " numStopBits="+commPort.getNumStopBits()+
                 " parity="+commPort.getParity()+
