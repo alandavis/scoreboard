@@ -349,9 +349,12 @@ public class DataReader
                     scoreboard.setTitle(title);
                     scoreboard.setSubTitle(subTitle);
 
+                    String lanesRange = config.getString("lanesRange", null);
+                    int from = Text.getCharRangeFrom(lanesRange);
+                    int to = Text.getCharRangeTo(lanesRange);
                     String laneRange = config.getString("laneRange", null);
                     int i = Text.getCharRangeFrom(laneRange);
-                    char firstCharOfLanes = text.getChar(lineNumber, i, 'x');
+                    char firstCharOfLanes = text.getChar(from, i, ' ');
 
                     if (firstCharOfLanes != ' ')
                     {
@@ -363,14 +366,11 @@ public class DataReader
                         scoreboard.setClock(clock);
                     }
 
-                    String lanesRange = config.getString("lanesRange", null);
-                    String placeRange = config.getString("placeRange", null);
-                    int from = Text.getCharRangeFrom(lanesRange);
-                    int to = Text.getCharRangeTo(lanesRange);
                     if (lineNumber >= from && lineNumber < to)
                     {
                         if (firstCharOfLanes != ' ') // Just a timer, so ignore
                         {
+                            String placeRange = config.getString("placeRange", null);
                             boolean result = firstCharOfLanes == 'P';
                             int indent = result ? 1 : 0;
                             int laneDefault = lineNumber - from + 1;
