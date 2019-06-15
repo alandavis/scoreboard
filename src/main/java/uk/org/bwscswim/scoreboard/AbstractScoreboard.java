@@ -43,6 +43,7 @@ public abstract class AbstractScoreboard extends BaseBorad
     protected JLabel subTitle = new JLabel();
     protected JLabel clock  = new JLabel();
     protected List<Swimmer> swimmers = new ArrayList<>();
+
     protected GroupLayout layout = new GroupLayout(contentPane);
     protected int laneCount;
 
@@ -52,6 +53,10 @@ public abstract class AbstractScoreboard extends BaseBorad
         laneCount = config.getLaneCount();
         contentPane.setLayout(layout);
         createSwimmers();
+        if (displayVisible)
+        {
+            System.out.println("Using display: "+name);
+        }
     }
 
     @Override
@@ -176,17 +181,17 @@ public abstract class AbstractScoreboard extends BaseBorad
     public void setLaneValues(int line, int lane, int place, String name, String club, String time)
     {
         Swimmer swimmer = swimmers.get(line);
-        swimmer.lane.setText(Integer.toString(lane));
+        swimmer.lane.setText(lane == 0 ? " "  : Integer.toString(lane));
         swimmer.place.setText(getPlace(place));
         swimmer.name.setText(pad(name, config.getInt("nameLength", 16)));
         swimmer.club.setText(pad(club, config.getInt("clubLength", 4)));
         swimmer.time.setText(pad(time, config.getInt("timeLength", 8)));
     }
 
-    private String getPlace(int place)
+    protected String getPlace(int place)
     {
         return
-            place <= 0 ? "" :
+            place <= 0 ? "   " :
             place == 1 ? "1st" :
             place == 2 ? "2nd" :
             place == 3 ? "3rd" :

@@ -95,6 +95,5 @@ public class RawDisplay extends BaseBorad
         }
         text = sb.toString();
         line.setText(text);
-        setVisible(true);
     }
 }

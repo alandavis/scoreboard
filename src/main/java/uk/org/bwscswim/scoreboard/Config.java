@@ -265,31 +265,6 @@ public class Config
         return getBoolean("testLoop", false);
     }
 
-    public int getF0()
-    {
-        return getInt("laneOffset", 0);
-    }
-
-    public int getNameOffset()
-    {
-        return getInt("nameOffset", 3);
-    }
-
-    public int getClubOffset()
-    {
-        return getInt("clubOffset", 20);
-    }
-
-    public int getTimeOffset()
-    {
-        return getInt("timeOffset", 25);
-    }
-
-    public int getPlaceOffset()
-    {
-        return getInt("placeOffset", 34);
-    }
-
     // Basic types
 
     public String getString(String key, String defaultValue)

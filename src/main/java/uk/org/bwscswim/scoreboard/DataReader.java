@@ -47,8 +47,7 @@ public class DataReader
     private static final String CONTROL_SUFFIX = "004010";
     private static final int CONTROL_SUFFIX_LENGTH = CONTROL_SUFFIX.length();
 
-    private final AbstractScoreboard scoreboard;
-    private final RawDisplay display;
+    private final BaseBorad scoreboard;
     private final Config config;
 
     private int prevByte;
@@ -56,11 +55,10 @@ public class DataReader
     private boolean trace = true;
     private Text text = new Text();
 
-    public DataReader(Config config, AbstractScoreboard scoreboard, RawDisplay display)
+    public DataReader(Config config, BaseBorad scoreboard)
     {
         this.config = config;
         this.scoreboard = scoreboard;
-        this.display = display;
         setTrace(config.getBoolean("trace", true));
     }
 
@@ -316,10 +314,8 @@ public class DataReader
     {
         if (fields.length == 3)
         {
-            display.setResult(false);
             scoreboard.setResult(false);
             scoreboard.clear();
-            display.clear();
             text.clear();
         }
         else if (fields.length == 4)
@@ -337,63 +333,12 @@ public class DataReader
                 if (swimmerLine)
                 {
                     boolean result = data.charAt(0) == 'P';
-                    display.setResult(result);
                     scoreboard.setResult(result);
                 }
 
-                display.setText(lineNumber, offset, data);
-
-                if (config.getBoolean("fixedLayout", true))
+                if (scoreboard instanceof AbstractScoreboard)
                 {
-                    if (!swimmerLine)
-                    {
-                        int l = lineNumber == 11 ? 0 : lineNumber;
-                        data = data.trim();
-                        if (lineNumber == 0)
-                        {
-                            scoreboard.setTitle(data);
-                        }
-                        else if (lineNumber == 1 && position != 120)
-                        {
-                            scoreboard.setSubTitle(data);
-                        }
-                        else
-                        {
-                            scoreboard.setClock(data);
-                        }
-                    }
-                    else
-                    {
-                        int laneOfset = config.getF0();
-                        int nameOffset = config.getNameOffset();
-                        int clubOffset = config.getClubOffset();
-                        int timeOffset = config.getTimeOffset();
-                        int placeOffset = config.getPlaceOffset();
-
-                        if (data.length() < placeOffset)
-                        {
-                            throw new StreamCorruptedException("Expected data to be at lease " + (placeOffset + 1) + " characters long. " + format(data));
-                        }
-
-                        int p = placeOffset;
-                        int l = laneOfset;
-                        if (data.charAt(0) == 'P')
-                        {
-                            p = laneOfset;
-                            l = placeOffset;
-                            data = data.substring(1);
-                        }
-                        int lane = parseInt(data, l, (nameOffset - laneOfset - 1));
-                        String name = data.substring(nameOffset, clubOffset).trim();
-                        String club = data.substring(clubOffset, timeOffset).trim();
-                        String time = data.substring(timeOffset, placeOffset).trim();
-                        int place = parseInt(data, p, (nameOffset - laneOfset - 1));
-
-                        scoreboard.setLaneValues(lineNumber - 2, lane, place, name, club, time);
-                    }
-                }
-                else
-                {
+                    AbstractScoreboard scoreboard = (AbstractScoreboard) this.scoreboard;
                     text.setText(lineNumber, offset, data);
                     String title = text.getText(config.getString("titleRange", null), "");
                     String subTitle = text.getText(config.getString("subTitleRange", null), "");
@@ -419,6 +364,7 @@ public class DataReader
                     }
 
                     String lanesRange = config.getString("lanesRange", null);
+                    String placeRange = config.getString("placeRange", null);
                     int from = Text.getCharRangeFrom(lanesRange);
                     int to = Text.getCharRangeTo(lanesRange);
                     if (lineNumber >= from && lineNumber < to)
@@ -426,22 +372,24 @@ public class DataReader
                         if (firstCharOfLanes != ' ') // Just a timer, so ignore
                         {
                             boolean result = firstCharOfLanes == 'P';
-                            int o = result ? 1 : 0;
-                            String lane = text.getText(lineNumber, laneRange, o,"").trim();
-                            String name = text.getText(lineNumber, config.getString("nameRange", null), o, "").trim();
-                            String club = text.getText(lineNumber, config.getString("clubRange", null), o, "").trim();
-                            String time = text.getText(lineNumber, config.getString("timeRange", null), o, "").trim();
-                            String place = text.getText(lineNumber, config.getString("placeRange", null), o, "").trim();
-                            place = place.isEmpty() ? "0" : place;
-                            if (result)
-                            {
-                                String tmp = place;
-                                place = lane;
-                                lane = tmp;
-                            }
-                            scoreboard.setLaneValues(lineNumber - from, Integer.parseInt(lane), Integer.parseInt(place), name, club, time);
+                            int indent = result ? 1 : 0;
+                            int laneDefault = lineNumber - from + 1;
+                            int lane = result
+                                ? text.getInt(lineNumber, placeRange, indent, laneDefault)
+                                : text.getInt(lineNumber, laneRange, indent, laneDefault);
+                            int place = result
+                                ? text.getInt(lineNumber, laneRange, indent, 0)
+                                : text.getInt(lineNumber, placeRange, indent, 0);
+                            String name = text.getText(lineNumber, config.getString("nameRange", null), indent, "").trim();
+                            String club = text.getText(lineNumber, config.getString("clubRange", null), indent, "").trim();
+                            String time = text.getText(lineNumber, config.getString("timeRange", null), indent, "").trim();
+                            scoreboard.setLaneValues(lineNumber - from, lane, place, name, club, time);
                         }
                     }
+                }
+                else
+                {
+                    ((RawDisplay) scoreboard).setText(lineNumber, offset, data);
                 }
             }
         }

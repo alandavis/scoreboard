@@ -34,13 +34,22 @@ public class Text
     {
         int lineNumber = getLineNumber(range);
         String charRange = getCharRange(range);
-        String text = getText(lineNumber, charRange, "");
+        String text = getText(lineNumber, charRange, 0,"");
         return text;
     }
 
-    public String getText(int lineNumber, String charRange, String defaultValue)
+    public int getInt(int lineNumber, String charRange, int offset, int defaultValue)
     {
-        return getText(lineNumber, charRange, 0, defaultValue);
+        String text = getText(lineNumber, charRange, offset, Integer.toString(defaultValue)).trim();
+        int i = defaultValue;
+        try
+        {
+            i = Integer.parseInt(text);
+        }
+        catch (NumberFormatException ignore)
+        {
+        }
+        return i;
     }
 
     public String getText(int lineNumber, String charRange, int offset, String defaultValue)

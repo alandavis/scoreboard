@@ -9,9 +9,12 @@ public class Application
             try
             {
                 Config config = new Config("config.properties");
-                AbstractScoreboard scoreboard = new OriginalScoreboard(config);
-                RawDisplay rawDisplay = new RawDisplay(config);
-                DataReader dataReader = new DataReader(config, scoreboard, rawDisplay);
+                String displayName = config.getDisplayName();
+                BaseBorad scoreboard =
+                        displayName.equalsIgnoreCase("raw") ? new RawDisplay(config) :
+                        displayName.equalsIgnoreCase("old") ? new OldScorboard(config) :
+                        new OriginalScoreboard(config);
+                DataReader dataReader = new DataReader(config, scoreboard);
                 dataReader.readDataInBackground();
             }
             catch (Exception e)
