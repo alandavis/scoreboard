@@ -49,11 +49,11 @@ public abstract class AbstractScoreboard extends BaseBorad
 
     public AbstractScoreboard(Config config, String name)
     {
-        super(config, name.equals(config.getDisplayName()));
-        laneCount = config.getLaneCount();
+        super(config, name);
+        laneCount = config.getInt("laneCount", 6);
         contentPane.setLayout(layout);
         createSwimmers();
-        if (displayVisible)
+        if (scoreboardVisible)
         {
             System.out.println("Using display: "+name);
         }
@@ -77,15 +77,26 @@ public abstract class AbstractScoreboard extends BaseBorad
         }
     }
 
+    public int getHorizontalGap()
+    {
+        return config.getInt(name, null, null, "horizontalGap", 40);
+    }
+
+    public int getPreLaneGap()
+    {
+        return config.getInt(name, null, null, "preLaneGap", 40);
+    }
+
     private void setTestText()
     {
-        String testTitle = config.getTest("title");
-        testTitle = testTitle.substring(0,1)+"SB "+testTitle.substring(4);
-        String testSubTitle = config.getTest("subTitle");
-        String testClock = config.getTest("clock");
-        String testName = config.getTest("name");
-        String testClub = config.getTest("club");
-        String testTime = config.getTest("time");
+        String testTitle = getTest("title");
+        String tla = getScoreboardTLA();
+        testTitle = testTitle.substring(0,1)+ tla +testTitle.substring(tla.length()+1);
+        String testSubTitle = getTest("subTitle");
+        String testClock = getTest("clock");
+        String testName = getTest("name");
+        String testClub = getTest("club");
+        String testTime = getTest("time");
 
         title.setText(testTitle);
         subTitle.setText(testSubTitle);
@@ -102,10 +113,12 @@ public abstract class AbstractScoreboard extends BaseBorad
         }
     }
 
+    protected abstract String getScoreboardTLA();
+
     private void setFonts()
     {
-        Font titleFont = config.getFont("title");
-        Font laneFont = config.getFont("lane");
+        Font titleFont = config.getFont(name, state, "title");
+        Font laneFont = config.getFont(name, state, "lane");
 
         title.setFont(titleFont);
         subTitle.setFont(titleFont);
@@ -198,31 +211,13 @@ public abstract class AbstractScoreboard extends BaseBorad
             place + "th";
     }
 
-    private String pad(String value, int length)
-    {
-        if (value.length() >= length)
-        {
-            value = value.substring(0, length);
-        }
-        else
-        {
-            StringBuilder sb = new StringBuilder(value);
-            while (sb.length() < length)
-            {
-                sb.append(' ');
-            }
-            value = sb.toString();
-        }
-        return value;
-    }
-
     @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder("Scoreboard{").
                 append("title='").append(title.getText().trim()).append("', ").
                 append("subTitle='").append(subTitle.getText().trim()).append("', ").
-                append("result=").append(result).append(", ").
+                append("state=").append(state.name().toLowerCase()).append(", ").
                 append("clock='").append(clock.getText().trim()).append("', ").
                 append("swimmers=[");
         Iterator<Swimmer> iterator = swimmers.iterator();

@@ -7,16 +7,32 @@ import java.awt.event.KeyEvent;
 public abstract class BaseBorad extends javax.swing.JFrame
 {
     protected final Config config;
+    protected final String name;
     protected Container contentPane;
-    protected boolean displayVisible;
+    protected boolean scoreboardVisible;
 
-    protected boolean result;
+    protected State state = State.CLOCK;
 
-    public BaseBorad(Config config, boolean displayVisible)
+    public BaseBorad(Config config, String name)
     {
         this.config = config;
+        this.name = name;
         contentPane = getContentPane();
-        this.displayVisible = displayVisible;
+        String activeScoreboardName = getActiveScoreboardName(config);
+        this.scoreboardVisible = name.equals(activeScoreboardName);
+    }
+
+    public static BaseBorad createScoreboard(Config config)
+    {
+        String activeScoreboardName = getActiveScoreboardName(config);
+        return activeScoreboardName.equalsIgnoreCase("raw") ? new RawDisplay(config) :
+               activeScoreboardName.equalsIgnoreCase("old") ? new OldScorboard(config) :
+               new OriginalScoreboard(config);
+    }
+
+    private static String getActiveScoreboardName(Config config)
+    {
+        return config.getString("scoreboardName", "original");
     }
 
     protected void postConstructor()
@@ -24,7 +40,7 @@ public abstract class BaseBorad extends javax.swing.JFrame
         setColors();
         exitOnEscapeOrEnter();
         pack();
-        if (config.isFullScreen())
+        if (config.getBoolean(name, null, null, "fullScreen", true))
         {
             makeFrameFullSize();
         }
@@ -48,14 +64,17 @@ public abstract class BaseBorad extends javax.swing.JFrame
         });
     }
 
+    protected String getTest(String componentName)
+    {
+        return config.getString(null, null, null, componentName+"Test", "");
+    }
+
     protected void setColors()
     {
-        Color background = config.getBackground(result);
-        Color titleForeground = config.getForeground("title", result);
-        Color laneForeground = config.getForeground("lane", result);
-
+        Color background = config.getColor(name, state, null, "background", Color.BLACK);
+        Color titleForeground = config.getColor(name, state, name, "title.foreground", Color.YELLOW);
+        Color laneForeground = config.getColor(name, state, name, "lane.foreground", Color.WHITE);
         contentPane.setBackground(background);
-
         setColors(background, titleForeground, laneForeground);
     }
 
@@ -64,7 +83,7 @@ public abstract class BaseBorad extends javax.swing.JFrame
     @Override
     public void setVisible(boolean visible)
     {
-        if (displayVisible)
+        if (scoreboardVisible)
         {
             super.setVisible(visible);
         }
@@ -72,7 +91,7 @@ public abstract class BaseBorad extends javax.swing.JFrame
 
     private void makeFrameFullSize()
     {
-        if (displayVisible)
+        if (scoreboardVisible)
         {
             String graphicsDeviceId = config.getString("graphicsDevice", null);
             GraphicsDevice graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -122,14 +141,32 @@ public abstract class BaseBorad extends javax.swing.JFrame
         }
     }
 
-    protected void setResult(boolean result)
+    protected void setState(State state)
     {
-        if (this.result != result)
+        if (this.state != state)
         {
-            this.result = result;
+            this.state = state;
             setColors();
         }
     }
 
     public abstract void clear();
+
+    protected String pad(String value, int length)
+    {
+        if (value.length() >= length)
+        {
+            value = value.substring(0, length);
+        }
+        else
+        {
+            StringBuilder sb = new StringBuilder(value);
+            while (sb.length() < length)
+            {
+                sb.append(' ');
+            }
+            value = sb.toString();
+        }
+        return value;
+    }
 }

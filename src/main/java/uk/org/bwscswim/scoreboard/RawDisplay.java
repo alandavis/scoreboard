@@ -2,8 +2,6 @@ package uk.org.bwscswim.scoreboard;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,25 +12,25 @@ public class RawDisplay extends BaseBorad
 
     public RawDisplay(Config config)
     {
-        super(config, "raw".equals(config.getDisplayName()));
+        super(config, "raw");
 
         BoxLayout layout = new BoxLayout(contentPane, BoxLayout.Y_AXIS);
         contentPane.setLayout(layout);
 
-        Font titleFont = config.getFont("title");
-        Font laneFont = config.getFont("lane");
+        Font titleFont = config.getFont(name, state, "title");
+        Font laneFont = config.getFont(name, state, "lane");
 
-        String testLine0 = config.getTest("title");
+        String testLine0 = getTest("title");
         testLine0 = testLine0.substring(0,1)+"RAW "+testLine0.substring(5);
-        String testLine1 = config.getTest("subTitle")+"          "+config.getTest("clock");
+        String testLine1 = getTest("subTitle")+"          "+getTest("clock");
         String testLane =
-                config.getTest("name")+" "+
-                config.getTest("club")+" "+
-                config.getTest("time")+" ";
+                getTest("name")+" "+
+                getTest("club")+" "+
+                getTest("time")+" ";
 
-        int lineCount = config.getLineCount();
-        int titleLineLength = config.getTitleLineLength();
-        int laneLineLength = config.getLaneLineLength();
+        int lineCount = getLineCount();
+        int titleLineLength = getTitleLineLength();
+        int laneLineLength = getLaneLineLength();
         lines = new ArrayList<>(lineCount);
         for (int lineNumber=0; lineNumber<lineCount; lineNumber++)
         {
@@ -43,7 +41,7 @@ public class RawDisplay extends BaseBorad
             lineLengths.add(lineNumber <= 1 ? titleLineLength : laneLineLength);
             lines.add(line);
 
-            if (config.isLineVisible(lineNumber))
+            if (config.getBoolean(name, state, null, "line"+lineNumber+"Visible", true))
             {
                 contentPane.add(line);
                 setText(lineNumber, 0, text);
@@ -55,13 +53,28 @@ public class RawDisplay extends BaseBorad
     @Override
     public void setColors(Color background, Color titleForeground, Color laneForeground)
     {
-        int lineCount = config.getLineCount();
+        int lineCount = getLineCount();
         for (int lineNumber=0; lineNumber<lineCount; lineNumber++)
         {
             JLabel line = lines.get(lineNumber);
             line.setForeground(lineNumber <= 1 ? titleForeground : laneForeground);
             line.setBackground(background);
         }
+    }
+
+    private int getLineCount()
+    {
+        return config.getInt(name, null, null, "lineCount", 12);
+    }
+
+    private int getTitleLineLength()
+    {
+        return config.getInt(name, null, "title", "lineLength", 38);
+    }
+
+    private int getLaneLineLength()
+    {
+        return config.getInt(name, null, "title", "laneLength", 38);
     }
 
     @Override
@@ -81,19 +94,13 @@ public class RawDisplay extends BaseBorad
             lineNumber = 1;
         }
         JLabel line = lines.get(lineNumber);
-        String orig = line.getText();
-        StringBuilder sb = new StringBuilder(orig);
-        while (sb.length() < offset)
-        {
-            sb.append(' ');
-        }
-        sb.replace(offset, offset+text.length(), text);
         int lineLength = lineLengths.get(lineNumber);
-        while (sb.length() > lineLength)
-        {
-            sb.setLength(sb.length()-1);
-        }
-        text = sb.toString();
+        String orig = line.getText();
+        orig = pad(orig, lineLength);
+        StringBuilder sb = new StringBuilder(orig);
+        sb.replace(offset, offset+text.length(), text);
+        text = pad(sb.toString(), lineLength);
+        System.err.println("len="+text.length());
         line.setText(text);
     }
 }

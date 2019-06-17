@@ -22,7 +22,7 @@ public class OldScorboard extends AbstractScoreboard
 
         GroupLayout.SequentialGroup rows = layout.createSequentialGroup();
 
-        int horizontalGap = config.getHorizontalGap();
+        int horizontalGap = getHorizontalGap();
 
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
@@ -48,6 +48,7 @@ public class OldScorboard extends AbstractScoreboard
                 layout.createSequentialGroup()
                         .addComponent(title)
                         .addComponent(subTitle)
+                        .addGap(getPreLaneGap())
                         .addGroup(rows)
                         .addGroup(layout.createParallelGroup()
                                 .addComponent(clock)
@@ -76,6 +77,12 @@ public class OldScorboard extends AbstractScoreboard
         }
 
         postConstructor();
+    }
+
+    @Override
+    protected String getScoreboardTLA()
+    {
+        return "OLD";
     }
 
     @Override

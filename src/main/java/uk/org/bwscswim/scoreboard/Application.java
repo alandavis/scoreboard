@@ -9,11 +9,7 @@ public class Application
             try
             {
                 Config config = new Config("config.properties");
-                String displayName = config.getDisplayName();
-                BaseBorad scoreboard =
-                        displayName.equalsIgnoreCase("raw") ? new RawDisplay(config) :
-                        displayName.equalsIgnoreCase("old") ? new OldScorboard(config) :
-                        new OriginalScoreboard(config);
+                BaseBorad scoreboard = BaseBorad.createScoreboard(config);
                 DataReader dataReader = new DataReader(config, scoreboard);
                 dataReader.readDataInBackground();
             }

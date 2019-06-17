@@ -18,7 +18,7 @@ public class OriginalScoreboard extends AbstractScoreboard
 
         GroupLayout.SequentialGroup rows = layout.createSequentialGroup();
 
-        int horizontalGap = config.getHorizontalGap();
+        int horizontalGap = getHorizontalGap();
 
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
@@ -43,7 +43,7 @@ public class OriginalScoreboard extends AbstractScoreboard
                         .addGroup(layout.createParallelGroup()
                                 .addComponent(subTitle)
                                 .addComponent(clock))
-                        .addGap(config.getPreLaneGap())
+                        .addGap(getPreLaneGap())
                         .addGroup(rows));
 
         for (Swimmer swimmer : swimmers)
@@ -63,5 +63,11 @@ public class OriginalScoreboard extends AbstractScoreboard
         }
 
         postConstructor();
+    }
+
+    @Override
+    protected String getScoreboardTLA()
+    {
+        return "ORG";
     }
 }

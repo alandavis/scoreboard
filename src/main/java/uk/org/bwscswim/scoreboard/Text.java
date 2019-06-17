@@ -69,43 +69,23 @@ public class Text
 
     private int getLineNumber(String range)
     {
-        checkRange(range);
         String lineStr = range.substring(0, 2);
         return Integer.parseInt(lineStr);
     }
 
     private String getCharRange(String range)
     {
-        checkRange(range);
         return range.substring(2, 6)+range.substring(8,10);
     }
 
     public static int getCharRangeFrom(String charRange)
     {
-        checkCharRange(charRange);
         return Integer.parseInt(charRange.substring(0,2));
     }
 
     public static int getCharRangeTo(String charRange)
     {
-        checkCharRange(charRange);
         return Integer.parseInt(charRange.substring(4,6))+1;
-    }
-
-    private void checkRange(String range)
-    {
-        if (range == null || range.length() != 10 || !"..".equals(range.substring(4,6)) || !range.substring(0,2).equals(range.substring(6,8)))
-        {
-            throw new IllegalArgumentException("Range llc1..llc2 "+range+" is invalid");
-        }
-    }
-
-    private static void checkCharRange(String charRange)
-    {
-        if (charRange == null || charRange.length() != 6 || !"..".equals(charRange.substring(2,4)))
-        {
-            throw new IllegalArgumentException("Char range c1..c2 "+charRange+" is invalid");
-        }
     }
 
     public char getChar(int lineNumber, int offset, char defaultValue)

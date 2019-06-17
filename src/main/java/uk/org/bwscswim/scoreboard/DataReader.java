@@ -83,69 +83,66 @@ public class DataReader
                 logger.info((i+1) + ". " + commPorts[i].getPortDescription());
             }
         }
-        Thread t = new Thread(new Runnable()
+        Thread t = new Thread(() ->
         {
-            public void run()
+            String testFilename = config.getString("testFilename", null);
+            if (testFilename != null && !testFilename.isEmpty())
             {
-                String testFilename = config.getTestFilename();
-                if (testFilename != null && !testFilename.isEmpty())
+                do
                 {
-                    do
+                    try
+                    {
+                        inputStream = new DummyInputStream(testFilename);
+                        readInputStream();
+                    }
+                    catch (InterruptedException ignore)
+                    {
+                    }
+                    catch (FileNotFoundException e)
+                    {
+                        System.err.println("The test file " + testFilename + " could not be found.");
+                    }
+                    finally
                     {
                         try
                         {
-                            inputStream = new DummyInputStream(testFilename);
-                            readInputStream();
+                            inputStream.close();
                         }
-                        catch (InterruptedException ignore)
+                        catch (IOException ignore)
                         {
                         }
-                        catch (FileNotFoundException e)
-                        {
-                            System.err.println("The test file " + testFilename + " could not be found.");
-                        }
-                        finally
+                    }
+                } while (config.getBoolean("testLoop", false) && trace);
+                System.exit(0);
+            }
+            else
+            {
+                // Keep trying in case the port is temporary not there.
+                for (; ; )
+                {
+                    try
+                    {
+                        SerialPort port = config.getPort();
+                        if (port.openPort())
                         {
                             try
                             {
-                                inputStream.close();
-                            }
-                            catch (IOException ignore)
+                                inputStream = port.getInputStream();
+                                readInputStream();
+                            } finally
                             {
+                                port.closePort();
                             }
                         }
-                    } while (config.isTestLoop() && trace);
-                    System.exit(0);
-                }
-                else
-                {
-                    // Keep trying in case the port is temporary not there.
-                    for (; ; )
+                        else
+                        {
+                            System.err.println("The port " + port.getSystemPortName() + " failed to open for an unknown reason.");
+                        }
+                        Thread.sleep(2000);
+                    }
+                    catch (InterruptedException e)
                     {
-                        try
-                        {
-                            SerialPort port = config.getPort();
-                            if (port.openPort())
-                            {
-                                try
-                                {
-                                    inputStream = port.getInputStream();
-                                    readInputStream();
-                                } finally
-                                {
-                                    port.closePort();
-                                }
-                            }
-                            else
-                            {
-                                System.err.println("The port " + port.getSystemPortName() + " failed to open for an unknown reason.");
-                            }
-                            Thread.sleep(2000);
-                        }
-                        catch (InterruptedException e)
-                        {
-                            break;
-                        }
+                        break;
                     }
                 }
             }
@@ -314,7 +311,7 @@ public class DataReader
     {
         if (fields.length == 3)
         {
-            scoreboard.setResult(false);
+            scoreboard.setState(State.CLOCK);
             scoreboard.clear();
             text.clear();
         }
@@ -333,26 +330,26 @@ public class DataReader
                 if (swimmerLine)
                 {
                     boolean result = data.charAt(0) == 'P';
-                    scoreboard.setResult(result);
+                    scoreboard.setState(result ? State.RESULT : null);
                 }
 
                 if (scoreboard instanceof AbstractScoreboard)
                 {
                     AbstractScoreboard scoreboard = (AbstractScoreboard) this.scoreboard;
                     text.setText(lineNumber, offset, data);
-                    String title = text.getText(config.getString("titleRange", null), "");
-                    String subTitle = text.getText(config.getString("subTitleRange", null), "");
-                    String clock = text.getText(config.getString("clockRange", null), "");
-                    String timer = text.getText(config.getString("timerRange", null), "");
+                    String title = text.getText(config.getRange("titleRange", null), "");
+                    String subTitle = text.getText(config.getRange("subTitleRange", null), "");
+                    String clock = text.getText(config.getRange("clockRange", null), "");
+                    String timer = text.getText(config.getRange("timerRange", null), "");
                     clock = clock.startsWith(" ") ? "" : clock;
                     timer = timer.startsWith(" ") ? timer : "";
                     scoreboard.setTitle(title);
                     scoreboard.setSubTitle(subTitle);
 
-                    String lanesRange = config.getString("lanesRange", null);
+                    String lanesRange = config.getCharRange("lanesRange", null);
                     int from = Text.getCharRangeFrom(lanesRange);
                     int to = Text.getCharRangeTo(lanesRange);
-                    String laneRange = config.getString("laneRange", null);
+                    String laneRange = config.getCharRange("laneRange", null);
                     int i = Text.getCharRangeFrom(laneRange);
                     char firstCharOfLanes = text.getChar(from, i, ' ');
 
@@ -370,7 +367,7 @@ public class DataReader
                     {
                         if (firstCharOfLanes != ' ') // Just a timer, so ignore
                         {
-                            String placeRange = config.getString("placeRange", null);
+                            String placeRange = config.getCharRange("placeRange", null);
                             boolean result = firstCharOfLanes == 'P';
                             int indent = result ? 1 : 0;
                             int laneDefault = lineNumber - from + 1;
@@ -380,9 +377,9 @@ public class DataReader
                             int place = result
                                 ? text.getInt(lineNumber, laneRange, indent, 0)
                                 : text.getInt(lineNumber, placeRange, indent, 0);
-                            String name = text.getText(lineNumber, config.getString("nameRange", null), indent, "").trim();
-                            String club = text.getText(lineNumber, config.getString("clubRange", null), indent, "").trim();
-                            String time = text.getText(lineNumber, config.getString("timeRange", null), indent, "").trim();
+                            String name = text.getText(lineNumber, config.getCharRange("nameRange", null), indent, "").trim();
+                            String club = text.getText(lineNumber, config.getCharRange("clubRange", null), indent, "").trim();
+                            String time = text.getText(lineNumber, config.getCharRange("timeRange", null), indent, "").trim();
                             scoreboard.setLaneValues(lineNumber - from, lane, place, name, club, time);
                         }
                     }
