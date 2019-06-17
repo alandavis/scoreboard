@@ -22,7 +22,8 @@ public class RawDisplay extends BaseBorad
 
         String testLine0 = getTest("title");
         testLine0 = testLine0.substring(0,1)+"RAW "+testLine0.substring(5);
-        String testLine1 = getTest("subTitle")+"          "+getTest("clock");
+        String testLine1 = getTest("subTitle");
+        String testLine11 = getTest("clock");
         String testLane =
                 getTest("name")+" "+
                 getTest("club")+" "+
@@ -36,12 +37,16 @@ public class RawDisplay extends BaseBorad
         {
             JLabel line = new JLabel();
             line.setFont(lineNumber <= 1 ? titleFont : laneFont);
-            int lane = lineNumber-2;
-            String text = lineNumber == 0 ? testLine0 : lineNumber == 1 ? testLine1 : lane+"  "+testLane+" "+lane;
+            int lane = lineNumber-1;
+            String text =
+                    lineNumber == 0 ? testLine0 :
+                    lineNumber == 1 ? testLine1 :
+                    lineNumber == 11 ? testLine11 :
+                            lane+"  "+testLane+" "+lane;
             lineLengths.add(lineNumber <= 1 ? titleLineLength : laneLineLength);
             lines.add(line);
 
-            if (config.getBoolean(name, state, null, "line"+lineNumber+"Visible", true))
+            if (config.getBoolean(name, null, null, "line"+lineNumber+"Visible", true))
             {
                 contentPane.add(line);
                 setText(lineNumber, 0, text);
@@ -100,7 +105,6 @@ public class RawDisplay extends BaseBorad
         StringBuilder sb = new StringBuilder(orig);
         sb.replace(offset, offset+text.length(), text);
         text = pad(sb.toString(), lineLength);
-        System.err.println("len="+text.length());
         line.setText(text);
     }
 }

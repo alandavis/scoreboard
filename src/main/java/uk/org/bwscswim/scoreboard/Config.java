@@ -330,26 +330,20 @@ public class Config
 
         return () -> new Iterator<String>()
         {
-            int keyLength=keyCompList.size();
+            int start = 0;
+            int end = keyCompList.size();
+            String origAttrName = attributeName;
             String attrName = attributeName;
 
             @Override
             public boolean hasNext()
             {
-                if (keyLength >= 0)
+                if (start <= end)
                 {
                     return true;
                 }
 
-                int i = attrName.indexOf('.');
-                if (i == -1)
-                {
-                    return false;
-                }
-
-                attrName = attrName.substring(i+1);
-                keyLength = keyCompList.size();
-                return hasNext();
+                return !attrName.isEmpty();
             }
 
             @Override
@@ -361,17 +355,45 @@ public class Config
                 }
 
                 StringBuilder sb = new StringBuilder();
-                if (keyLength > 0)
+                if (start <= end)
                 {
-                    sb.append(keyCompList.get(0)).append('.');
-                    for (int i = 1; i < keyLength; i++)
+                    for (int i = start; i < end; i++)
                     {
                         sb.append(keyCompList.get(i)).append('.');
                     }
+                    end--;
+                    if (start == end)
+                    {
+                        if (start < keyCompList.size()-1)
+                        {
+                            start++;
+                            end = keyCompList.size();
+                        }
+                     }
                 }
-                keyLength--;
                 sb.append(attrName);
-                return sb.toString();
+
+                if (start == end)
+                {
+                    int i = attrName.indexOf('.');
+                    if (i != -1)
+                    {
+                        attrName = attrName.substring(i+1);
+                        start = 0;
+                        end = keyCompList.size();
+                    }
+                    else
+                    {
+                        attrName = origAttrName;
+                    }
+                }
+                else if (start > end)
+                {
+                    int i = attrName.indexOf('.');
+                    attrName = i == -1 ? "" : attrName.substring(i+1);
+                }
+                String key = sb.toString();
+                return key;
             }
         };
     }
