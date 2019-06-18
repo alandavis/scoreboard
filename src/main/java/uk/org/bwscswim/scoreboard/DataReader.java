@@ -47,7 +47,7 @@ public class DataReader
     private static final String CONTROL_SUFFIX = "004010";
     private static final int CONTROL_SUFFIX_LENGTH = CONTROL_SUFFIX.length();
 
-    private final BaseBorad scoreboard;
+    private final BaseBoard scoreboard;
     private final Config config;
 
     private int prevByte;
@@ -55,7 +55,7 @@ public class DataReader
     private boolean trace = true;
     private Text text = new Text();
 
-    public DataReader(Config config, BaseBorad scoreboard)
+    public DataReader(Config config, BaseBoard scoreboard)
     {
         this.config = config;
         this.scoreboard = scoreboard;
@@ -311,7 +311,7 @@ public class DataReader
     {
         if (fields.length == 3)
         {
-            scoreboard.setState(State.CLOCK);
+            scoreboard.setState(State.TIME_OF_DAY);
             scoreboard.clear();
             text.clear();
         }

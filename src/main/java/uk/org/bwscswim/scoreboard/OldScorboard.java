@@ -26,8 +26,7 @@ public class OldScorboard extends AbstractScoreboard
 
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
-                        .addComponent(title)
-                        .addComponent(subTitle)
+                        .addComponent(combinedTitle)
                         .addGroup(layout.createSequentialGroup()
                                 .addGroup(lanes1)
                                 .addGap(horizontalGap)
@@ -46,8 +45,7 @@ public class OldScorboard extends AbstractScoreboard
                                 .addComponent(lanePlaces)));
         layout.setVerticalGroup(
                 layout.createSequentialGroup()
-                        .addComponent(title)
-                        .addComponent(subTitle)
+                        .addComponent(combinedTitle)
                         .addGap(getPreLaneGap())
                         .addGroup(rows)
                         .addGroup(layout.createParallelGroup()
@@ -80,14 +78,64 @@ public class OldScorboard extends AbstractScoreboard
     }
 
     @Override
+    protected void setTestText()
+    {
+        super.setTestText();
+        setLanePlaces();
+    }
+
+    @Override
+    protected void setFonts()
+    {
+        super.setFonts();
+        lanePlaces.setFont(placeFont);
+    }
+
+    @Override
+    protected void setColors()
+    {
+        super.setColors();
+        lanePlaces.setForeground(placeForeground);
+        lanePlaces.setBackground(background);
+    }
+
+    @Override
     protected String getScoreboardTLA()
     {
         return "OLD";
     }
 
     @Override
+    public void clear()
+    {
+        super.clear();
+        lanePlaces.setText("");
+    }
+
+    @Override
     protected String getPlace(int place)
     {
         return place <= 0 ? " " : Integer.toString(place);
+    }
+
+    public void setLaneValues(int line, int lane, int place, String name, String club, String time)
+    {
+        super.setLaneValues(line, lane, place, name, club, time);
+        setLanePlaces();
+    }
+
+    private void setLanePlaces()
+    {
+        if (state != State.RESULT)
+        {
+            StringBuilder sb = new StringBuilder("");
+            for (Swimmer swimmer : swimmers)
+            {
+                String text = swimmer.place.getText();
+                text = text.isEmpty() ? " " : text;
+                sb.append(text).append(' ');
+            }
+            lanePlaces.setText(sb.toString());
+        }
     }
 }

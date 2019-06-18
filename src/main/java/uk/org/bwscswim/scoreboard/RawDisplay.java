@@ -5,7 +5,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RawDisplay extends BaseBorad
+public class RawDisplay extends BaseBoard
 {
     private List<JLabel> lines = new ArrayList<>();
     private List<Integer> lineLengths = new ArrayList<>();
@@ -56,8 +56,10 @@ public class RawDisplay extends BaseBorad
     }
 
     @Override
-    public void setColors(Color background, Color titleForeground, Color laneForeground)
+    protected void setColors()
     {
+        super.setColors();
+
         int lineCount = getLineCount();
         for (int lineNumber=0; lineNumber<lineCount; lineNumber++)
         {

@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public abstract class AbstractScoreboard extends BaseBorad
+public abstract class AbstractScoreboard extends BaseBoard
 {
     class Swimmer
     {
@@ -41,11 +41,37 @@ public abstract class AbstractScoreboard extends BaseBorad
 
     protected JLabel title = new JLabel();
     protected JLabel subTitle = new JLabel();
+    protected JLabel combinedTitle = new JLabel();
     protected JLabel clock  = new JLabel();
     protected List<Swimmer> swimmers = new ArrayList<>();
 
     protected GroupLayout layout = new GroupLayout(contentPane);
     protected int laneCount;
+
+    protected Color subTitleForeground;
+    protected Color combinedTitleForeground;
+    protected Color clockForeground;
+    protected Color nameForeground;
+    protected Color clubForeground;
+    protected Color timeForeground;
+    protected Color placeForeground;
+
+    protected Font titleFont;
+    protected Font subTitleFont;
+    protected Font combinedTitleFont;
+    protected Font clockFont;
+    protected Font laneFont;
+    protected Font nameFont;
+    protected Font clubFont;
+    protected Font timeFont;
+    protected Font placeFont;
+
+    protected String testTitle;
+    protected String testSubTitle;
+    protected String testClock;
+    protected String testName;
+    protected String testClub;
+    protected String testTime;
 
     public AbstractScoreboard(Config config, String name)
     {
@@ -59,15 +85,6 @@ public abstract class AbstractScoreboard extends BaseBorad
         }
     }
 
-    @Override
-    protected void postConstructor()
-    {
-        setTestText();
-        setFonts();
-
-        super.postConstructor();
-    }
-
     protected void createSwimmers()
     {
         for (int lane=1; lane<=laneCount; lane++)
@@ -77,29 +94,35 @@ public abstract class AbstractScoreboard extends BaseBorad
         }
     }
 
-    public int getHorizontalGap()
+    @Override
+    protected void postConstructor()
     {
-        return config.getInt(name, null, null, "horizontalGap", 40);
+        getTestText();
+        setTestText();
+
+        getFonts();
+        setFonts();
+
+        super.postConstructor();
     }
 
-    public int getPreLaneGap()
+    protected void getTestText()
     {
-        return config.getInt(name, null, null, "preLaneGap", 40);
-    }
-
-    private void setTestText()
-    {
-        String testTitle = getTest("title");
+        testTitle = getTest("title");
         String tla = getScoreboardTLA();
-        testTitle = testTitle.substring(0,1)+ tla +testTitle.substring(tla.length()+1);
-        String testSubTitle = getTest("subTitle");
-        String testClock = getTest("clock");
-        String testName = getTest("name");
-        String testClub = getTest("club");
-        String testTime = getTest("time");
+        testTitle = testTitle.substring(0, 1) + tla + testTitle.substring(tla.length() + 1);
+        testSubTitle = getTest("subTitle");
+        testClock = getTest("clock");
+        testName = getTest("name");
+        testClub = getTest("club");
+        testTime = getTest("time");
+    }
 
+    protected void setTestText()
+    {
         title.setText(testTitle);
         subTitle.setText(testSubTitle);
+        combinedTitle.setText(testTitle+' '+testSubTitle);
         clock.setText(testClock);
 
         int lane=1;
@@ -115,43 +138,72 @@ public abstract class AbstractScoreboard extends BaseBorad
 
     protected abstract String getScoreboardTLA();
 
-    private void setFonts()
+    protected void getFonts()
     {
-        Font titleFont = config.getFont(name, state, "title");
-        Font laneFont = config.getFont(name, state, "lane");
+        titleFont = config.getFont(name, state, "title");
+        subTitleFont = config.getFont(name, state, "subTitle");
+        combinedTitleFont = config.getFont(name, state, "combinedTitle");
+        clockFont = config.getFont(name, state, "clock");
+        laneFont = config.getFont(name, state, "lane");
+        nameFont = config.getFont(name, state, "name");
+        clubFont = config.getFont(name, state, "club");
+        timeFont = config.getFont(name, state, "time");
+        placeFont = config.getFont(name, state, "place");
+    }
 
+    protected void setFonts()
+    {
         title.setFont(titleFont);
-        subTitle.setFont(titleFont);
-        clock.setFont(titleFont);
+        subTitle.setFont(subTitleFont);
+        combinedTitle.setFont(combinedTitleFont);
+        clock.setFont(clockFont);
 
         for (Swimmer swimmer : swimmers)
         {
             swimmer.lane.setFont(laneFont);
-            swimmer.name.setFont(laneFont);
-            swimmer.club.setFont(laneFont);
-            swimmer.time.setFont(laneFont);
-            swimmer.place.setFont(laneFont);
+            swimmer.name.setFont(nameFont);
+            swimmer.club.setFont(clubFont);
+            swimmer.time.setFont(timeFont);
+            swimmer.place.setFont(placeFont);
         }
     }
 
     @Override
-    public void setColors(Color background, Color titleForeground, Color laneForeground)
+    protected void getColors()
     {
+        super.getColors();
+
+        subTitleForeground = config.getColor(name, state, name, "subTitle.foreground", Color.YELLOW);
+        combinedTitleForeground = config.getColor(name, state, name, "combinedTitle.foreground", Color.YELLOW);
+        clockForeground = config.getColor(name, state, name, "clock.foreground", Color.YELLOW);
+        nameForeground = config.getColor(name, state, name, "lane.foreground", Color.WHITE);
+        clubForeground = config.getColor(name, state, name, "club.foreground", Color.WHITE);
+        timeForeground = config.getColor(name, state, name, "time.foreground", Color.WHITE);
+        placeForeground = config.getColor(name, state, name, "place.foreground", Color.WHITE);
+    }
+
+    @Override
+    protected void setColors()
+    {
+        super.setColors();
+
         title.setForeground(titleForeground);
-        subTitle.setForeground(titleForeground);
-        clock.setForeground(titleForeground);
+        subTitle.setForeground(subTitleForeground);
+        combinedTitle.setForeground(combinedTitleForeground);
+        clock.setForeground(clockForeground);
 
         title.setBackground(background);
         subTitle.setBackground(background);
+        combinedTitle.setBackground(background);
         clock.setBackground(background);
 
         for (Swimmer swimmer : swimmers)
         {
             swimmer.lane.setForeground(laneForeground);
-            swimmer.name.setForeground(laneForeground);
-            swimmer.club.setForeground(laneForeground);
-            swimmer.time.setForeground(laneForeground);
-            swimmer.place.setForeground(laneForeground);
+            swimmer.name.setForeground(nameForeground);
+            swimmer.club.setForeground(clubForeground);
+            swimmer.time.setForeground(timeForeground);
+            swimmer.place.setForeground(placeForeground);
 
             swimmer.lane.setBackground(background);
             swimmer.name.setBackground(background);
@@ -159,6 +211,16 @@ public abstract class AbstractScoreboard extends BaseBorad
             swimmer.time.setBackground(background);
             swimmer.place.setBackground(background);
         }
+    }
+
+    public int getHorizontalGap()
+    {
+        return config.getInt(name, null, null, "horizontalGap", 40);
+    }
+
+    public int getPreLaneGap()
+    {
+        return config.getInt(name, null, null, "preLaneGap", 40);
     }
 
     public void clear()
@@ -178,12 +240,16 @@ public abstract class AbstractScoreboard extends BaseBorad
 
     public void setTitle(String title)
     {
-        this.title.setText(pad(title, config.getInt("titleLength", 30)));
+        String text = pad(title, config.getInt("titleLength", 30));
+        this.title.setText(text);
+        combinedTitle.setText(text);
     }
 
     public void setSubTitle(String subTitle)
     {
-        this.subTitle.setText(pad(subTitle, config.getInt("subTitleLength", 17)));
+        String text = pad(subTitle, config.getInt("subTitleLength", 17));
+        this.subTitle.setText(text);
+        combinedTitle.setText(title.getText()+' '+text);
     }
 
     public void setClock(String clock)
@@ -217,6 +283,7 @@ public abstract class AbstractScoreboard extends BaseBorad
         StringBuilder sb = new StringBuilder("Scoreboard{").
                 append("title='").append(title.getText().trim()).append("', ").
                 append("subTitle='").append(subTitle.getText().trim()).append("', ").
+                append("combinedTitle='").append(combinedTitle.getText().trim()).append("', ").
                 append("state=").append(state.name().toLowerCase()).append(", ").
                 append("clock='").append(clock.getText().trim()).append("', ").
                 append("swimmers=[");

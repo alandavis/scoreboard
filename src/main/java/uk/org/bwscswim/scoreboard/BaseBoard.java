@@ -4,16 +4,20 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public abstract class BaseBorad extends javax.swing.JFrame
+public abstract class BaseBoard extends javax.swing.JFrame
 {
     protected final Config config;
     protected final String name;
     protected Container contentPane;
     protected boolean scoreboardVisible;
 
-    protected State state = State.CLOCK;
+    protected State state = State.TIME_OF_DAY;
 
-    public BaseBorad(Config config, String name)
+    protected Color background;
+    protected Color titleForeground;
+    protected Color laneForeground;
+
+    public BaseBoard(Config config, String name)
     {
         this.config = config;
         this.name = name;
@@ -22,7 +26,7 @@ public abstract class BaseBorad extends javax.swing.JFrame
         this.scoreboardVisible = name.equals(activeScoreboardName);
     }
 
-    public static BaseBorad createScoreboard(Config config)
+    public static BaseBoard createScoreboard(Config config)
     {
         String activeScoreboardName = getActiveScoreboardName(config);
         return activeScoreboardName.equalsIgnoreCase("raw") ? new RawDisplay(config) :
@@ -37,9 +41,12 @@ public abstract class BaseBorad extends javax.swing.JFrame
 
     protected void postConstructor()
     {
+        getColors();
         setColors();
+
         exitOnEscapeOrEnter();
         pack();
+        System.out.println("ScoreboardSize="+getSize());
         if (config.getBoolean(name, null, null, "fullScreen", true))
         {
             makeFrameFullSize();
@@ -64,21 +71,22 @@ public abstract class BaseBorad extends javax.swing.JFrame
         });
     }
 
-    protected String getTest(String componentName)
+    protected void getColors()
     {
-        return config.getString(null, null, null, componentName+"Test", "");
+        background = config.getColor(name, state, null, "background", Color.BLACK);
+        titleForeground = config.getColor(name, state, name, "title.foreground", Color.YELLOW);
+        laneForeground = config.getColor(name, state, name, "lane.foreground", Color.WHITE);
     }
 
     protected void setColors()
     {
-        Color background = config.getColor(name, state, null, "background", Color.BLACK);
-        Color titleForeground = config.getColor(name, state, name, "title.foreground", Color.YELLOW);
-        Color laneForeground = config.getColor(name, state, name, "lane.foreground", Color.WHITE);
         contentPane.setBackground(background);
-        setColors(background, titleForeground, laneForeground);
     }
 
-    public abstract void setColors(Color background, Color titleForeground, Color laneForeground);
+    protected String getTest(String componentName)
+    {
+        return config.getString(null, null, null, componentName+"Test", "");
+    }
 
     @Override
     public void setVisible(boolean visible)
@@ -93,18 +101,9 @@ public abstract class BaseBorad extends javax.swing.JFrame
     {
         if (scoreboardVisible)
         {
-            String graphicsDeviceId = config.getString("graphicsDevice", null);
-            GraphicsDevice graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-            for (GraphicsDevice device : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices())
-            {
-                String id = device.getIDstring();
-                System.out.println("GraphicsDevice "+ id);
-                if (id.equals(graphicsDeviceId))
-                {
-                    graphicsDevice = device;
-                }
-            }
-            System.out.println("Using GraphicsDevice \""+ graphicsDevice.getIDstring()+"\"");
+            GraphicsDevice graphicsDevice = getGraphicsDevice();
+            DisplayMode displayMode = graphicsDevice.getDisplayMode();
+            System.out.println("Using GraphicsDevice \""+ graphicsDevice.getIDstring()+"\" "+displayMode.getWidth()+"x"+displayMode.getHeight());
 
             if (graphicsDevice.isFullScreenSupported())
             {
@@ -136,9 +135,25 @@ public abstract class BaseBorad extends javax.swing.JFrame
             }
             else
             {
-                System.err.println("Full screen not supported by defaultScreenDevice.");
+                System.err.println("Full screen not supported by "+graphicsDevice.getIDstring());
             }
         }
+    }
+
+    private GraphicsDevice getGraphicsDevice()
+    {
+        String graphicsDeviceId = config.getString("graphicsDevice", null);
+        GraphicsDevice graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        for (GraphicsDevice device : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices())
+        {
+            String id = device.getIDstring();
+            System.out.println("GraphicsDevice "+ id);
+            if (id.equals(graphicsDeviceId))
+            {
+                graphicsDevice = device;
+            }
+        }
+        return graphicsDevice;
     }
 
     protected void setState(State state)
@@ -146,6 +161,7 @@ public abstract class BaseBorad extends javax.swing.JFrame
         if (this.state != state)
         {
             this.state = state;
+            getColors();
             setColors();
         }
     }
