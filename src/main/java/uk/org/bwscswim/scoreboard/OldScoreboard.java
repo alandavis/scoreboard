@@ -5,11 +5,11 @@ import javax.swing.*;
 /**
  * AbstractScoreboard tries to be like the original Excel version.
  */
-public class OldScorboard extends AbstractScoreboard
+public class OldScoreboard extends AbstractScoreboard
 {
     protected JLabel lanePlaces = new JLabel();
 
-    public OldScorboard(Config config)
+    public OldScoreboard(Config config)
     {
         super(config, "old");
 
@@ -118,9 +118,9 @@ public class OldScorboard extends AbstractScoreboard
         return place <= 0 ? " " : Integer.toString(place);
     }
 
-    public void setLaneValues(int line, int lane, int place, String name, String club, String time)
+    public void setLaneValues(int index, int lane, int place, String name, String club, String time)
     {
-        super.setLaneValues(line, lane, place, name, club, time);
+        super.setLaneValues(index, lane, place, name, club, time);
         setLanePlaces();
     }
 

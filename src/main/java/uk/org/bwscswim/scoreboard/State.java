@@ -5,5 +5,5 @@ package uk.org.bwscswim.scoreboard;
  */
 public enum State
 {
-    TIME_OF_DAY, LINEUP, READY, RUNNING, RESULT
+    TEST, TIME_OF_DAY, LINEUP, READY, RUNNING, RESULT;
 }

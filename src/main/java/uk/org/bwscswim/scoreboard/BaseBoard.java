@@ -11,11 +11,12 @@ public abstract class BaseBoard extends javax.swing.JFrame
     protected Container contentPane;
     protected boolean scoreboardVisible;
 
-    protected State state = State.TIME_OF_DAY;
+    protected State state = State.TEST;
 
     protected Color background;
     protected Color titleForeground;
     protected Color laneForeground;
+    protected Boolean testCard;
 
     public BaseBoard(Config config, String name)
     {
@@ -24,13 +25,15 @@ public abstract class BaseBoard extends javax.swing.JFrame
         contentPane = getContentPane();
         String activeScoreboardName = getActiveScoreboardName(config);
         this.scoreboardVisible = name.equals(activeScoreboardName);
+        testCard = config.getBoolean("testCard", true);
     }
 
     public static BaseBoard createScoreboard(Config config)
     {
         String activeScoreboardName = getActiveScoreboardName(config);
         return activeScoreboardName.equalsIgnoreCase("raw") ? new RawDisplay(config) :
-               activeScoreboardName.equalsIgnoreCase("old") ? new OldScorboard(config) :
+               activeScoreboardName.equalsIgnoreCase("old") ? new OldScoreboard(config) :
+               activeScoreboardName.equalsIgnoreCase("new1") ? new New1Scoreboard(config) :
                new OriginalScoreboard(config);
     }
 
@@ -85,7 +88,12 @@ public abstract class BaseBoard extends javax.swing.JFrame
 
     protected String getTest(String componentName)
     {
-        return config.getString(null, null, null, componentName+"Test", "");
+        String string = config.getString(null, null, null, componentName + "Test", "");
+        if (!testCard)
+        {
+            string = string.replaceAll(".", " ");
+        }
+        return string;
     }
 
     @Override
@@ -161,6 +169,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
         if (this.state != state)
         {
             this.state = state;
+            System.out.println(state);
             getColors();
             setColors();
         }
@@ -180,6 +189,24 @@ public abstract class BaseBoard extends javax.swing.JFrame
             while (sb.length() < length)
             {
                 sb.append(' ');
+            }
+            value = sb.toString();
+        }
+        return value;
+    }
+
+    protected String lpad(String value, int length)
+    {
+        if (value.length() >= length)
+        {
+            value = value.substring(0, length);
+        }
+        else
+        {
+            StringBuilder sb = new StringBuilder(value);
+            while (sb.length() < length)
+            {
+                sb.insert(0, ' ');
             }
             value = sb.toString();
         }

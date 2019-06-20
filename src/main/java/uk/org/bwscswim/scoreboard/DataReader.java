@@ -80,7 +80,7 @@ public class DataReader
             SerialPort[] commPorts = SerialPort.getCommPorts();
             for (int i = 0; i < commPorts.length; i++)
             {
-                logger.info((i+1) + ". " + commPorts[i].getPortDescription());
+                logger.info((i + 1) + ". " + commPorts[i].getPortDescription());
             }
         }
         Thread t = new Thread(() ->
@@ -101,8 +101,7 @@ public class DataReader
                     catch (FileNotFoundException e)
                     {
                         System.err.println("The test file " + testFilename + " could not be found.");
-                    }
-                    finally
+                    } finally
                     {
                         try
                         {
@@ -153,7 +152,7 @@ public class DataReader
 
     void readInputStream() throws InterruptedException
     {
-        for (;;)
+        for (; ; )
         {
             try
             {
@@ -183,11 +182,11 @@ public class DataReader
         {
             if ((b >= 0x20 && b <= 0x7F))
             {
-                sb.append((char)b);
+                sb.append((char) b);
                 continue loop;
             }
 
-            for (int separator: separators)
+            for (int separator : separators)
             {
                 if (b == separator)
                 {
@@ -237,7 +236,7 @@ public class DataReader
                 if (time != -1)
                 {
                     long delay = ((now - time + 5) / 10) * 10; // round to 10 ms
-                    System.err.print(((delay == 0) ? "   " : Long.toString(delay))+' ');
+                    System.err.print(((delay == 0) ? "   " : Long.toString(delay)) + ' ');
                 }
                 time = now;
             }
@@ -274,7 +273,7 @@ public class DataReader
 
     private String format(int b)
     {
-        return ((b >= 0x20 && b <= 0x7F)) ? Character.toString((char)b) : String.format("[%02x]", b);
+        return ((b >= 0x20 && b <= 0x7F)) ? Character.toString((char) b) : String.format("[%02x]", b);
     }
 
     private String format(String str)
@@ -311,9 +310,12 @@ public class DataReader
     {
         if (fields.length == 3)
         {
-            scoreboard.setState(State.TIME_OF_DAY);
             scoreboard.clear();
             text.clear();
+            if (scoreboard instanceof AbstractScoreboard)
+            {
+                setState("", "", ' ');
+            }
         }
         else if (fields.length == 4)
         {
@@ -330,7 +332,10 @@ public class DataReader
                 if (swimmerLine)
                 {
                     boolean result = data.charAt(0) == 'P';
-                    scoreboard.setState(result ? State.RESULT : null);
+                    if (result)
+                    {
+                        scoreboard.setState(State.RESULT);
+                    }
                 }
 
                 if (scoreboard instanceof AbstractScoreboard)
@@ -343,8 +348,6 @@ public class DataReader
                     String timer = text.getText(config.getRange("timerRange", null), "");
                     clock = clock.startsWith(" ") ? "" : clock;
                     timer = timer.startsWith(" ") ? timer : "";
-                    scoreboard.setTitle(title);
-                    scoreboard.setSubTitle(subTitle);
 
                     String lanesRange = config.getCharRange("lanesRange", null);
                     int from = Text.getCharRangeFrom(lanesRange);
@@ -358,11 +361,17 @@ public class DataReader
                         clock = "";
                     }
                     clock = clock.isEmpty() ? timer : clock;
+
+                    setState(title, clock, firstCharOfLanes);
+
+                    scoreboard.setTitle(title);
+                    scoreboard.setSubTitle(subTitle);
                     if (!clock.isEmpty())
                     {
                         scoreboard.setClock(clock);
                     }
 
+                    int lane = 0;
                     if (lineNumber >= from && lineNumber < to)
                     {
                         if (firstCharOfLanes != ' ') // Just a timer, so ignore
@@ -371,12 +380,12 @@ public class DataReader
                             boolean result = firstCharOfLanes == 'P';
                             int indent = result ? 1 : 0;
                             int laneDefault = lineNumber - from + 1;
-                            int lane = result
-                                ? text.getInt(lineNumber, placeRange, indent, laneDefault)
-                                : text.getInt(lineNumber, laneRange, indent, laneDefault);
+                            lane = result
+                                    ? text.getInt(lineNumber, placeRange, indent, laneDefault)
+                                    : text.getInt(lineNumber, laneRange, indent, laneDefault);
                             int place = result
-                                ? text.getInt(lineNumber, laneRange, indent, 0)
-                                : text.getInt(lineNumber, placeRange, indent, 0);
+                                    ? text.getInt(lineNumber, laneRange, indent, 0)
+                                    : text.getInt(lineNumber, placeRange, indent, 0);
                             String name = text.getText(lineNumber, config.getCharRange("nameRange", null), indent, "").trim();
                             String club = text.getText(lineNumber, config.getCharRange("clubRange", null), indent, "").trim();
                             String time = text.getText(lineNumber, config.getCharRange("timeRange", null), indent, "").trim();
@@ -391,5 +400,37 @@ public class DataReader
             }
         }
         scoreboard.setVisible(true);
+    }
+
+    private void setState(String title, String clock, char firstCharOfLanes)
+    {
+        title = title.trim();
+        clock = clock.trim();
+        State state = scoreboard.state;
+
+        boolean noTitleOrLanes = firstCharOfLanes == ' ' && title.isEmpty();
+        if (noTitleOrLanes && !clock.isEmpty())
+        {
+            state = State.TIME_OF_DAY;
+        }
+        else if ((state == State.TIME_OF_DAY || state == State.RESULT) && noTitleOrLanes)
+        {
+            state = State.LINEUP;
+        }
+        else if (state == State.LINEUP && !clock.isEmpty())
+        {
+            state = State.READY;
+        }
+        else if (state == State.READY && !"0.0".equals(clock))
+        {
+            state = State.RUNNING;
+        }
+        else if ((firstCharOfLanes == 'P') ||
+                 (state == State.RUNNING && noTitleOrLanes))
+        {
+            state = State.RESULT;
+        }
+
+        scoreboard.setState(state);
     }
 }
