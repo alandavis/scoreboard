@@ -165,11 +165,11 @@ public abstract class AbstractScoreboard extends BaseBoard
         for (Swimmer swimmer : swimmers)
         {
             lane++;
-            swimmer.lane.setText(testCard ? " " : Integer.toString(lane));
+            swimmer.lane.setText(testCard ? Integer.toString(lane) : " ");
             swimmer.name.setText(testName);
             swimmer.club.setText(testClub);
             swimmer.time.setText(testTime);
-            swimmer.place.setText(getPlace(testCard ? 0 : lane));
+            swimmer.place.setText(getPlace(testCard ? lane : 0));
             swimmer.combinedClubTime.setText(testTime);
         }
     }
