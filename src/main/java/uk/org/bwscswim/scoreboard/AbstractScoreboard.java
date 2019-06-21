@@ -48,6 +48,7 @@ public abstract class AbstractScoreboard extends BaseBoard
 
     protected GroupLayout layout = new GroupLayout(contentPane);
     protected int laneCount;
+    protected boolean combinedClubTimeClockEnabledabledClock;
 
     protected int titleLength;
     protected int subTitleLength;
@@ -91,6 +92,7 @@ public abstract class AbstractScoreboard extends BaseBoard
     {
         super(config, name);
         laneCount = config.getInt("laneCount", 6);
+        combinedClubTimeClockEnabledabledClock = config.getBoolean(name, null, null, "combinedClubTimeClock.enabledabledClock", true);
         contentPane.setLayout(layout);
         createSwimmers();
         if (scoreboardVisible)
@@ -329,7 +331,7 @@ public abstract class AbstractScoreboard extends BaseBoard
             combinedClubTimeClockText =
                     !timeText.isEmpty() ? timeText :
                     clockText.isEmpty() ? clubText :
-                    lane == getLaneOfFirstBlankTime() ? clockText :
+                    combinedClubTimeClockEnabledabledClock && lane == getLaneOfFirstBlankTime() ? clockText :
                     "";
             if (!combinedClubTimeClockText.isEmpty() &&
                 (!timeText.isEmpty() || !clockText.isEmpty()) &&
