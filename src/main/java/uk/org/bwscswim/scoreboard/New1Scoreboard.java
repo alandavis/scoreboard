@@ -56,7 +56,7 @@ public class New1Scoreboard extends AbstractScoreboard
     @Override
     protected String getScoreboardTLA()
     {
-        return "ORG";
+        return "NEW1";
     }
 
     @Override
