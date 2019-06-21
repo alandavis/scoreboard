@@ -12,7 +12,7 @@ public class New1Scoreboard extends AbstractScoreboard
         super(config, "new1");
         GroupLayout.ParallelGroup lanes = layout.createParallelGroup();
         GroupLayout.ParallelGroup names = layout.createParallelGroup();
-        GroupLayout.ParallelGroup combinedClubTimes = layout.createParallelGroup();
+        GroupLayout.ParallelGroup combinedClubTimeClocks = layout.createParallelGroup();
         GroupLayout.ParallelGroup places = layout.createParallelGroup();
 
         GroupLayout.SequentialGroup rows = layout.createSequentialGroup();
@@ -27,7 +27,7 @@ public class New1Scoreboard extends AbstractScoreboard
                                 .addGap(horizontalGap)
                                 .addGroup(names)
                                 .addGap(horizontalGap)
-                                .addGroup(combinedClubTimes)
+                                .addGroup(combinedClubTimeClocks)
                                 .addGap(horizontalGap)
                                 .addGroup(places)));
         layout.setVerticalGroup(
@@ -41,12 +41,12 @@ public class New1Scoreboard extends AbstractScoreboard
             rows.addGroup(layout.createParallelGroup()
                     .addComponent(swimmer.lane)
                     .addComponent(swimmer.name)
-                    .addComponent(swimmer.combinedClubTime)
+                    .addComponent(swimmer.combinedClubTimeClock)
                     .addComponent(swimmer.place));
 
             lanes.addComponent(swimmer.lane);
             names.addComponent(swimmer.name);
-            combinedClubTimes.addComponent(swimmer.combinedClubTime);
+            combinedClubTimeClocks.addComponent(swimmer.combinedClubTimeClock);
             places.addComponent(swimmer.place);
         }
 
@@ -65,7 +65,7 @@ public class New1Scoreboard extends AbstractScoreboard
         super.setClock(clock);
         if (state == State.TIME_OF_DAY)
         {
-            swimmers.get(2).combinedClubTime.setText(this.clock.getText());
+            swimmers.get(2).combinedClubTimeClock.setText(this.clock.getText());
         }
     }
 }

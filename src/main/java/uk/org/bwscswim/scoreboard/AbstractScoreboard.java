@@ -37,7 +37,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         protected JLabel club = new JLabel();
         protected JLabel time = new JLabel();
         protected JLabel place = new JLabel();
-        protected JLabel combinedClubTime = new JLabel();
+        protected JLabel combinedClubTimeClock = new JLabel();
     }
 
     protected JLabel title = new JLabel();
@@ -58,7 +58,7 @@ public abstract class AbstractScoreboard extends BaseBoard
     protected int clubLength;
     protected int timeLength;
     protected int placeLength;
-    protected int combinedClubTimeLength;
+    protected int combinedClubTimeClockLength;
 
     protected Color subTitleForeground;
     protected Color combinedTitleForeground;
@@ -67,7 +67,7 @@ public abstract class AbstractScoreboard extends BaseBoard
     protected Color clubForeground;
     protected Color timeForeground;
     protected Color placeForeground;
-    protected Color combinedClubTimeForeground;
+    protected Color combinedClubTimeClockForeground;
 
     protected Font titleFont;
     protected Font subTitleFont;
@@ -78,7 +78,7 @@ public abstract class AbstractScoreboard extends BaseBoard
     protected Font clubFont;
     protected Font timeFont;
     protected Font placeFont;
-    protected Font combinedClubTimeFont;
+    protected Font combinedClubTimeClockFont;
 
     protected String testTitle;
     protected String testSubTitle;
@@ -132,10 +132,10 @@ public abstract class AbstractScoreboard extends BaseBoard
         nameLength = config.getInt(name, null, null, "nameLength", 16);
         clubLength = config.getInt(name, null, null, "clubLength", 4);
         timeLength = config.getInt(name, null, null, "timeLength", 8);
-        combinedClubTimeLength = config.getInt(name, null, null, "combinedClubTimeLength", 8);
-        combinedClubTimeLength = Math.min(Math.max(clubLength, timeLength), combinedClubTimeLength);
-        clubLength = Math.min(clubLength, combinedClubTimeLength);
-        timeLength = Math.min(timeLength, combinedClubTimeLength);
+        combinedClubTimeClockLength = config.getInt(name, null, null, "combinedClubTimeClockLength", 8);
+        combinedClubTimeClockLength = Math.min(Math.max(clubLength, timeLength), combinedClubTimeClockLength);
+        clubLength = Math.min(clubLength, combinedClubTimeClockLength);
+        timeLength = Math.min(timeLength, combinedClubTimeClockLength);
         placeLength = config.getInt(name, null, null, "placeLength", 3);
     }
 
@@ -170,7 +170,7 @@ public abstract class AbstractScoreboard extends BaseBoard
             swimmer.club.setText(testClub);
             swimmer.time.setText(testTime);
             swimmer.place.setText(getPlace(testCard ? lane : 0));
-            swimmer.combinedClubTime.setText(testTime);
+            swimmer.combinedClubTimeClock.setText(testTime);
         }
     }
 
@@ -187,7 +187,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         clubFont = config.getFont(name, state, "club");
         timeFont = config.getFont(name, state, "time");
         placeFont = config.getFont(name, state, "place");
-        combinedClubTimeFont = config.getFont(name, state, "combinedClubTime");
+        combinedClubTimeClockFont = config.getFont(name, state, "combinedClubTimeClock");
     }
 
     protected void setFonts()
@@ -204,7 +204,7 @@ public abstract class AbstractScoreboard extends BaseBoard
             swimmer.club.setFont(clubFont);
             swimmer.time.setFont(timeFont);
             swimmer.place.setFont(placeFont);
-            swimmer.combinedClubTime.setFont(combinedClubTimeFont);
+            swimmer.combinedClubTimeClock.setFont(combinedClubTimeClockFont);
         }
     }
 
@@ -220,7 +220,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         clubForeground = config.getColor(name, state, name, "club.foreground", Color.WHITE);
         timeForeground = config.getColor(name, state, name, "time.foreground", Color.WHITE);
         placeForeground = config.getColor(name, state, name, "place.foreground", Color.WHITE);
-        combinedClubTimeForeground = config.getColor(name, state, name, "combinedClubTime.foreground", Color.WHITE);
+        combinedClubTimeClockForeground = config.getColor(name, state, name, "combinedClubTimeClock.foreground", Color.WHITE);
     }
 
     @Override
@@ -245,14 +245,14 @@ public abstract class AbstractScoreboard extends BaseBoard
             swimmer.club.setForeground(clubForeground);
             swimmer.time.setForeground(timeForeground);
             swimmer.place.setForeground(placeForeground);
-            swimmer.combinedClubTime.setForeground(combinedClubTimeForeground);
+            swimmer.combinedClubTimeClock.setForeground(combinedClubTimeClockForeground);
 
             swimmer.lane.setBackground(background);
             swimmer.name.setBackground(background);
             swimmer.club.setBackground(background);
             swimmer.time.setBackground(background);
             swimmer.place.setBackground(background);
-            swimmer.combinedClubTime.setBackground(background);
+            swimmer.combinedClubTimeClock.setBackground(background);
         }
     }
 
@@ -278,7 +278,7 @@ public abstract class AbstractScoreboard extends BaseBoard
             swimmer.club.setText("");
             swimmer.time.setText("");
             swimmer.place.setText("");
-            swimmer.combinedClubTime.setText("");
+            swimmer.combinedClubTimeClock.setText("");
         }
     }
 
@@ -303,7 +303,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         for (int lane=1; lane<=laneCount; lane++)
         {
             Swimmer swimmer = swimmers.get(lane-1);
-            setCombinedClubTime(lane, swimmer);
+            setcombinedClubTimeClock(lane, swimmer);
         }
     }
 
@@ -315,31 +315,31 @@ public abstract class AbstractScoreboard extends BaseBoard
         swimmer.name.setText(pad(name, nameLength));
         swimmer.club.setText(pad(club, clubLength));
         swimmer.time.setText(pad(time, timeLength));
-        setCombinedClubTime(lane, swimmer);
+        setcombinedClubTimeClock(lane, swimmer);
     }
 
-    private void setCombinedClubTime(int lane, Swimmer swimmer)
+    private void setcombinedClubTimeClock(int lane, Swimmer swimmer)
     {
-        String combinedClubTimeText = "";
+        String combinedClubTimeClockText = "";
         if (state != State.TIME_OF_DAY)
         {
             String clubText = swimmer.club.getText().trim();
             String timeText = swimmer.time.getText().trim();
             String clockText = state == State.LINEUP || state == State.READY ? "" : clock.getText().trim();
-            combinedClubTimeText =
+            combinedClubTimeClockText =
                     !timeText.isEmpty() ? timeText :
                     clockText.isEmpty() ? clubText :
                     lane == getLaneOfFirstBlankTime() ? clockText :
                     "";
-            if (!combinedClubTimeText.isEmpty() &&
+            if (!combinedClubTimeClockText.isEmpty() &&
                 (!timeText.isEmpty() || !clockText.isEmpty()) &&
-                combinedClubTimeText.charAt(combinedClubTimeText.length()-2) == '.')
+                combinedClubTimeClockText.charAt(combinedClubTimeClockText.length()-2) == '.')
             {
-                combinedClubTimeText = combinedClubTimeText+' ';
+                combinedClubTimeClockText = combinedClubTimeClockText+' ';
             }
         }
-        combinedClubTimeText = lpad(combinedClubTimeText, combinedClubTimeLength);
-        swimmer.combinedClubTime.setText(combinedClubTimeText);
+        combinedClubTimeClockText = lpad(combinedClubTimeClockText, combinedClubTimeClockLength);
+        swimmer.combinedClubTimeClock.setText(combinedClubTimeClockText);
     }
 
     private int getLaneOfFirstBlankTime()
@@ -389,7 +389,7 @@ public abstract class AbstractScoreboard extends BaseBoard
                         append("lane='").append(lane).append("', ").
                         append("place='").append(swimmer.place.getText().trim()).append("', ").
                         append("time='").append(swimmer.time.getText().trim()).append("'}").
-                        append("combinedClubTime='").append(swimmer.combinedClubTime.getText().trim()).append("', ");
+                        append("combinedClubTimeClock='").append(swimmer.combinedClubTimeClock.getText().trim()).append("', ");
                 if (iterator.hasNext())
                 {
                     sb.append(", ");
