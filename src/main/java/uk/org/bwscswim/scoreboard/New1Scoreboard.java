@@ -10,6 +10,11 @@ public class New1Scoreboard extends AbstractScoreboard
     public New1Scoreboard(Config config)
     {
         super(config, "new1");
+
+        //    1 NNNNNNNNNNNNNN CLUBBBB PLA
+        //                     TIMEEEE
+        //                     CLOCKKK
+
         GroupLayout.ParallelGroup lanes = layout.createParallelGroup();
         GroupLayout.ParallelGroup names = layout.createParallelGroup();
         GroupLayout.ParallelGroup combinedClubTimeClocks = layout.createParallelGroup();
@@ -19,17 +24,27 @@ public class New1Scoreboard extends AbstractScoreboard
 
         int horizontalGap = getHorizontalGap();
 
+        GroupLayout.SequentialGroup cols = layout.createSequentialGroup();
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
                         .addComponent(combinedTitle)
-                        .addGroup(layout.createSequentialGroup()
-                                .addGroup(lanes)
-                                .addGap(horizontalGap)
-                                .addGroup(names)
-                                .addGap(horizontalGap)
-                                .addGroup(combinedClubTimeClocks)
-                                .addGap(horizontalGap)
-                                .addGroup(places)));
+                        .addGroup(cols));
+        if (laneVisible)
+        {
+            cols.addGroup(lanes);
+            cols.addGap(horizontalGap);
+        }
+
+        cols.addGroup(names);
+        cols.addGap(horizontalGap);
+        cols.addGroup(combinedClubTimeClocks);
+
+        if (placeVisible)
+        {
+            cols.addGap(horizontalGap);
+            cols.addGroup(places);
+        }
+
         layout.setVerticalGroup(
                 layout.createSequentialGroup()
                         .addComponent(combinedTitle)
@@ -38,16 +53,25 @@ public class New1Scoreboard extends AbstractScoreboard
 
         for (Swimmer swimmer : swimmers)
         {
-            rows.addGroup(layout.createParallelGroup()
-                    .addComponent(swimmer.lane)
-                    .addComponent(swimmer.name)
-                    .addComponent(swimmer.combinedClubTimeClock)
-                    .addComponent(swimmer.place));
+            GroupLayout.ParallelGroup row = layout.createParallelGroup();
+            rows.addGroup(row);
 
-            lanes.addComponent(swimmer.lane);
+            if (laneVisible)
+            {
+                row.addComponent(swimmer.lane);
+                lanes.addComponent(swimmer.lane);
+            }
+
+            row.addComponent(swimmer.name);
+            row.addComponent(swimmer.combinedClubTimeClock);
             names.addComponent(swimmer.name);
             combinedClubTimeClocks.addComponent(swimmer.combinedClubTimeClock);
-            places.addComponent(swimmer.place);
+
+            if (placeVisible)
+            {
+                row.addComponent(swimmer.place);
+                places.addComponent(swimmer.place);
+            }
         }
 
         postConstructor();

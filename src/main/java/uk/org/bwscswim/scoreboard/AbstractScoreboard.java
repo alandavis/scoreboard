@@ -48,7 +48,11 @@ public abstract class AbstractScoreboard extends BaseBoard
 
     protected GroupLayout layout = new GroupLayout(contentPane);
     protected int laneCount;
+
     protected boolean combinedClubTimeClockEnabledabledClock;
+
+    protected boolean laneVisible;
+    protected boolean placeVisible;
 
     protected int titleLength;
     protected int subTitleLength;
@@ -91,8 +95,14 @@ public abstract class AbstractScoreboard extends BaseBoard
     public AbstractScoreboard(Config config, String name)
     {
         super(config, name);
+
         laneCount = config.getInt("laneCount", 6);
+
         combinedClubTimeClockEnabledabledClock = config.getBoolean(name, null, null, "combinedClubTimeClock.enabledabledClock", true);
+
+        laneVisible = config.getBoolean(name, null, null, "lane.visible", true);
+        placeVisible = config.getBoolean(name, null, null, "place.visible", true);
+
         contentPane.setLayout(layout);
         createSwimmers();
         if (scoreboardVisible)
@@ -147,13 +157,13 @@ public abstract class AbstractScoreboard extends BaseBoard
         if (testCard)
         {
             String tla = getScoreboardTLA();
-            testTitle = pad(testTitle.substring(0, 1) + tla + testTitle.substring(tla.length() + 1), titleLength);
+            testTitle = pad(testTitle.substring(0, 1) + tla + testTitle.substring(tla.length() + 1), titleLength, 't');
         }
-        testSubTitle = pad(getTest("subTitle"), subTitleLength);
-        testClock = pad(getTest("clock"), clockLength);
-        testName = pad(getTest("name"), nameLength);
-        testClub = pad(getTest("club"), clubLength);
-        testTime = pad(getTest("time"), timeLength);
+        testSubTitle = pad(getTest("subTitle"), subTitleLength, 's');
+        testClock = pad(getTest("clock"), clockLength, 'c');
+        testName = pad(getTest("name"), nameLength, 'n');
+        testClub = pad(getTest("club"), clubLength, 'c');
+        testTime = pad(getTest("time"), timeLength, 't');
     }
 
     protected void setTestText()

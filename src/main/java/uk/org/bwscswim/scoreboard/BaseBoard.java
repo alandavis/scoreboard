@@ -34,6 +34,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
         return activeScoreboardName.equalsIgnoreCase("raw") ? new RawDisplay(config) :
                activeScoreboardName.equalsIgnoreCase("old") ? new OldScoreboard(config) :
                activeScoreboardName.equalsIgnoreCase("new1") ? new New1Scoreboard(config) :
+               activeScoreboardName.equalsIgnoreCase("new2") ? new New2Scoreboard(config) :
                new OriginalScoreboard(config);
     }
 
@@ -179,6 +180,11 @@ public abstract class BaseBoard extends javax.swing.JFrame
 
     protected String pad(String value, int length)
     {
+        return pad(value, length, ' ');
+    }
+
+    protected String pad(String value, int length, char c)
+    {
         if (value.length() >= length)
         {
             value = value.substring(0, length);
@@ -188,7 +194,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
             StringBuilder sb = new StringBuilder(value);
             while (sb.length() < length)
             {
-                sb.append(' ');
+                sb.append(c);
             }
             value = sb.toString();
         }

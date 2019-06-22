@@ -20,6 +20,7 @@ public class OriginalScoreboard extends AbstractScoreboard
 
         int horizontalGap = getHorizontalGap();
 
+        GroupLayout.SequentialGroup cols = layout.createSequentialGroup();
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
                         .addComponent(title)
@@ -27,16 +28,23 @@ public class OriginalScoreboard extends AbstractScoreboard
                                 .addComponent(subTitle)
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE) // force apart
                                 .addComponent(clock))
-                        .addGroup(layout.createSequentialGroup()
-                                .addGroup(lanes)
-                                .addGap(horizontalGap)
-                                .addGroup(names)
-                                .addGap(horizontalGap)
-                                .addGroup(clubs)
-                                .addGap(horizontalGap)
-                                .addGroup(times)
-                                .addGap(horizontalGap)
-                                .addGroup(places)));
+                        .addGroup(cols));
+        if (laneVisible)
+        {
+            cols.addGroup(lanes);
+            cols.addGap(horizontalGap);
+        }
+        cols.addGroup(names);
+        cols.addGap(horizontalGap);
+        cols.addGroup(clubs);
+        cols.addGap(horizontalGap);
+        cols.addGroup(times);
+        if (placeVisible)
+        {
+            cols.addGap(horizontalGap);
+            cols.addGroup(places);
+        }
+
         layout.setVerticalGroup(
                 layout.createSequentialGroup()
                         .addComponent(title)
@@ -48,18 +56,28 @@ public class OriginalScoreboard extends AbstractScoreboard
 
         for (Swimmer swimmer : swimmers)
         {
-            rows.addGroup(layout.createParallelGroup()
-                    .addComponent(swimmer.lane)
-                    .addComponent(swimmer.name)
-                    .addComponent(swimmer.club)
-                    .addComponent(swimmer.time)
-                    .addComponent(swimmer.place));
+            GroupLayout.ParallelGroup row = layout.createParallelGroup();
+            rows.addGroup(row);
 
-            lanes.addComponent(swimmer.lane);
+            if (laneVisible)
+            {
+                row.addComponent(swimmer.lane);
+                lanes.addComponent(swimmer.lane);
+            }
+
+            row.addComponent(swimmer.name);
+            row.addComponent(swimmer.club);
+            row.addComponent(swimmer.time);
+
             names.addComponent(swimmer.name);
             clubs.addComponent(swimmer.club);
             times.addComponent(swimmer.time);
-            places.addComponent(swimmer.place);
+
+            if (placeVisible)
+            {
+                row.addComponent(swimmer.place);
+                places.addComponent(swimmer.place);
+            }
         }
 
         postConstructor();

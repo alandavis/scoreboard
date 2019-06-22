@@ -278,7 +278,7 @@ public class Config
 
     public SerialPort getPort()
     {
-        String port = getString("port", "COM4");
+        String port = getString("port", "COM3");
         SerialPort commPort = SerialPort.getCommPort(port);
 
         commPort.setBaudRate(getInt("baudRate", 19200));
