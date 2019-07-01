@@ -80,6 +80,7 @@ public class DataReader
     private int prevByte;
     private InputStream inputStream;
     private Text text = new Text();
+    private TimerThread timerThread;
 
     public DataReader(Config config, BaseBoard scoreboard)
     {
@@ -409,12 +410,23 @@ public class DataReader
                     if (scoreboard instanceof AbstractScoreboard)
                     {
                         State state = getState();
-                        if (state == LINEUP || state == READY)
+                        if (state == LINEUP) // clock is probably "0.0"
                         {
-                            boolean zeroTimer = "0.0".equals(clock.trim());
-                            setState(zeroTimer ? READY : RUNNING);
+                            setState(READY);
                         }
-                        scoreboard.setClock(clock);
+                        else if (state == READY)
+                        {
+                            setState(RUNNING);
+                            timerThread = new TimerThread(this, clock);
+                        }
+                        else if (state == RUNNING)
+                        {
+                            timerThread.setClock(clock);
+                        }
+                        else if (state == TIME_OF_DAY)
+                        {
+                            scoreboard.setClock(clock);
+                        }
                     }
                 }
                 else
@@ -470,12 +482,18 @@ public class DataReader
         }
     }
 
-    private void setState(State state)
+    public void setClock(String clock)
+    {
+//        System.err.println("    set clock "+clock);
+        ((AbstractScoreboard)scoreboard).setClock(clock);
+    }
+
+    private synchronized void setState(State state)
     {
         scoreboard.setState(state);
     }
 
-    private State getState()
+    public synchronized State getState()
     {
         // TODO The scoreboard state will eventually not be the same as the current data state
         return scoreboard.state;
