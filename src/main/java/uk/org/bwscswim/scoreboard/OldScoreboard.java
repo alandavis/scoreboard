@@ -2,6 +2,8 @@ package uk.org.bwscswim.scoreboard;
 
 import javax.swing.*;
 
+import static uk.org.bwscswim.scoreboard.State.RESULT;
+
 /**
  * AbstractScoreboard tries to be like the original Excel version.
  */
@@ -126,7 +128,7 @@ public class OldScoreboard extends AbstractScoreboard
 
     private void setLanePlaces()
     {
-        if (state != State.RESULT)
+        if (state != RESULT)
         {
             StringBuilder sb = new StringBuilder("");
             for (Swimmer swimmer : swimmers)

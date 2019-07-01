@@ -28,6 +28,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static uk.org.bwscswim.scoreboard.State.LINEUP;
+import static uk.org.bwscswim.scoreboard.State.READY;
+import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
+
 public abstract class AbstractScoreboard extends BaseBoard
 {
     class Swimmer
@@ -333,11 +337,11 @@ public abstract class AbstractScoreboard extends BaseBoard
     private void setcombinedClubTimeClock(int lane, Swimmer swimmer)
     {
         String combinedClubTimeClockText = "";
-        if (state != State.TIME_OF_DAY)
+        if (state != TIME_OF_DAY)
         {
             String clubText = swimmer.club.getText().trim();
             String timeText = swimmer.time.getText().trim();
-            String clockText = state == State.LINEUP || state == State.READY ? "" : clock.getText().trim();
+            String clockText = state == LINEUP || state == READY ? "" : clock.getText().trim();
             combinedClubTimeClockText =
                     !timeText.isEmpty() ? timeText :
                     clockText.isEmpty() ? clubText :

@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+import static uk.org.bwscswim.scoreboard.State.TEST;
+
 public abstract class BaseBoard extends javax.swing.JFrame
 {
     protected final Config config;
@@ -11,7 +13,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
     protected Container contentPane;
     protected boolean scoreboardVisible;
 
-    protected State state = State.TEST;
+    protected State state = TEST;
 
     protected Color background;
     protected Color titleForeground;

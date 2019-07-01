@@ -73,6 +73,16 @@ public class Text
         return Integer.parseInt(lineStr);
     }
 
+    public static String getFromRange(String range)
+    {
+        return range.substring(0, 4);
+    }
+
+    public static String getToRange(String range)
+    {
+        return range.substring(6, 10);
+    }
+
     private String getCharRange(String range)
     {
         return range.substring(2, 6)+range.substring(8,10);

@@ -36,6 +36,13 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static uk.org.bwscswim.scoreboard.State.CLEAR;
+import static uk.org.bwscswim.scoreboard.State.LINEUP;
+import static uk.org.bwscswim.scoreboard.State.READY;
+import static uk.org.bwscswim.scoreboard.State.RESULT;
+import static uk.org.bwscswim.scoreboard.State.RUNNING;
+import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
+
 public class DataReader
 {
     private static final Logger logger = Logger.getLogger(DataReader.class);
@@ -46,24 +53,56 @@ public class DataReader
     private static final int EOT = 0x04; // Separator 2
     private static final int ETB = 0x17; // End of transmission
 
-    private static final String HEADER = "20000000";
-    private static final String CONTROL_SUFFIX = "004010";
-    private static final int CONTROL_SUFFIX_LENGTH = CONTROL_SUFFIX.length();
+    private static final String CONTROL_CLEAR = "008010000002048000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+    private static final String CONTROL_LINEUP = "003000001";
+    private static final String CONTROL_RESULTS = "003000002";
+    private static final String CONTROL_TIME_OF_DAY = "003000004";
+    private static final String CONTROL_LINE_SUFFIX = "004010";
+    private        final String CONTROL_CLOCK;
+    private static final int CONTROL_LINE_SUFFIX_LENGTH = CONTROL_LINE_SUFFIX.length();
 
     private final BaseBoard scoreboard;
     private final Config config;
+    private final String titleRange;
+    private final String subTitleRange;
+    private final String clockRange;
 
+    private final int firstLaneLineNumber;
+    private final int lastLaneLineNumber;
+
+    private final String laneRange;
+    private final String nameRange;
+    private final String clubRange;
+    private final String timeRange;
+    private final Writer writer;
+
+    private boolean trace = true;
     private int prevByte;
     private InputStream inputStream;
-    private boolean trace = true;
     private Text text = new Text();
-    public Writer writer;
 
     public DataReader(Config config, BaseBoard scoreboard)
     {
         this.config = config;
         this.scoreboard = scoreboard;
+
+        titleRange = config.getRange("titleRange", null);
+        subTitleRange = config.getRange("subTitleRange", null);
+        clockRange = config.getRange("clockRange", null);
+        CONTROL_CLOCK = CONTROL_LINE_SUFFIX+Text.getFromRange(clockRange);
+
+        String lanesRange = config.getCharRange("lanesRange", null);
+        firstLaneLineNumber = Text.getCharRangeFrom(lanesRange);
+        lastLaneLineNumber = Text.getCharRangeTo(lanesRange);
+
+        laneRange = config.getCharRange("laneRange", null);
+        nameRange = config.getCharRange("nameRange", null);
+        clubRange = config.getCharRange("clubRange", null);
+        timeRange = config.getCharRange("timeRange", null);
+
         setTrace(config.getBoolean("trace", true));
+
+        Writer writer = null;
         if (config.getBoolean("traceFile", true))
         {
             String filename = System.currentTimeMillis()+".log";
@@ -77,6 +116,7 @@ public class DataReader
                 e.printStackTrace();
             }
         }
+        this.writer = writer;
     }
 
     void setInputStream(InputStream inputStream)
@@ -341,130 +381,104 @@ public class DataReader
 
     private void handleTransmission(String[] fields) throws IOException
     {
-        if (fields.length == 3)
+        String control = fields.length >= 2 ? fields[1] : "";
+        String data = fields.length >= 3 ? fields[2] : "";
+        handleTransmission(control, data);
+    }
+
+    private void handleTransmission(String control, String data) throws IOException
+    {
+        if (control.startsWith(CONTROL_LINE_SUFFIX))
+        {
+            int position = parseInt(control, CONTROL_LINE_SUFFIX_LENGTH, 4);
+            int lineNumber = position / 100;
+            int offset = position % 100;
+            text.setText(lineNumber, offset, data);
+
+            if (scoreboard instanceof RawDisplay)
+            {
+                ((RawDisplay) scoreboard).setText(lineNumber, offset, data);
+            }
+            else
+            {
+                AbstractScoreboard scoreboard = (AbstractScoreboard)this.scoreboard;
+
+                if (control.equals(CONTROL_CLOCK))
+                {
+                    String clock = text.getText(clockRange, "");
+                    if (scoreboard instanceof AbstractScoreboard)
+                    {
+                        State state = getState();
+                        if (state == LINEUP || state == READY)
+                        {
+                            boolean zeroTimer = "0.0".equals(clock.trim());
+                            setState(zeroTimer ? READY : RUNNING);
+                        }
+                        scoreboard.setClock(clock);
+                    }
+                }
+                else
+                {
+                    String title = text.getText(titleRange, "");
+                    String subTitle = text.getText(subTitleRange, "");
+
+                    scoreboard.setTitle(title);
+                    scoreboard.setSubTitle(subTitle);
+
+                    if (lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber)
+                    {
+                        String placeRange = config.getCharRange("placeRange", null);
+                        boolean result = getState() == RESULT;
+                        int indent = result ? 1 : 0;
+                        int laneDefault = lineNumber - firstLaneLineNumber + 1;
+                        int lane = result
+                                ? text.getInt(lineNumber, placeRange, indent, laneDefault)
+                                : text.getInt(lineNumber, laneRange, indent, laneDefault);
+                        int place = result
+                                ? text.getInt(lineNumber, laneRange, indent, 0)
+                                : text.getInt(lineNumber, placeRange, indent, 0);
+                        String name = text.getText(lineNumber, nameRange, indent, "").trim();
+                        String club = text.getText(lineNumber, clubRange, indent, "").trim();
+                        String time = text.getText(lineNumber, timeRange, indent, "").trim();
+                        scoreboard.setLaneValues(lineNumber - firstLaneLineNumber, lane, place, name, club, time);
+                    }
+                }
+            }
+            scoreboard.setVisible(true);
+        }
+        else if (CONTROL_CLEAR.equals(control))
         {
             scoreboard.clear();
             text.clear();
             if (scoreboard instanceof AbstractScoreboard)
             {
-                setState("", "", ' ');
+                setState(CLEAR);
             }
+            scoreboard.setVisible(true);
         }
-        else if (fields.length == 4)
+        else if (CONTROL_LINEUP.equals(control))
         {
-            String control = fields[1];
-            String data = fields[2];
-            if (control.startsWith(CONTROL_SUFFIX))
-            {
-                int position = parseInt(control, CONTROL_SUFFIX.length(), 4);
-                int lineNumber = position / 100;
-                int offset = position % 100;
-                text.setText(lineNumber, offset, data);
-
-                boolean swimmerLine = position != 230 && lineNumber >= 2 && lineNumber != 11;
-                if (swimmerLine)
-                {
-                    boolean result = data.charAt(0) == 'P';
-                    if (result)
-                    {
-                        scoreboard.setState(State.RESULT);
-                    }
-                }
-
-                if (scoreboard instanceof AbstractScoreboard)
-                {
-                    AbstractScoreboard scoreboard = (AbstractScoreboard) this.scoreboard;
-                    text.setText(lineNumber, offset, data);
-                    String title = text.getText(config.getRange("titleRange", null), "");
-                    String subTitle = text.getText(config.getRange("subTitleRange", null), "");
-                    String clock = text.getText(config.getRange("clockRange", null), "");
-                    String timer = text.getText(config.getRange("timerRange", null), "");
-                    clock = clock.startsWith(" ") ? "" : clock;
-                    timer = timer.startsWith(" ") ? timer : "";
-
-                    String lanesRange = config.getCharRange("lanesRange", null);
-                    int from = Text.getCharRangeFrom(lanesRange);
-                    int to = Text.getCharRangeTo(lanesRange);
-                    String laneRange = config.getCharRange("laneRange", null);
-                    int i = Text.getCharRangeFrom(laneRange);
-                    char firstCharOfLanes = text.getChar(from, i, ' ');
-
-                    if (firstCharOfLanes != ' ')
-                    {
-                        clock = "";
-                    }
-                    clock = clock.isEmpty() ? timer : clock;
-
-                    setState(title, clock, firstCharOfLanes);
-
-                    scoreboard.setTitle(title);
-                    scoreboard.setSubTitle(subTitle);
-                    if (!clock.isEmpty())
-                    {
-                        scoreboard.setClock(clock);
-                    }
-
-                    int lane = 0;
-                    if (lineNumber >= from && lineNumber < to)
-                    {
-                        if (firstCharOfLanes != ' ') // Just a timer, so ignore
-                        {
-                            String placeRange = config.getCharRange("placeRange", null);
-                            boolean result = firstCharOfLanes == 'P';
-                            int indent = result ? 1 : 0;
-                            int laneDefault = lineNumber - from + 1;
-                            lane = result
-                                    ? text.getInt(lineNumber, placeRange, indent, laneDefault)
-                                    : text.getInt(lineNumber, laneRange, indent, laneDefault);
-                            int place = result
-                                    ? text.getInt(lineNumber, laneRange, indent, 0)
-                                    : text.getInt(lineNumber, placeRange, indent, 0);
-                            String name = text.getText(lineNumber, config.getCharRange("nameRange", null), indent, "").trim();
-                            String club = text.getText(lineNumber, config.getCharRange("clubRange", null), indent, "").trim();
-                            String time = text.getText(lineNumber, config.getCharRange("timeRange", null), indent, "").trim();
-                            scoreboard.setLaneValues(lineNumber - from, lane, place, name, club, time);
-                        }
-                    }
-                }
-                else
-                {
-                    ((RawDisplay) scoreboard).setText(lineNumber, offset, data);
-                }
-            }
+            setState(LINEUP);
         }
-        scoreboard.setVisible(true);
+        else if (CONTROL_RESULTS.equals(control))
+        {
+            setState(RESULT);
+        }
+        else if (CONTROL_TIME_OF_DAY.equals(control))
+        {
+            setState(TIME_OF_DAY);
+        }
     }
 
-    private void setState(String title, String clock, char firstCharOfLanes)
+    private void setState(State state)
     {
-        title = title.trim();
-        clock = clock.trim();
-        State state = scoreboard.state;
-
-        boolean noTitleOrLanes = firstCharOfLanes == ' ' && title.isEmpty();
-        if (noTitleOrLanes && !clock.isEmpty())
-        {
-            state = State.TIME_OF_DAY;
-        }
-        else if ((state == State.TIME_OF_DAY || state == State.RESULT) && noTitleOrLanes)
-        {
-            state = State.LINEUP;
-        }
-        else if (state == State.LINEUP && !clock.isEmpty())
-        {
-            state = State.READY;
-        }
-        else if (state == State.READY && !"0.0".equals(clock))
-        {
-            state = State.RUNNING;
-        }
-        else if ((firstCharOfLanes == 'P') ||
-                 (state == State.RUNNING && noTitleOrLanes))
-        {
-            state = State.RESULT;
-        }
-
         scoreboard.setState(state);
+    }
+
+    private State getState()
+    {
+        // TODO The scoreboard state will eventually not be the same as the current data state
+        return scoreboard.state;
     }
 
     public void close()

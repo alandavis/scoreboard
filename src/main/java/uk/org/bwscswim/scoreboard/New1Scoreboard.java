@@ -2,6 +2,8 @@ package uk.org.bwscswim.scoreboard;
 
 import javax.swing.*;
 
+import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
+
 /**
  * Scoreboard with fields that overlay.
  */
@@ -87,7 +89,7 @@ public class New1Scoreboard extends AbstractScoreboard
     public void setClock(String clock)
     {
         super.setClock(clock);
-        if (state == State.TIME_OF_DAY)
+        if (state == TIME_OF_DAY)
         {
             swimmers.get(2).combinedClubTimeClock.setText(this.clock.getText());
         }
