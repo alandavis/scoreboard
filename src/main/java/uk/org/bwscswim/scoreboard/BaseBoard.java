@@ -39,6 +39,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
                activeScoreboardName.equalsIgnoreCase("old") ? new OldScoreboard(config) :
                activeScoreboardName.equalsIgnoreCase("new1") ? new New1Scoreboard(config) :
                activeScoreboardName.equalsIgnoreCase("new2") ? new New2Scoreboard(config) :
+               activeScoreboardName.equalsIgnoreCase("new3") ? new New3Scoreboard(config) :
                new OriginalScoreboard(config);
     }
 

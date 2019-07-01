@@ -47,6 +47,7 @@ public abstract class AbstractScoreboard extends BaseBoard
     protected JLabel title = new JLabel();
     protected JLabel subTitle = new JLabel();
     protected JLabel combinedTitle = new JLabel();
+    protected JLabel singleTitle = new JLabel();
     protected JLabel clock  = new JLabel();
     protected List<Swimmer> swimmers = new ArrayList<>();
 
@@ -61,6 +62,7 @@ public abstract class AbstractScoreboard extends BaseBoard
     protected int titleLength;
     protected int subTitleLength;
     protected int combinedTitleLength;
+    protected int singleTitleLength;
     protected int clockLength;
     protected int laneLength;
     protected int nameLength;
@@ -71,6 +73,7 @@ public abstract class AbstractScoreboard extends BaseBoard
 
     protected Color subTitleForeground;
     protected Color combinedTitleForeground;
+    protected Color singleTitleForeground;
     protected Color clockForeground;
     protected Color nameForeground;
     protected Color clubForeground;
@@ -81,6 +84,7 @@ public abstract class AbstractScoreboard extends BaseBoard
     protected Font titleFont;
     protected Font subTitleFont;
     protected Font combinedTitleFont;
+    protected Font singleTitleFont;
     protected Font clockFont;
     protected Font laneFont;
     protected Font nameFont;
@@ -91,6 +95,7 @@ public abstract class AbstractScoreboard extends BaseBoard
 
     protected String testTitle;
     protected String testSubTitle;
+    protected String testSingleTitle;
     protected String testClock;
     protected String testName;
     protected String testClub;
@@ -143,6 +148,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         titleLength = config.getInt(name, null, null, "titleLength", 30);
         subTitleLength = config.getInt(name, null, null, "subTitleLength", 17);
         combinedTitleLength = config.getInt(name, null, null, "combinedTitleLength", 17);
+        singleTitleLength = config.getInt(name, null, null, "singleTitleLength", 30);
         clockLength = config.getInt(name, null, null, "clockLength", 8);
         laneLength = config.getInt(name, null, null, "laneLength", 1);
         nameLength = config.getInt(name, null, null, "nameLength", 16);
@@ -164,6 +170,7 @@ public abstract class AbstractScoreboard extends BaseBoard
             testTitle = pad(testTitle.substring(0, 1) + tla + testTitle.substring(tla.length() + 1), titleLength, 't');
         }
         testSubTitle = pad(getTest("subTitle"), subTitleLength, 's');
+        testSingleTitle = pad(getTest("singleTitle"), singleTitleLength, 's');
         testClock = pad(getTest("clock"), clockLength, 'c');
         testName = pad(getTest("name"), nameLength, 'n');
         testClub = pad(getTest("club"), clubLength, 'c');
@@ -175,6 +182,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         title.setText(testTitle);
         subTitle.setText(testSubTitle);
         combinedTitle.setText(testTitle+' '+testSubTitle);
+        singleTitle.setText(testSingleTitle);
         clock.setText(testClock);
 
         int lane=0;
@@ -197,6 +205,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         titleFont = config.getFont(name, state, "title");
         subTitleFont = config.getFont(name, state, "subTitle");
         combinedTitleFont = config.getFont(name, state, "combinedTitle");
+        singleTitleFont = config.getFont(name, state, "singleTitle");
         clockFont = config.getFont(name, state, "clock");
         laneFont = config.getFont(name, state, "lane");
         nameFont = config.getFont(name, state, "name");
@@ -210,7 +219,8 @@ public abstract class AbstractScoreboard extends BaseBoard
     {
         title.setFont(titleFont);
         subTitle.setFont(subTitleFont);
-        combinedTitle.setFont(combinedTitleFont);
+        singleTitle.setFont(combinedTitleFont);
+        singleTitle.setFont(singleTitleFont);
         clock.setFont(clockFont);
 
         for (Swimmer swimmer : swimmers)
@@ -231,6 +241,7 @@ public abstract class AbstractScoreboard extends BaseBoard
 
         subTitleForeground = config.getColor(name, state, name, "subTitle.foreground", Color.YELLOW);
         combinedTitleForeground = config.getColor(name, state, name, "combinedTitle.foreground", Color.YELLOW);
+        singleTitleForeground = config.getColor(name, state, name, "singleTitle.foreground", Color.YELLOW);
         clockForeground = config.getColor(name, state, name, "clock.foreground", Color.YELLOW);
         nameForeground = config.getColor(name, state, name, "lane.foreground", Color.WHITE);
         clubForeground = config.getColor(name, state, name, "club.foreground", Color.WHITE);
@@ -247,11 +258,13 @@ public abstract class AbstractScoreboard extends BaseBoard
         title.setForeground(titleForeground);
         subTitle.setForeground(subTitleForeground);
         combinedTitle.setForeground(combinedTitleForeground);
+        singleTitle.setForeground(singleTitleForeground);
         clock.setForeground(clockForeground);
 
         title.setBackground(background);
         subTitle.setBackground(background);
         combinedTitle.setBackground(background);
+        singleTitle.setBackground(background);
         clock.setBackground(background);
 
         for (Swimmer swimmer : swimmers)
@@ -303,6 +316,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         String text = pad(title, titleLength);
         this.title.setText(text);
         combinedTitle.setText(text);
+        singleTitle.setText(text);
     }
 
     public void setSubTitle(String subTitle)
@@ -310,6 +324,15 @@ public abstract class AbstractScoreboard extends BaseBoard
         String text = pad(subTitle, subTitleLength);
         this.subTitle.setText(text);
         combinedTitle.setText(title.getText()+' '+text);
+
+        text = title.getText();
+        if (subTitle.startsWith("Ev "))
+        {
+            int i = subTitle.indexOf(",  Ht ");
+            text = subTitle.substring(3, i)+":"+subTitle.substring(i+6).trim()+" "+text;
+        }
+        text = pad(text, singleTitleLength);
+        singleTitle.setText(text);
     }
 
     public void setClock(String clock)
@@ -389,6 +412,7 @@ public abstract class AbstractScoreboard extends BaseBoard
                 append("title='").append(title.getText().trim()).append("', ").
                 append("subTitle='").append(subTitle.getText().trim()).append("', ").
                 append("combinedTitle='").append(combinedTitle.getText().trim()).append("', ").
+                append("singleTitle='").append(singleTitle.getText().trim()).append("', ").
                 append("state=").append(state.name().toLowerCase()).append(", ").
                 append("clock='").append(clock.getText().trim()).append("', ").
                 append("swimmers=[");
