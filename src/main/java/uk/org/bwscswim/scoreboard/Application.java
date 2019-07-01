@@ -12,6 +12,7 @@ public class Application
                 BaseBoard scoreboard = BaseBoard.createScoreboard(config);
                 DataReader dataReader = new DataReader(config, scoreboard);
                 dataReader.readDataInBackground();
+                scoreboard.setDataReader(dataReader);
             }
             catch (Exception e)
             {

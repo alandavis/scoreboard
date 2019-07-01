@@ -18,6 +18,8 @@ public abstract class BaseBoard extends javax.swing.JFrame
     protected Color laneForeground;
     protected Boolean testCard;
 
+    private DataReader dataReader;
+
     public BaseBoard(Config config, String name)
     {
         this.config = config;
@@ -60,6 +62,10 @@ public abstract class BaseBoard extends javax.swing.JFrame
 
     protected void exitOnEscapeOrEnter()
     {
+        if (dataReader != null)
+        {
+            dataReader.close();
+        }
         setFocusable(true);
         addKeyListener(new KeyAdapter() {
             @Override
@@ -217,5 +223,10 @@ public abstract class BaseBoard extends javax.swing.JFrame
             value = sb.toString();
         }
         return value;
+    }
+
+    public void setDataReader(DataReader dataReader)
+    {
+        this.dataReader = dataReader;
     }
 }

@@ -25,11 +25,14 @@ package uk.org.bwscswim.scoreboard;
 import com.fazecast.jSerialComm.SerialPort;
 import org.apache.log4j.Logger;
 
+import java.io.BufferedWriter;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StreamCorruptedException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,12 +57,26 @@ public class DataReader
     private InputStream inputStream;
     private boolean trace = true;
     private Text text = new Text();
+    public Writer writer;
 
     public DataReader(Config config, BaseBoard scoreboard)
     {
         this.config = config;
         this.scoreboard = scoreboard;
         setTrace(config.getBoolean("trace", true));
+        if (config.getBoolean("traceFile", true))
+        {
+            String filename = System.currentTimeMillis()+".log";
+
+            try
+            {
+                writer = new BufferedWriter(new FileWriter(filename));
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 
     void setInputStream(InputStream inputStream)
@@ -230,13 +247,13 @@ public class DataReader
                 if (waitingForFirstByteOfTransmission)
                 {
                     waitingForFirstByteOfTransmission = false;
-                    System.err.println("");
+                    log("\n");
                 }
                 long now = System.currentTimeMillis();
                 if (time != -1)
                 {
                     long delay = ((now - time + 5) / 10) * 10; // round to 10 ms
-                    System.err.print(((delay == 0) ? "   " : Long.toString(delay)) + ' ');
+                    log(((delay == 0) ? "   " : Long.toString(delay)) + ' ');
                 }
                 time = now;
             }
@@ -245,10 +262,10 @@ public class DataReader
             {
                 if (traceZeroCount < 30)
                 {
-                    System.err.print(format(b));
+                    log(format(b));
                     if (++traceZeroCount == 30)
                     {
-                        System.err.println("...");
+                        log("...\n");
                     }
                 }
                 Thread.sleep(100); // don't take all the CPU if disconnected.
@@ -258,10 +275,10 @@ public class DataReader
                 traceZeroCount = 0;
                 if (prevByte != ETB || b != ETB)
                 {
-                    System.err.print(format(b));
+                    log(format(b));
                     if (b == ETB)
                     {
-                        System.err.println("");
+                        log("\n");
                     }
                 }
                 prevByte = b;
@@ -269,6 +286,22 @@ public class DataReader
         }
 
         return b;
+    }
+
+    private void log(String str)
+    {
+        System.err.print(str);
+        if (writer != null)
+        {
+            try
+            {
+                writer.write(str);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 
     private String format(int b)
@@ -432,5 +465,20 @@ public class DataReader
         }
 
         scoreboard.setState(state);
+    }
+
+    public void close()
+    {
+        if (writer != null)
+        {
+            try
+            {
+                writer.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 }
