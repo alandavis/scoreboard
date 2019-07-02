@@ -10,16 +10,11 @@ public class New2Scoreboard extends AbstractScoreboard
     public New2Scoreboard(Config config)
     {
         super(config, "new2");
-        int horizontalGap = getHorizontalGap();
 
         //    T111111111111111 CLOCKKK
         //    T222222222222222
         //    2 NNNNNNNNNNNNNN CLUBBBB PLA
         //                     TIMEEEE
-
-        GroupLayout.ParallelGroup lanes = layout.createParallelGroup();
-        GroupLayout.ParallelGroup names = layout.createParallelGroup();
-        GroupLayout.ParallelGroup combinedClubTimeClocks = layout.createParallelGroup();
 
         GroupLayout.ParallelGroup col1 = layout.createParallelGroup()
                 .addComponent(title)
@@ -53,7 +48,7 @@ public class New2Scoreboard extends AbstractScoreboard
         layout.setVerticalGroup(
             layout.createSequentialGroup()
                 .addGroup(line1)
-                .addGap(getPreLaneGap())
+                .addGap(preLaneGap)
                 .addGroup(rows));
 
         for (Swimmer swimmer : swimmers)

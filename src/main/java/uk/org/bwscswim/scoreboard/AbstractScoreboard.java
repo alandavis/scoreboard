@@ -101,6 +101,13 @@ public abstract class AbstractScoreboard extends BaseBoard
     protected String testClub;
     protected String testTime;
 
+    protected int topGap;
+    protected int bottomGap;
+    protected int leftGap;
+    protected int rightGap;
+    protected int horizontalGap;
+    protected int preLaneGap;
+
     public AbstractScoreboard(Config config, String name)
     {
         super(config, name);
@@ -111,6 +118,11 @@ public abstract class AbstractScoreboard extends BaseBoard
 
         laneVisible = config.getBoolean(name, null, null, "lane.visible", true);
         placeVisible = config.getBoolean(name, null, null, "place.visible", true);
+
+        getGaps();
+        getLengths();
+        getTestText();
+        getFonts();
 
         contentPane.setLayout(layout);
         createSwimmers();
@@ -132,15 +144,20 @@ public abstract class AbstractScoreboard extends BaseBoard
     @Override
     protected void postConstructor()
     {
-        getLengths();
-
-        getTestText();
         setTestText();
-
-        getFonts();
         setFonts();
 
         super.postConstructor();
+    }
+
+    private void getGaps()
+    {
+        topGap = getTopGap();
+        bottomGap = getBottomGap();
+        leftGap = getLeftGap();
+        rightGap = getRightGap();
+        horizontalGap = getHorizontalGap();
+        preLaneGap = getPreLaneGap();
     }
 
     private void getLengths()
@@ -283,6 +300,26 @@ public abstract class AbstractScoreboard extends BaseBoard
             swimmer.place.setBackground(background);
             swimmer.combinedClubTimeClock.setBackground(background);
         }
+    }
+
+    public int getTopGap()
+    {
+        return config.getInt(name, null, null, "topGap", 0);
+    }
+
+    public int getBottomGap()
+    {
+        return config.getInt(name, null, null, "bottomGap", 0);
+    }
+
+    public int getLeftGap()
+    {
+        return config.getInt(name, null, null, "leftGap", 0);
+    }
+
+    public int getRightGap()
+    {
+        return config.getInt(name, null, null, "rightGap", 0);
     }
 
     public int getHorizontalGap()

@@ -24,8 +24,6 @@ public class OldScoreboard extends AbstractScoreboard
 
         GroupLayout.SequentialGroup rows = layout.createSequentialGroup();
 
-        int horizontalGap = getHorizontalGap();
-
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
                         .addComponent(combinedTitle)
@@ -48,7 +46,7 @@ public class OldScoreboard extends AbstractScoreboard
         layout.setVerticalGroup(
                 layout.createSequentialGroup()
                         .addComponent(combinedTitle)
-                        .addGap(getPreLaneGap())
+                        .addGap(preLaneGap)
                         .addGroup(rows)
                         .addGroup(layout.createParallelGroup()
                                 .addComponent(clock)

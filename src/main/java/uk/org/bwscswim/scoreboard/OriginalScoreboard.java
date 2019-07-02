@@ -18,8 +18,6 @@ public class OriginalScoreboard extends AbstractScoreboard
 
         GroupLayout.SequentialGroup rows = layout.createSequentialGroup();
 
-        int horizontalGap = getHorizontalGap();
-
         GroupLayout.SequentialGroup cols = layout.createSequentialGroup();
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
@@ -51,7 +49,7 @@ public class OriginalScoreboard extends AbstractScoreboard
                         .addGroup(layout.createParallelGroup()
                                 .addComponent(subTitle)
                                 .addComponent(clock))
-                        .addGap(getPreLaneGap())
+                        .addGap(preLaneGap)
                         .addGroup(rows));
 
         for (Swimmer swimmer : swimmers)

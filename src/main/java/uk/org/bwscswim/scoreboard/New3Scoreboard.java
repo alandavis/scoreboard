@@ -10,15 +10,10 @@ public class New3Scoreboard extends AbstractScoreboard
     public New3Scoreboard(Config config)
     {
         super(config, "new3");
-        int horizontalGap = getHorizontalGap();
 
         //    T111111111111111 CLOCKKK
         //    2 NNNNNNNNNNNNNN CLUBBBB PLA
         //                     TIMEEEE
-
-        GroupLayout.ParallelGroup lanes = layout.createParallelGroup();
-        GroupLayout.ParallelGroup names = layout.createParallelGroup();
-        GroupLayout.ParallelGroup combinedClubTimeClocks = layout.createParallelGroup();
 
         GroupLayout.ParallelGroup col1 = layout.createParallelGroup()
                 .addComponent(singleTitle);
@@ -29,11 +24,13 @@ public class New3Scoreboard extends AbstractScoreboard
 
         layout.setHorizontalGroup(
                 layout.createSequentialGroup()
+                        .addGap(leftGap)
                         .addGroup(col1)
                         .addGap(horizontalGap)
                         .addGroup(col2)
                         .addGap(horizontalGap)
-                        .addGroup(col3));
+                        .addGroup(col3)
+                        .addGap(rightGap));
 
         GroupLayout.SequentialGroup line1a = layout.createSequentialGroup()
                 .addComponent(singleTitle);
@@ -49,9 +46,11 @@ public class New3Scoreboard extends AbstractScoreboard
 
         layout.setVerticalGroup(
                 layout.createSequentialGroup()
+                        .addGap(topGap)
                         .addGroup(line1)
-                        .addGap(getPreLaneGap())
-                        .addGroup(rows));
+                        .addGap(preLaneGap)
+                        .addGroup(rows)
+                        .addGap(bottomGap));
 
         for (Swimmer swimmer : swimmers)
         {
