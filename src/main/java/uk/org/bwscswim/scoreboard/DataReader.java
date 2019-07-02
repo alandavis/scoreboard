@@ -159,11 +159,15 @@ public class DataReader
                     catch (FileNotFoundException e)
                     {
                         System.err.println("The test file " + testFilename + " could not be found.");
-                    } finally
+                    }
+                    finally
                     {
                         try
                         {
-                            inputStream.close();
+                            if (inputStream != null)
+                            {
+                                inputStream.close();
+                            }
                         }
                         catch (IOException ignore)
                         {

@@ -366,7 +366,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         if (subTitle.startsWith("Ev "))
         {
             int i = subTitle.indexOf(",  Ht ");
-            text = subTitle.substring(3, i)+":"+subTitle.substring(i+6).trim()+" "+text;
+            text = subTitle.substring(3, i)+"/"+subTitle.substring(i+6).trim()+" "+text;
         }
         text = pad(text, singleTitleLength);
         singleTitle.setText(text);
