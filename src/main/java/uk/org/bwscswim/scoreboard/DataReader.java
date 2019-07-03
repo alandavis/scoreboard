@@ -104,7 +104,7 @@ public class DataReader
         setTrace(config.getBoolean("trace", true));
 
         Writer writer = null;
-        if (config.getBoolean("traceFile", true))
+        if (config.getBoolean("traceFile", false))
         {
             String filename = System.currentTimeMillis()+".log";
 

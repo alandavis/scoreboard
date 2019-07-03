@@ -45,7 +45,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
 
     private static String getActiveScoreboardName(Config config)
     {
-        return config.getString("scoreboardName", "original");
+        return config.getString("scoreboardName", "new3");
     }
 
     protected void postConstructor()
@@ -54,13 +54,61 @@ public abstract class BaseBoard extends javax.swing.JFrame
         setColors();
 
         exitOnEscapeOrEnter();
-        pack();
-        System.out.println("ScoreboardSize="+getSize());
-        if (config.getBoolean(name, null, null, "fullScreen", true))
+
+        if (scoreboardVisible)
         {
-            makeFrameFullSize();
+            Boolean fullScreen = config.getBoolean(name, null, null, "fullScreen", true);
+            if (config.getBoolean(name, null, null, "originalScreenSetup", false))
+            {
+                System.out.println("Using original screen setup");
+                pack();
+                System.out.println("ScoreboardSize=" + getSize());
+                if (fullScreen)
+                {
+                    GraphicsDevice graphicsDevice = getGraphicsDevice();
+                    DisplayMode displayMode = graphicsDevice.getDisplayMode();
+                    System.out.println("Using GraphicsDevice \"" + graphicsDevice.getIDstring() + "\" " + displayMode.getWidth() + "x" + displayMode.getHeight());
+
+                    if (graphicsDevice.isFullScreenSupported())
+                    {
+                        graphicsDevice.setFullScreenWindow(this);
+                    }
+                    else
+                    {
+                        System.err.println("Full screen not supported by " + graphicsDevice.getIDstring());
+                    }
+                }
+                setVisible(true);
+            }
+            else
+            {
+                System.out.println("Using new screen setup");
+                if (fullScreen)
+                {
+                    setUndecorated(true);
+                }
+
+                pack();
+                System.out.println("ScoreboardSize=" + getSize());
+
+                GraphicsDevice graphicsDevice = getGraphicsDevice();
+                DisplayMode displayMode = graphicsDevice.getDisplayMode();
+                System.out.println("Using GraphicsDevice \"" + graphicsDevice.getIDstring() + "\" " + displayMode.getWidth() + "x" + displayMode.getHeight());
+
+                if (fullScreen)
+                {
+                    graphicsDevice.setFullScreenWindow(this);
+                }
+                else
+                {
+                    // Tick to move this Frame to the required device
+                    javax.swing.JFrame dualview = new javax.swing.JFrame(graphicsDevice.getDefaultConfiguration());
+                    setLocationRelativeTo(dualview);
+                    dualview.dispose();
+                    setVisible(true);
+                }
+            }
         }
-        setVisible(true);
     }
 
     protected void exitOnEscapeOrEnter()
@@ -115,57 +163,15 @@ public abstract class BaseBoard extends javax.swing.JFrame
         }
     }
 
-    private void makeFrameFullSize()
-    {
-        if (scoreboardVisible)
-        {
-            GraphicsDevice graphicsDevice = getGraphicsDevice();
-            DisplayMode displayMode = graphicsDevice.getDisplayMode();
-            System.out.println("Using GraphicsDevice \""+ graphicsDevice.getIDstring()+"\" "+displayMode.getWidth()+"x"+displayMode.getHeight());
-
-            if (graphicsDevice.isFullScreenSupported())
-            {
-                graphicsDevice.setFullScreenWindow(this);
-
-//            GraphicsDevice gd1 = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-//            Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-//            Dimension screenSize = defaultToolkit.getScreenSize();
-
-//        line1.setForeground(Color.WHITE);
-////        line1.setSize(500, 500);
-//        Font font = line1.getFont();
-////        float size = font.getSize()*5;
-//        int size = 86; //screenSize.height/3;
-//        line1.setFont(font.deriveFont(size));
-//        font = new Font("Monospaced", Font.PLAIN, size);
-//        line1.setFont(font);
-//
-//        // get metrics from the graphics
-//        FontMetrics metrics = getFontMetrics(font);
-//        // get the height of a line of text in this font and render context
-//        int
-//        = metrics.getHeight();
-//        // get the advance of my text in this font and render context
-//        int adv = metrics.stringWidth(text);
-//        // calculate the size of a box to hold the text with some padding.
-//        Dimension s = new Dimension(adv + 2, hgt + 2);
-//        System.out.println("size: " + size + " screenSize: " + screenSize + " Dim " + s);
-            }
-            else
-            {
-                System.err.println("Full screen not supported by "+graphicsDevice.getIDstring());
-            }
-        }
-    }
-
     private GraphicsDevice getGraphicsDevice()
     {
         String graphicsDeviceId = config.getString("graphicsDevice", null);
         GraphicsDevice graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        System.out.println("GraphicsDevices");
         for (GraphicsDevice device : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices())
         {
             String id = device.getIDstring();
-            System.out.println("GraphicsDevice "+ id);
+            System.out.println("    "+ id);
             if (id.equals(graphicsDeviceId))
             {
                 graphicsDevice = device;

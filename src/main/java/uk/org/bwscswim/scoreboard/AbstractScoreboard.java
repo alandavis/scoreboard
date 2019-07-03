@@ -128,7 +128,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         createSwimmers();
         if (scoreboardVisible)
         {
-            System.out.println("Using display: "+name);
+            System.out.println("Using scoreboard: "+name);
         }
     }
 
@@ -263,7 +263,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         nameForeground = config.getColor(name, state, name, "lane.foreground", Color.WHITE);
         clubForeground = config.getColor(name, state, name, "club.foreground", Color.WHITE);
         timeForeground = config.getColor(name, state, name, "time.foreground", Color.WHITE);
-        placeForeground = config.getColor(name, state, name, "place.foreground", Color.WHITE);
+        placeForeground = config.getColor(name, state, name, "place.foreground", Color.YELLOW);
         combinedClubTimeClockForeground = config.getColor(name, state, name, "combinedClubTimeClock.foreground", Color.WHITE);
     }
 
@@ -314,7 +314,7 @@ public abstract class AbstractScoreboard extends BaseBoard
 
     public int getLeftGap()
     {
-        return config.getInt(name, null, null, "leftGap", 0);
+        return config.getInt(name, null, null, "leftGap", 50);
     }
 
     public int getRightGap()
@@ -324,12 +324,12 @@ public abstract class AbstractScoreboard extends BaseBoard
 
     public int getHorizontalGap()
     {
-        return config.getInt(name, null, null, "horizontalGap", 40);
+        return config.getInt(name, null, null, "horizontalGap", 20);
     }
 
     public int getPreLaneGap()
     {
-        return config.getInt(name, null, null, "preLaneGap", 40);
+        return config.getInt(name, null, null, "preLaneGap", 10);
     }
 
     public void clear()

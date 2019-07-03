@@ -72,9 +72,9 @@ public class Config
     public Font getFont(String scoreboardName, State state, String componentName)
     {
         return new Font(
-                getFontName(scoreboardName, state, null, componentName+'.'+FONT_NAME, Font.MONOSPACED),
-                getFontStyle(scoreboardName, state, null, componentName+'.'+FONT_STYLE, Font.PLAIN),
-                getInt(scoreboardName, state, null, componentName+'.'+FONT_SIZE, 16));
+                getFontName(scoreboardName, state, null, componentName+'.'+FONT_NAME, "Arial"),
+                getFontStyle(scoreboardName, state, null, componentName+'.'+FONT_STYLE, Font.BOLD),
+                getInt(scoreboardName, state, null, componentName+'.'+FONT_SIZE, 88));
     }
 
     private String getFontName(String scoreboardName, State state, String componentName, String attributeName,
