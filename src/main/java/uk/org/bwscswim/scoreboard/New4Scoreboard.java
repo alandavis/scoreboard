@@ -5,49 +5,38 @@ import javax.swing.*;
 /**
  * Scoreboard with fields that overlay.
  */
-public class New3Scoreboard extends AbstractScoreboard
+public class New4Scoreboard extends AbstractScoreboard
 {
-    public New3Scoreboard(Config config)
+    public New4Scoreboard(Config config)
     {
-        super(config, "new3");
+        super(config, "new4");
 
-        //    T111111111111111 CLOCKKK
+        //    T1111111111111111111111111
         //    2 NNNNNNNNNNNNNN CLUBBBB P
         //                     TIMEEEE
 
-        GroupLayout.ParallelGroup col1 = layout.createParallelGroup()
-                .addComponent(singleTitle);
-
-        GroupLayout.ParallelGroup col2 = layout.createParallelGroup()
-                .addComponent(clock);
+        GroupLayout.ParallelGroup col1 = layout.createParallelGroup();
+        GroupLayout.ParallelGroup col2 = layout.createParallelGroup();
         GroupLayout.ParallelGroup col3 = layout.createParallelGroup();
 
         layout.setHorizontalGroup(
-                layout.createSequentialGroup()
+                layout.createParallelGroup()
+                    .addComponent(singleTitle)
+                    .addGroup(layout.createSequentialGroup()
                         .addGap(leftGap)
                         .addGroup(col1)
                         .addGap(horizontalGap)
                         .addGroup(col2)
                         .addGap(horizontalGap)
                         .addGroup(col3)
-                        .addGap(rightGap));
-
-        GroupLayout.SequentialGroup line1a = layout.createSequentialGroup()
-                .addComponent(singleTitle);
-
-        GroupLayout.SequentialGroup line1b = layout.createSequentialGroup()
-                .addComponent(clock);
-
-        GroupLayout.ParallelGroup line1 = layout.createParallelGroup()
-                .addGroup(line1a)
-                .addGroup(line1b);
+                        .addGap(rightGap)));
 
         GroupLayout.SequentialGroup rows = layout.createSequentialGroup();
 
         layout.setVerticalGroup(
                 layout.createSequentialGroup()
                         .addGap(topGap)
-                        .addGroup(line1)
+                        .addComponent(singleTitle)
                         .addGap(preLaneGap)
                         .addGroup(rows)
                         .addGap(bottomGap));
@@ -87,6 +76,6 @@ public class New3Scoreboard extends AbstractScoreboard
     @Override
     protected String getScoreboardTLA()
     {
-        return "NEW3";
+        return "NEW4";
     }
 }

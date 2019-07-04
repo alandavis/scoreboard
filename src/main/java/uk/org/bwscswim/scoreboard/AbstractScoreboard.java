@@ -423,7 +423,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         for (int lane=1; lane<=laneCount; lane++)
         {
             Swimmer swimmer = swimmers.get(lane-1);
-            if (swimmer.time.getText().trim().isEmpty())
+            if (swimmer.time.getText().trim().isEmpty() && !swimmer.name.getText().trim().isEmpty())
             {
                 return lane;
             }

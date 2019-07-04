@@ -173,7 +173,7 @@ public class DataReader
                         {
                         }
                     }
-                } while (config.getBoolean("testLoop", false) && trace);
+                } while (config.getBoolean("testLoop", true) && trace);
                 System.exit(0);
             }
             else
@@ -448,14 +448,19 @@ public class DataReader
                         int indent = result ? 1 : 0;
                         int laneDefault = lineNumber - firstLaneLineNumber + 1;
                         int lane = result
-                                ? text.getInt(lineNumber, placeRange, indent, laneDefault)
-                                : text.getInt(lineNumber, laneRange, indent, laneDefault);
+                                ? text.getInt(lineNumber, placeRange, indent, 0)
+                                : text.getInt(lineNumber, laneRange, indent, 0);
                         int place = result
                                 ? text.getInt(lineNumber, laneRange, indent, 0)
                                 : text.getInt(lineNumber, placeRange, indent, 0);
                         String name = text.getText(lineNumber, nameRange, indent, "").trim();
                         String club = text.getText(lineNumber, clubRange, indent, "").trim();
                         String time = text.getText(lineNumber, timeRange, indent, "").trim();
+                        if (name.isEmpty())
+                        {
+                            lane = 0;
+                            place = 0;
+                        }
                         scoreboard.setLaneValues(lineNumber - firstLaneLineNumber, lane, place, name, club, time);
                     }
                 }
