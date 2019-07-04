@@ -3,6 +3,7 @@ package uk.org.bwscswim.scoreboard;
 import javax.swing.*;
 
 import static uk.org.bwscswim.scoreboard.State.RESULT;
+import static uk.org.bwscswim.scoreboard.State.RESULT_COMPLETE;
 
 /**
  * AbstractScoreboard tries to be like the original Excel version.
@@ -126,7 +127,7 @@ public class OldScoreboard extends AbstractScoreboard
 
     private void setLanePlaces()
     {
-        if (state != RESULT)
+        if (state != RESULT && state != RESULT_COMPLETE)
         {
             StringBuilder sb = new StringBuilder("");
             for (Swimmer swimmer : swimmers)

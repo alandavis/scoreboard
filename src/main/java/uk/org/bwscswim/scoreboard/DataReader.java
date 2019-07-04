@@ -38,9 +38,11 @@ import java.util.List;
 
 import static uk.org.bwscswim.scoreboard.State.CLEAR;
 import static uk.org.bwscswim.scoreboard.State.LINEUP;
-import static uk.org.bwscswim.scoreboard.State.READY;
+import static uk.org.bwscswim.scoreboard.State.LINEUP_COMPLETE;
+import static uk.org.bwscswim.scoreboard.State.RACE_COMPLETE;
 import static uk.org.bwscswim.scoreboard.State.RESULT;
-import static uk.org.bwscswim.scoreboard.State.RUNNING;
+import static uk.org.bwscswim.scoreboard.State.RACE;
+import static uk.org.bwscswim.scoreboard.State.RESULT_COMPLETE;
 import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
 
 public class DataReader
@@ -69,6 +71,7 @@ public class DataReader
 
     private final int firstLaneLineNumber;
     private final int lastLaneLineNumber;
+    private final int laneCount;
 
     private final String laneRange;
     private final String nameRange;
@@ -81,6 +84,7 @@ public class DataReader
     private InputStream inputStream;
     private Text text = new Text();
     private TimerThread timerThread;
+    private int lanesWithTimes;
 
     public DataReader(Config config, BaseBoard scoreboard)
     {
@@ -95,6 +99,7 @@ public class DataReader
         String lanesRange = config.getCharRange("lanesRange", null);
         firstLaneLineNumber = Text.getCharRangeFrom(lanesRange);
         lastLaneLineNumber = Text.getCharRangeTo(lanesRange);
+        laneCount = lastLaneLineNumber-firstLaneLineNumber;
 
         laneRange = config.getCharRange("laneRange", null);
         nameRange = config.getCharRange("nameRange", null);
@@ -407,68 +412,53 @@ public class DataReader
             else
             {
                 AbstractScoreboard scoreboard = (AbstractScoreboard)this.scoreboard;
+                State state = getState();
 
                 if (control.equals(CONTROL_CLOCK))
                 {
                     String clock = text.getText(clockRange, "");
-                    if (scoreboard instanceof AbstractScoreboard)
+                    if (state == LINEUP) // clock is probably "0.0"
                     {
-                        State state = getState();
-                        if (state == LINEUP) // clock is probably "0.0"
-                        {
-                            setState(READY);
-                        }
-                        else if (state == READY)
-                        {
-                            setState(RUNNING);
-                            timerThread = new TimerThread(this, clock);
-                        }
-                        else if (state == RUNNING)
-                        {
-                            timerThread.setClock(clock);
-                        }
-                        else if (state == TIME_OF_DAY)
-                        {
-                            scoreboard.setClock(clock);
-                        }
+                        setState(LINEUP_COMPLETE);
+                        drawScoreboard();
+                    }
+                    else if (state == LINEUP_COMPLETE)
+                    {
+                        setClock("");
+                        setState(RACE);
+                        scoreboard.setVisible(true);
+                        timerThread = new TimerThread(this, clock);
+                    }
+                    else if (state == RACE)
+                    {
+                        timerThread.setClock(clock);
+                    }
+                    else if (state == TIME_OF_DAY)
+                    {
+                        scoreboard.setClock(clock);
+                        scoreboard.setVisible(true);
                     }
                 }
-                else
+                else if (state == RESULT && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber &&
+                         lanesWithTimes == countLanesWithTimes())
                 {
-                    String title = text.getText(titleRange, "");
-                    String subTitle = text.getText(subTitleRange, "");
-
-                    scoreboard.setTitle(title);
-                    scoreboard.setSubTitle(subTitle);
-
-                    if (lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber)
+                    setState(RESULT_COMPLETE);
+                    drawScoreboard();
+                }
+                else if (state == RACE && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber)
+                {
+                    drawLane(lineNumber-firstLaneLineNumber);
+                    scoreboard.setVisible(true);
+                    if (countLanesWithNames() == countLanesWithTimes())
                     {
-                        String placeRange = config.getCharRange("placeRange", null);
-                        boolean result = getState() == RESULT;
-                        int indent = result ? 1 : 0;
-                        int laneDefault = lineNumber - firstLaneLineNumber + 1;
-                        int lane = result
-                                ? text.getInt(lineNumber, placeRange, indent, 0)
-                                : text.getInt(lineNumber, laneRange, indent, 0);
-                        int place = result
-                                ? text.getInt(lineNumber, laneRange, indent, 0)
-                                : text.getInt(lineNumber, placeRange, indent, 0);
-                        String name = text.getText(lineNumber, nameRange, indent, "").trim();
-                        String club = text.getText(lineNumber, clubRange, indent, "").trim();
-                        String time = text.getText(lineNumber, timeRange, indent, "").trim();
-                        if (name.isEmpty())
-                        {
-                            lane = 0;
-                            place = 0;
-                        }
-                        scoreboard.setLaneValues(lineNumber - firstLaneLineNumber, lane, place, name, club, time);
+                        setState(RACE_COMPLETE);
                     }
                 }
             }
-            scoreboard.setVisible(true);
         }
         else if (CONTROL_CLEAR.equals(control))
         {
+            lanesWithTimes = countLanesWithTimes();
             scoreboard.clear();
             text.clear();
             if (scoreboard instanceof AbstractScoreboard)
@@ -491,14 +481,113 @@ public class DataReader
         }
     }
 
+    private int countLanesWithNames()
+    {
+        int count = 0;
+        for (int laneIndex=0; laneIndex<laneCount; laneIndex++)
+        {
+            int lineNumber = firstLaneLineNumber + laneIndex;
+
+            State state = getState();
+            boolean result = state == RESULT || state == RESULT_COMPLETE;
+            int indent = result ? 1 : 0;
+
+            String name = text.getText(lineNumber, nameRange, indent, "").trim();
+            if (!name.isEmpty())
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private int countLanesWithTimes()
+    {
+        int count = 0;
+        for (int laneIndex=0; laneIndex<laneCount; laneIndex++)
+        {
+            int lineNumber = firstLaneLineNumber + laneIndex;
+
+            State state = getState();
+            boolean result = state == RESULT || state == RESULT_COMPLETE;
+            int indent = result ? 1 : 0;
+
+            String time = text.getText(lineNumber, timeRange, indent, "").trim();
+            if (!time.isEmpty())
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private void drawScoreboard()
+    {
+        drawTitles();
+        drawClock();
+        for (int laneIndex=0; laneIndex<laneCount; laneIndex++)
+        {
+            drawLane(laneIndex);
+        }
+        scoreboard.setVisible(true);
+    }
+
+    private void drawTitles()
+    {
+        String title = text.getText(titleRange, "");
+        String subTitle = text.getText(subTitleRange, "");
+
+        AbstractScoreboard scoreboard = (AbstractScoreboard)this.scoreboard;
+        scoreboard.setTitle(title);
+        scoreboard.setSubTitle(subTitle);
+    }
+
+    private void drawClock()
+    {
+        String clock = text.getText(clockRange, "");
+        ((AbstractScoreboard)this.scoreboard).setClock(clock);
+    }
+
+    private void drawLane(int laneIndex)
+    {
+        int lineNumber = firstLaneLineNumber + laneIndex;
+        String placeRange = config.getCharRange("placeRange", null);
+        State state = getState();
+        boolean result = state == RESULT || state == RESULT_COMPLETE;
+        int indent = result ? 1 : 0;
+        int lane = result
+                ? text.getInt(lineNumber, placeRange, indent, 0)
+                : text.getInt(lineNumber, laneRange, indent, 0);
+        int place = result
+                ? text.getInt(lineNumber, laneRange, indent, 0)
+                : text.getInt(lineNumber, placeRange, indent, 0);
+        String name = text.getText(lineNumber, nameRange, indent, "").trim();
+        String club = text.getText(lineNumber, clubRange, indent, "").trim();
+        String time = text.getText(lineNumber, timeRange, indent, "").trim();
+        if (name.isEmpty())
+        {
+            lane = 0;
+            place = 0;
+        }
+        ((AbstractScoreboard)scoreboard).setLaneValues(laneIndex, lane, place, name, club, time);
+    }
+
     public void setClock(String clock)
     {
 //        System.err.println("    set clock "+clock);
+        text.setText(Text.getLineNumber(clockRange), Text.getOffset(clockRange), clock);
         ((AbstractScoreboard)scoreboard).setClock(clock);
+    }
+
+    public String getClock()
+    {
+        String clock = text.getText(clockRange, "");
+        return clock;
     }
 
     private synchronized void setState(State state)
     {
+        // TODO The scoreboard state will eventually not be the same as the current data state
         scoreboard.setState(state);
     }
 

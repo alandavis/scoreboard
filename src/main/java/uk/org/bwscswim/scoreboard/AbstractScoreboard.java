@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static uk.org.bwscswim.scoreboard.State.LINEUP;
-import static uk.org.bwscswim.scoreboard.State.READY;
+import static uk.org.bwscswim.scoreboard.State.LINEUP_COMPLETE;
 import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
 
 public abstract class AbstractScoreboard extends BaseBoard
@@ -401,7 +401,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         {
             String clubText = swimmer.club.getText().trim();
             String timeText = swimmer.time.getText().trim();
-            String clockText = state == LINEUP || state == READY ? "" : clock.getText().trim();
+            String clockText = state == LINEUP || state == LINEUP_COMPLETE ? "" : clock.getText().trim();
             combinedClubTimeClockText =
                     !timeText.isEmpty() ? timeText :
                     clockText.isEmpty() ? clubText :

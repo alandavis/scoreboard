@@ -46,7 +46,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
 
     private static String getActiveScoreboardName(Config config)
     {
-        return config.getString("scoreboardName", "new3");
+        return config.getString("scoreboardName", "new4");
     }
 
     protected void postConstructor()

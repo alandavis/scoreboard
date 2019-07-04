@@ -67,10 +67,16 @@ public class Text
         return text;
     }
 
-    private int getLineNumber(String range)
+    public static int getLineNumber(String range)
     {
         String lineStr = range.substring(0, 2);
         return Integer.parseInt(lineStr);
+    }
+
+    public static int getOffset(String range)
+    {
+        String offsetStr = range.substring(2, 4);
+        return Integer.parseInt(offsetStr);
     }
 
     public static String getFromRange(String range)

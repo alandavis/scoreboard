@@ -1,6 +1,6 @@
 package uk.org.bwscswim.scoreboard;
 
-import static uk.org.bwscswim.scoreboard.State.RUNNING;
+import static uk.org.bwscswim.scoreboard.State.RACE;
 
 /**
  * @author adavis
@@ -36,8 +36,9 @@ public class TimerThread extends Thread
                 int timeNow;
                 synchronized (this)
                 {
-                    if (terminate || dataReader.getState() != RUNNING)
+                    if (terminate || dataReader.getState() != RACE)
                     {
+                        dataReader.setClock("");
                         break;
                     }
                     timeNow = (int)((now - timeZero)/10)*10;
