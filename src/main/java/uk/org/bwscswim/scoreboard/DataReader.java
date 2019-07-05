@@ -36,15 +36,15 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static uk.org.bwscswim.scoreboard.State.CLEAR;
-import static uk.org.bwscswim.scoreboard.State.LINEUP;
-import static uk.org.bwscswim.scoreboard.State.LINEUP_COMPLETE;
-import static uk.org.bwscswim.scoreboard.State.RACE_COMPLETE;
-import static uk.org.bwscswim.scoreboard.State.RACE_FISHING;
-import static uk.org.bwscswim.scoreboard.State.RESULT;
-import static uk.org.bwscswim.scoreboard.State.RACE;
-import static uk.org.bwscswim.scoreboard.State.RESULT_COMPLETE;
-import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.CLEAR;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP_COMPLETE;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE_COMPLETE;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE_FINISHING;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULT;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULT_COMPLETE;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.TIME_OF_DAY;
 
 public class DataReader
 {
@@ -414,7 +414,7 @@ public class DataReader
             else
             {
                 AbstractScoreboard scoreboard = (AbstractScoreboard)this.scoreboard;
-                State state = getState();
+                ScoreboardState state = getState();
 
                 if (control.equals(CONTROL_CLOCK))
                 {
@@ -446,12 +446,12 @@ public class DataReader
                     setState(RESULT_COMPLETE);
                     drawScoreboard();
                 }
-                else if ((state == RACE || state == RACE_FISHING) && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber)
+                else if ((state == RACE || state == RACE_FINISHING) && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber)
                 {
                     lastLaneResultAt = System.currentTimeMillis();
                     drawLane(lineNumber-firstLaneLineNumber);
                     makeScoreboardVisible();
-                    if (state == RACE_FISHING && countLanesWithNames() == countLanesWithTimes())
+                    if (state == RACE_FINISHING && countLanesWithNames() == countLanesWithTimes())
                     {
                         setState(RACE_COMPLETE);
                     }
@@ -488,7 +488,7 @@ public class DataReader
         }
         else
         {
-            setState(RACE_FISHING, lastLaneResultAt);
+            setState(RACE_FINISHING, lastLaneResultAt);
         }
     }
 
@@ -499,7 +499,7 @@ public class DataReader
         {
             int lineNumber = firstLaneLineNumber + laneIndex;
 
-            State state = getState();
+            ScoreboardState state = getState();
             boolean result = state == RESULT || state == RESULT_COMPLETE;
             int indent = result ? 1 : 0;
 
@@ -519,7 +519,7 @@ public class DataReader
         {
             int lineNumber = firstLaneLineNumber + laneIndex;
 
-            State state = getState();
+            ScoreboardState state = getState();
             boolean result = state == RESULT || state == RESULT_COMPLETE;
             int indent = result ? 1 : 0;
 
@@ -567,7 +567,7 @@ public class DataReader
     {
         int lineNumber = firstLaneLineNumber + laneIndex;
         String placeRange = config.getCharRange("placeRange", null);
-        State state = getState();
+        ScoreboardState state = getState();
         boolean result = state == RESULT || state == RESULT_COMPLETE;
         int indent = result ? 1 : 0;
         int lane = result
@@ -611,18 +611,61 @@ public class DataReader
         return clock;
     }
 
-    private synchronized void setState(State state)
+    private synchronized void setState(ScoreboardState state)
     {
         setState(state, System.currentTimeMillis());
     }
 
-    private synchronized void setState(State state, long stateStart)
+    private synchronized void setState(ScoreboardState state, long stateStart)
     {
         // TODO The scoreboard state will eventually not be the same as the current data state
         scoreboard.setState(state);
+
+
+        if (state == LINEUP_COMPLETE)
+        {
+            new StateTimerThread(this, state, stateStart, 5000)
+            {
+                @Override
+                public void end()
+                {
+                    System.out.println("LINEUP_COMPLETE DONE - DISPLAY THE RACE");
+                }
+            };
+        }
+        else if (state == RACE_COMPLETE)
+        {
+            new StateTimerThread(this, state, stateStart, 2000)
+            {
+                @Override
+                public void end()
+                {
+                    System.out.println("RESULT_COMPLETE DONE - SWITCH TO RESULTS PAGE");
+                }
+            };
+        }
+        else if (state == RESULT_COMPLETE)
+        {
+            new StateTimerThread(this, state, stateStart, 1000, 5000)
+            {
+                @Override
+                public void tick(int count)
+                {
+                    int mod = count % 3;
+                    String display = mod == 0 ? "TIMEs" : mod == 1 ? "PBs" : "CTs";
+                    System.out.println("DISPLAY RESULT "+display);
+                }
+
+                @Override
+                public void end()
+                {
+                    System.out.println("RESULT_COMPLETE DONE - MOVE ON TO LINEUP");
+                }
+            };
+        }
     }
 
-    public synchronized State getState()
+    public synchronized ScoreboardState getState()
     {
         // TODO The scoreboard state will eventually not be the same as the current data state
         return scoreboard.state;

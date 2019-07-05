@@ -2,7 +2,7 @@ package uk.org.bwscswim.scoreboard;
 
 import javax.swing.*;
 
-import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.TIME_OF_DAY;
 
 /**
  * Scoreboard with fields that overlay.

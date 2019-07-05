@@ -69,7 +69,7 @@ public class Config
         return prop;
     }
 
-    public Font getFont(String scoreboardName, State state, String componentName)
+    public Font getFont(String scoreboardName, ScoreboardState state, String componentName)
     {
         return new Font(
                 getFontName(scoreboardName, state, null, componentName+'.'+FONT_NAME, "Arial"),
@@ -77,7 +77,7 @@ public class Config
                 getInt(scoreboardName, state, null, componentName+'.'+FONT_SIZE, 88));
     }
 
-    private String getFontName(String scoreboardName, State state, String componentName, String attributeName,
+    private String getFontName(String scoreboardName, ScoreboardState state, String componentName, String attributeName,
                                String defaultValue)
     {
         String stateName = getStateName(state);
@@ -98,7 +98,7 @@ public class Config
         return defaultValue;
     }
 
-    private int getFontStyle(String scoreboardName, State state, String componentName, String attributeName,
+    private int getFontStyle(String scoreboardName, ScoreboardState state, String componentName, String attributeName,
                              int defaultValue)
     {
         String stateName = getStateName(state);
@@ -126,7 +126,7 @@ public class Config
         return getString(null, null, null, attributeName, defaultValue);
     }
 
-    public String getString(String scoreboardName, State state, String componentName, String attributeName, String defaultValue)
+    public String getString(String scoreboardName, ScoreboardState state, String componentName, String attributeName, String defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
@@ -145,7 +145,7 @@ public class Config
         return getInt(null, null, null, attributeName, defaultValue);
     }
 
-    public int getInt(String scoreboardName, State state, String componentName, String attributeName, int defaultValue)
+    public int getInt(String scoreboardName, ScoreboardState state, String componentName, String attributeName, int defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
@@ -171,7 +171,7 @@ public class Config
         return getBoolean(null, null, null, attributeName, defaultValue);
     }
 
-    public Boolean getBoolean(String scoreboardName, State state, String componentName, String attributeName, Boolean defaultValue)
+    public Boolean getBoolean(String scoreboardName, ScoreboardState state, String componentName, String attributeName, Boolean defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
@@ -196,7 +196,7 @@ public class Config
         return defaultValue;
     }
 
-    public Color getColor(String scoreboardName, State state, String componentName, String attributeName, Color defaultValue)
+    public Color getColor(String scoreboardName, ScoreboardState state, String componentName, String attributeName, Color defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
@@ -234,7 +234,7 @@ public class Config
         return getRange(null, null, null, attributeName, defaultValue);
     }
 
-    private String getRange(String scoreboardName, State state, String componentName, String attributeName, String defaultValue)
+    private String getRange(String scoreboardName, ScoreboardState state, String componentName, String attributeName, String defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
@@ -257,7 +257,7 @@ public class Config
         return getCharRange(null, null, null, attributeName, defaultValue);
     }
 
-    private String getCharRange(String scoreboardName, State state, String componentName, String attributeName, String defaultValue)
+    private String getCharRange(String scoreboardName, ScoreboardState state, String componentName, String attributeName, String defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
@@ -304,7 +304,7 @@ public class Config
         return commPort;
     }
 
-    private String getStateName(State state)
+    private String getStateName(ScoreboardState state)
     {
         return state == null ? null : state.toString().toLowerCase();
     }

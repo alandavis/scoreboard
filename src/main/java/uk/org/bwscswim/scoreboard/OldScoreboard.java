@@ -2,8 +2,8 @@ package uk.org.bwscswim.scoreboard;
 
 import javax.swing.*;
 
-import static uk.org.bwscswim.scoreboard.State.RESULT;
-import static uk.org.bwscswim.scoreboard.State.RESULT_COMPLETE;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULT;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULT_COMPLETE;
 
 /**
  * AbstractScoreboard tries to be like the original Excel version.

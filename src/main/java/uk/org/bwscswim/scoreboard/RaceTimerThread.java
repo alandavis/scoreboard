@@ -1,6 +1,6 @@
 package uk.org.bwscswim.scoreboard;
 
-import static uk.org.bwscswim.scoreboard.State.RACE;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE;
 
 /**
  * @author adavis
@@ -30,8 +30,8 @@ public class RaceTimerThread extends Thread
             for(;;)
             {
                 long wakeIn = 75 - (now % 75);
-                Thread.sleep(wakeIn);
 //              System.err.println("  wakeIn="+wakeIn);
+                Thread.sleep(wakeIn);
                 now = System.currentTimeMillis();
                 int timeNow;
                 synchronized (this)
@@ -88,10 +88,5 @@ public class RaceTimerThread extends Thread
         clock = clock.substring(clock.length()-8);
 //        System.err.println("  timeNow="+timeNow+" '"+clock+"' "+mins+"-"+secs+"-"+hunds+" ++++++++");
         dataReader.setClock(clock);
-    }
-
-    public synchronized void terminate()
-    {
-        terminate = true;
     }
 }

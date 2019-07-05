@@ -28,9 +28,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static uk.org.bwscswim.scoreboard.State.LINEUP;
-import static uk.org.bwscswim.scoreboard.State.LINEUP_COMPLETE;
-import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP_COMPLETE;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.TIME_OF_DAY;
 
 public abstract class AbstractScoreboard extends BaseBoard
 {

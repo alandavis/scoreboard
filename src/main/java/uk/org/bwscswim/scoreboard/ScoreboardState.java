@@ -3,7 +3,7 @@ package uk.org.bwscswim.scoreboard;
 /**
  * @author adavis
  */
-public enum State
+public enum ScoreboardState
 {
     /** Test page */
     TEST,
@@ -18,7 +18,7 @@ public enum State
     /** The race timer is running */
     RACE,
     /** The race timer has stopped for longer than 2.1 seconds so is not a split time, but there may be more result lines */
-    RACE_FISHING,
+    RACE_FINISHING,
     /** All result lines have been set after and the race timer has stopped */
     RACE_COMPLETE,
     /** About to display the results */
