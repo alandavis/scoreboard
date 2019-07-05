@@ -439,6 +439,14 @@ public class DataReader
                         scoreboard.setClock(clock);
                         makeScoreboardVisible();
                     }
+                    else
+                    {
+                        // Similar to if (state == LINEUP_COMPLETE), but is for the situation we need to restart the scoreboard
+                        clearScoreboard();
+                        setState(RACE);
+                        makeScoreboardVisible();
+                        raceTimerThread = new RaceTimerThread(this, clock);
+                    }
                 }
                 else if (state == RESULT && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber &&
                          lanesWithTimes == countLanesWithTimes())
