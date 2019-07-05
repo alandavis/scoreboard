@@ -43,7 +43,7 @@ public class TimerThread extends Thread
                     }
                     timeNow = (int)((now - timeZero)/10)*10;
                 }
-                setTime(timeNow);
+                setThreadTime(timeNow);
             }
         }
         catch (InterruptedException ignoreAndJustExist)
@@ -68,7 +68,7 @@ public class TimerThread extends Thread
 //        System.err.println("  setClock "+clock+" "+mins+"-"+secs+"-"+hunds+" --------- "+timeZero);
     }
 
-    private void setTime(int timeNow)
+    private void setThreadTime(int timeNow)
     {
         int hunds = (timeNow % 1000)/10;
         int secs = timeNow/1000;

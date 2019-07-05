@@ -424,7 +424,6 @@ public class DataReader
                     }
                     else if (state == LINEUP_COMPLETE)
                     {
-                        setClock("");
                         setState(RACE);
                         scoreboard.setVisible(true);
                         timerThread = new TimerThread(this, clock);
@@ -545,6 +544,10 @@ public class DataReader
     private void drawClock()
     {
         String clock = text.getText(clockRange, "");
+        if ("0.0".equals(clock.trim()))
+        {
+            clock = "";
+        }
         ((AbstractScoreboard)this.scoreboard).setClock(clock);
     }
 
@@ -575,7 +578,6 @@ public class DataReader
     public void setClock(String clock)
     {
 //        System.err.println("    set clock "+clock);
-        text.setText(Text.getLineNumber(clockRange), Text.getOffset(clockRange), clock);
         ((AbstractScoreboard)scoreboard).setClock(clock);
     }
 
