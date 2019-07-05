@@ -5,19 +5,19 @@ import static uk.org.bwscswim.scoreboard.State.RACE;
 /**
  * @author adavis
  */
-public class TimerThread extends Thread
+public class RaceTimerThread extends Thread
 {
     private boolean terminate;
     private DataReader dataReader;
-    private int time;
+    private long lastClock;
     private long timeZero;
 
-    public TimerThread(DataReader dataReader, String clock)
+    public RaceTimerThread(DataReader dataReader, String clock)
     {
         this.dataReader = dataReader;
         setClock(clock);
         setDaemon(true);
-        setName("TimerThread");
+        setName("RaceTimerThread");
         start();
     }
 
@@ -31,11 +31,18 @@ public class TimerThread extends Thread
             {
                 long wakeIn = 75 - (now % 75);
                 Thread.sleep(wakeIn);
-//System.err.println("  wakeIn="+wakeIn);
+//              System.err.println("  wakeIn="+wakeIn);
                 now = System.currentTimeMillis();
                 int timeNow;
                 synchronized (this)
                 {
+                    // The race winner has finished if there has not been a clock for more than 2.1 seconds (add a buffer of 0.4)
+                    if (now-lastClock > 2500)
+                    {
+                        dataReader.setRaceFinishing();
+                        terminate = true;
+                    }
+
                     if (terminate || dataReader.getState() != RACE)
                     {
                         dataReader.setClock("");
@@ -60,12 +67,12 @@ public class TimerThread extends Thread
         int secs = Integer.parseInt(clock.substring(i == -1 ? 0 : i+1, j));
         int hunds = Integer.parseInt(clock.substring(j+1)+(clock.length()-2 == j ? "0" : ""));
         int time = (mins*60+secs)*1000 + hunds*10;
-        long now = System.currentTimeMillis();
+        lastClock = System.currentTimeMillis();
         synchronized(this)
         {
-            timeZero = now - time;
+            timeZero = lastClock - time;
         }
-//        System.err.println("  setClock "+clock+" "+mins+"-"+secs+"-"+hunds+" --------- "+timeZero);
+//      System.err.println("  setClock "+clock+" "+mins+"-"+secs+"-"+hunds+" --------- "+timeZero);
     }
 
     private void setThreadTime(int timeNow)

@@ -40,6 +40,7 @@ import static uk.org.bwscswim.scoreboard.State.CLEAR;
 import static uk.org.bwscswim.scoreboard.State.LINEUP;
 import static uk.org.bwscswim.scoreboard.State.LINEUP_COMPLETE;
 import static uk.org.bwscswim.scoreboard.State.RACE_COMPLETE;
+import static uk.org.bwscswim.scoreboard.State.RACE_FISHING;
 import static uk.org.bwscswim.scoreboard.State.RESULT;
 import static uk.org.bwscswim.scoreboard.State.RACE;
 import static uk.org.bwscswim.scoreboard.State.RESULT_COMPLETE;
@@ -83,8 +84,9 @@ public class DataReader
     private int prevByte;
     private InputStream inputStream;
     private Text text = new Text();
-    private TimerThread timerThread;
+    private RaceTimerThread raceTimerThread;
     private int lanesWithTimes;
+    private long lastLaneResultAt;
 
     public DataReader(Config config, BaseBoard scoreboard)
     {
@@ -417,25 +419,25 @@ public class DataReader
                 if (control.equals(CONTROL_CLOCK))
                 {
                     String clock = text.getText(clockRange, "");
-                    if (state == LINEUP) // clock is probably "0.0"
+                    if (state == LINEUP) // clock is probably 0.0
                     {
                         setState(LINEUP_COMPLETE);
                         drawScoreboard();
                     }
-                    else if (state == LINEUP_COMPLETE)
+                    else if (state == LINEUP_COMPLETE) // clock is probably 0.1
                     {
                         setState(RACE);
-                        scoreboard.setVisible(true);
-                        timerThread = new TimerThread(this, clock);
+                        makeScoreboardVisible();
+                        raceTimerThread = new RaceTimerThread(this, clock);
                     }
                     else if (state == RACE)
                     {
-                        timerThread.setClock(clock);
+                        raceTimerThread.setClock(clock);
                     }
                     else if (state == TIME_OF_DAY)
                     {
                         scoreboard.setClock(clock);
-                        scoreboard.setVisible(true);
+                        makeScoreboardVisible();
                     }
                 }
                 else if (state == RESULT && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber &&
@@ -444,11 +446,12 @@ public class DataReader
                     setState(RESULT_COMPLETE);
                     drawScoreboard();
                 }
-                else if (state == RACE && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber)
+                else if ((state == RACE || state == RACE_FISHING) && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber)
                 {
+                    lastLaneResultAt = System.currentTimeMillis();
                     drawLane(lineNumber-firstLaneLineNumber);
-                    scoreboard.setVisible(true);
-                    if (countLanesWithNames() == countLanesWithTimes())
+                    makeScoreboardVisible();
+                    if (state == RACE_FISHING && countLanesWithNames() == countLanesWithTimes())
                     {
                         setState(RACE_COMPLETE);
                     }
@@ -458,13 +461,10 @@ public class DataReader
         else if (CONTROL_CLEAR.equals(control))
         {
             lanesWithTimes = countLanesWithTimes();
-            scoreboard.clear();
             text.clear();
-            if (scoreboard instanceof AbstractScoreboard)
-            {
-                setState(CLEAR);
-            }
-            scoreboard.setVisible(true);
+            setState(CLEAR);
+            clearScoreboard();
+            makeScoreboardVisible();
         }
         else if (CONTROL_LINEUP.equals(control))
         {
@@ -477,6 +477,18 @@ public class DataReader
         else if (CONTROL_TIME_OF_DAY.equals(control))
         {
             setState(TIME_OF_DAY);
+        }
+    }
+
+    public void setRaceFinishing()
+    {
+        if (countLanesWithNames() == countLanesWithTimes())
+        {
+            setState(RACE_COMPLETE);
+        }
+        else
+        {
+            setState(RACE_FISHING, lastLaneResultAt);
         }
     }
 
@@ -528,7 +540,7 @@ public class DataReader
         {
             drawLane(laneIndex);
         }
-        scoreboard.setVisible(true);
+        makeScoreboardVisible();
     }
 
     private void drawTitles()
@@ -575,9 +587,21 @@ public class DataReader
         ((AbstractScoreboard)scoreboard).setLaneValues(laneIndex, lane, place, name, club, time);
     }
 
+    public void makeScoreboardVisible()
+    {
+        scoreboard.setVisible(true);
+    }
+
+    public void clearScoreboard()
+    {
+        if (scoreboard instanceof AbstractScoreboard)
+        {
+            ((AbstractScoreboard)scoreboard).clear();
+        }
+    }
+
     public void setClock(String clock)
     {
-//        System.err.println("    set clock "+clock);
         ((AbstractScoreboard)scoreboard).setClock(clock);
     }
 
@@ -588,6 +612,11 @@ public class DataReader
     }
 
     private synchronized void setState(State state)
+    {
+        setState(state, System.currentTimeMillis());
+    }
+
+    private synchronized void setState(State state, long stateStart)
     {
         // TODO The scoreboard state will eventually not be the same as the current data state
         scoreboard.setState(state);
