@@ -1,8 +1,11 @@
 package uk.org.bwscswim.scoreboard;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 
 import static uk.org.bwscswim.scoreboard.ScoreboardState.TEST;
 
@@ -53,6 +56,15 @@ public abstract class BaseBoard extends javax.swing.JFrame
     {
         getColors();
         setColors();
+
+//        try
+//        {
+//            JLabel label = new JLabel(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream(("BWSC.png")))));
+//            setContentPane(label);
+//        }
+//        catch (IOException ignore)
+//        {
+//        }
 
         exitOnEscapeOrEnter();
 

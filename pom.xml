@@ -5,7 +5,7 @@
 
     <groupId>uk.org.bwscswim</groupId>
     <artifactId>scoreboard</artifactId>
-    <version>0.7-SNAPSHOT</version>
+    <version>0.9-SNAPSHOT</version>
 
     <licenses>
         <license>
