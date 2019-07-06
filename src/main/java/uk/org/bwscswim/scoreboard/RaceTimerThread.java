@@ -1,6 +1,7 @@
 package uk.org.bwscswim.scoreboard;
 
 import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE_FINISHING;
 
 /**
  * @author adavis
@@ -24,6 +25,7 @@ public class RaceTimerThread extends Thread
     @Override
     public void run()
     {
+        boolean winnerFinished = false;
         try
         {
             long now = System.currentTimeMillis();
@@ -37,13 +39,14 @@ public class RaceTimerThread extends Thread
                 synchronized (this)
                 {
                     // The race winner has finished if there has not been a clock for more than 2.1 seconds (add a buffer of 0.4)
-                    if (now-lastClock > 2500)
+                    long lastClockAge = now - lastClock;
+                    if (!winnerFinished && lastClockAge > 2500)
                     {
                         dataReader.setRaceFinishing();
-                        terminate = true;
+                        winnerFinished = true;
                     }
 
-                    if (terminate || dataReader.state != RACE)
+                    if (terminate || (dataReader.state != RACE && dataReader.state != RACE_FINISHING))
                     {
                         dataReader.setClock("");
                         break;
@@ -56,6 +59,7 @@ public class RaceTimerThread extends Thread
         catch (InterruptedException ignoreAndJustExist)
         {
         }
+      System.err.println("  timerThread EXITS");
     }
 
     public void setClock(String clock)
@@ -86,8 +90,13 @@ public class RaceTimerThread extends Thread
             (mins > 0 && secs <= 9 ? "0" : "")+Integer.toString(secs)+'.'+
             (hunds <= 9 ? "0" : "")+Integer.toString(hunds);
         clock = clock.substring(clock.length()-8);
-//        System.err.println("  timeNow="+timeNow+" '"+clock+"' "+mins+"-"+secs+"-"+hunds+" ++++++++");
+//      System.err.println("  timeNow="+timeNow+" '"+clock+"' "+mins+"-"+secs+"-"+hunds+" ++++++++");
         dataReader.setClock(clock);
         dataReader.makeScoreboardVisible();
+    }
+
+    public synchronized void terminate()
+    {
+        terminate = true;
     }
 }

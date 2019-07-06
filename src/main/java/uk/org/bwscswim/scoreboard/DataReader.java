@@ -784,8 +784,9 @@ public class DataReader
                 String clock = text.getText(clockRange, "");
                 raceTimerThread = new RaceTimerThread(this, clock);
             }
-            else if (state == RACE_COMPLETE && this.state == RACE)
+            else if (state == RACE_COMPLETE && (this.state == RACE || this.state == RACE_FINISHING))
             {
+                raceTimerThread.terminate();
                 raceTimerThread = null;
             }
             else if (state == CLEAR)
