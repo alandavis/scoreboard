@@ -32,7 +32,7 @@ public class RaceTimerThread extends Thread
             for(;;)
             {
                 long wakeIn = 75 - (now % 75);
-//              System.err.println("  wakeIn="+wakeIn);
+//              System.out.println("  wakeIn="+wakeIn);
                 Thread.sleep(wakeIn);
                 now = System.currentTimeMillis();
                 int timeNow;
@@ -59,7 +59,7 @@ public class RaceTimerThread extends Thread
         catch (InterruptedException ignoreAndJustExist)
         {
         }
-      System.err.println("  timerThread EXITS");
+//      System.out.println("  timerThread EXITS");
     }
 
     public void setClock(String clock)
@@ -76,7 +76,7 @@ public class RaceTimerThread extends Thread
         {
             timeZero = lastClock - time;
         }
-//      System.err.println("  setClock "+clock+" "+mins+"-"+secs+"-"+hunds+" --------- "+timeZero);
+//      System.out.println("  setClock "+clock+" "+mins+"-"+secs+"-"+hunds+" --------- "+timeZero);
     }
 
     private void setThreadTime(int timeNow)
@@ -90,7 +90,7 @@ public class RaceTimerThread extends Thread
             (mins > 0 && secs <= 9 ? "0" : "")+Integer.toString(secs)+'.'+
             (hunds <= 9 ? "0" : "")+Integer.toString(hunds);
         clock = clock.substring(clock.length()-8);
-//      System.err.println("  timeNow="+timeNow+" '"+clock+"' "+mins+"-"+secs+"-"+hunds+" ++++++++");
+//      System.out.println("  timeNow="+timeNow+" '"+clock+"' "+mins+"-"+secs+"-"+hunds+" ++++++++");
         dataReader.setClock(clock);
         dataReader.makeScoreboardVisible();
     }
