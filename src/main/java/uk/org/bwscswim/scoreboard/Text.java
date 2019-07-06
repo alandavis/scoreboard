@@ -7,6 +7,18 @@ public class Text
 {
     List<String> lines = new ArrayList<>();
 
+    public Text()
+    {
+    }
+
+    public Text(Text orig)
+    {
+        for (String line : orig.lines)
+        {
+            lines.add(line);
+        }
+    }
+
     public void setText(int lineNumber, int offset, String text)
     {
         String line = getText(lineNumber, "");
@@ -121,5 +133,18 @@ public class Text
     public void clear()
     {
         lines.clear();
+    }
+
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (String line : lines)
+        {
+            if (line != null)
+            {
+                sb.append("    ").append(line).append('\n');
+            }
+        }
+        return sb.toString();
     }
 }

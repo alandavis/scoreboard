@@ -10,6 +10,7 @@ public class StateTimerThread extends Thread
     private final long tickTime;
     private final long end;
     private int count;
+    private boolean terminate;
 
     public StateTimerThread(DataReader dataReader, ScoreboardState state, long start, long runForTime)
     {
@@ -35,9 +36,12 @@ public class StateTimerThread extends Thread
             for (;;)
             {
                 long now = System.currentTimeMillis();
-                if (now >= end)
+                synchronized (this)
                 {
-                    break;
+                    if (now >= end || terminate)
+                    {
+                        break;
+                    }
                 }
 
                 tick(count++);
@@ -47,6 +51,7 @@ public class StateTimerThread extends Thread
                 Thread.sleep(wakeIn);
             }
             end();
+            dataReader.dequeueNextState();
         }
         catch (InterruptedException ignoreAndJustExist)
         {
@@ -55,11 +60,14 @@ public class StateTimerThread extends Thread
 
     public void tick(int count)
     {
-        System.out.println(state+" tick("+count+")");
     }
 
     public void end()
     {
-        System.out.println(state+" end()");
+    }
+
+    public synchronized void terminate()
+    {
+        terminate = true;
     }
 }

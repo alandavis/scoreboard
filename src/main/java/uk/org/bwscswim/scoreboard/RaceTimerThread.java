@@ -43,7 +43,7 @@ public class RaceTimerThread extends Thread
                         terminate = true;
                     }
 
-                    if (terminate || dataReader.getState() != RACE)
+                    if (terminate || dataReader.state != RACE)
                     {
                         dataReader.setClock("");
                         break;
@@ -88,5 +88,6 @@ public class RaceTimerThread extends Thread
         clock = clock.substring(clock.length()-8);
 //        System.err.println("  timeNow="+timeNow+" '"+clock+"' "+mins+"-"+secs+"-"+hunds+" ++++++++");
         dataReader.setClock(clock);
+        dataReader.makeScoreboardVisible();
     }
 }
