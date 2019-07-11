@@ -21,7 +21,9 @@ public class New4Scoreboard extends AbstractScoreboard
 
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
-                    .addComponent(singleTitle)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(leftGap)
+                        .addComponent(singleTitle))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(leftGap)
                         .addGroup(col1)

@@ -439,7 +439,10 @@ public class DataReader
                     }
                     else if (state == LINEUP_COMPLETE) // clock is probably 0.1
                     {
-                        setState(RACE);
+                        if (!"0.0".equals(clock.trim())) // Think we are getting another 0.0 sometimes with test runs on data system
+                        {
+                            setState(RACE);
+                        }
                     }
                     else if (state == RACE)
                     {
