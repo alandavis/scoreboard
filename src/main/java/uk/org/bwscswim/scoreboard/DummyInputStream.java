@@ -79,7 +79,12 @@ public class DummyInputStream extends InputStream
     {
         if (line == null)
         {
-            line = reader.readLine();
+            do
+            {
+                line = reader.readLine();
+            }
+            while (line != null && line.trim().length() == 0);
+
             if (line != null)
             {
                 i = line.indexOf('[');
