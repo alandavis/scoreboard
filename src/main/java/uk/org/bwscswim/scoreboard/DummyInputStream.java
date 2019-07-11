@@ -82,32 +82,38 @@ public class DummyInputStream extends InputStream
             do
             {
                 line = reader.readLine();
+                i = line.indexOf('[');
             }
-            while (line != null && line.trim().length() == 0);
+            while (line != null && i == -1);
 
             if (line != null)
             {
-                i = line.indexOf('[');
                 if (includeDelay)
                 {
                     String delay = line.substring(0, i).trim();
                     if (!delay.isEmpty())
                     {
-                        long t = Long.parseLong(delay);
-                        long now = System.currentTimeMillis();
-                        t = t - now + time - 3; // -3 to allow for some processing
-                        if (t > 0)
+                        try
                         {
-                            try
+                            long t = Long.parseLong(delay);
+                            long now = System.currentTimeMillis();
+                            t = t - now + time - 3; // -3 to allow for some processing
+                            if (t > 0)
                             {
-                                Thread.sleep(t);
+                                try
+                                {
+                                    Thread.sleep(t);
+                                }
+                                catch (InterruptedException e)
+                                {
+                                    reader.close();
+                                    line = null;
+                                }
+                                time = System.currentTimeMillis();
                             }
-                            catch (InterruptedException e)
-                            {
-                                reader.close();
-                                line = null;
-                            }
-                            time = System.currentTimeMillis();
+                        }
+                        catch (NumberFormatException ignore)
+                        {
                         }
                     }
                 }
