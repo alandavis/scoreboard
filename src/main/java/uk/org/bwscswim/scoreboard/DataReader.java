@@ -457,11 +457,13 @@ public class DataReader
                     else
                     {
                         // Similar to if (state == LINEUP_COMPLETE), but is for the situation we need to restart the scoreboard
-                        if (showData())
-                        {
-                            clearScoreboard();
-                            setState(RACE);
-                        }                    }
+                        System.out.println("clearScoreboard");
+                        clearStateQueue();
+                        clearRaceTimer();
+                        clearScoreboard();
+                        state = CLEAR;
+                        setState(LINEUP);
+                    }
                 }
                 else if (state == RESULT && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber &&
                          lanesWithTimes == countLanesWithTimes())
@@ -652,17 +654,17 @@ public class DataReader
             if (state != nextAllowedState)
             {
                 // There has been a break in the expected sequence of queued events, so start again with the live state.
+                System.out.println("Unexpected sequence of queued events - cleared");
                 clearStateQueue();
             }
             else
             {
-//                System.out.println("    Add "+state+" to the queue");
-//                System.out.println("    this.state="+this.state+"  state="+state+" lanesWithTimes="+lanesWithTimes+"\n"+text);
+                System.out.println("  Queue "+state+" lanesWithTimes="+lanesWithTimes+"\n"+text);
                 queuedStateData.add(new StateData(this.state, state, text, lanesWithTimes));
             }
         }
 
-        setScoreboardState(state, stateStart);
+        setScoreboardState(state, stateStart, false, this.state);
     }
 
     private void clearStateQueue()
@@ -673,6 +675,15 @@ public class DataReader
         {
             stateTimerThread.terminate();
             stateTimerThread = null;
+        }
+    }
+
+    private void clearRaceTimer()
+    {
+        if (raceTimerThread != null)
+        {
+            raceTimerThread.terminate();
+            raceTimerThread = null;
         }
     }
 
@@ -694,10 +705,8 @@ public class DataReader
                     text = stateData.getText();
                     lanesWithTimes = stateData.getLanesWithTimes();
                     ScoreboardState state = stateData.getState();
-
-//                    System.out.println("    this.state="+this.state+"  state="+state+" lanesWithTimes="+lanesWithTimes+"\n"+text);
-
-                    setScoreboardState(state, System.currentTimeMillis());
+                    System.out.println(state+" - removed from queue");
+                    setScoreboardState(state, System.currentTimeMillis(), true, origState);
                 }
                 while (stateTimerThread == null && !queuedStateData.isEmpty());
             }
@@ -717,7 +726,7 @@ public class DataReader
         }
     }
 
-    private synchronized void setScoreboardState(ScoreboardState state, long stateStart)
+    private synchronized void setScoreboardState(ScoreboardState state, long stateStart, boolean queuedState, ScoreboardState origState)
     {
         if (showData())
         {
@@ -792,6 +801,10 @@ public class DataReader
                 clearScoreboard();
                 makeScoreboardVisible();
             }
+        }
+        if (!queuedState &&origState != state)
+        {
+            System.out.println(state);
         }
         this.state = state;
         if (showData())

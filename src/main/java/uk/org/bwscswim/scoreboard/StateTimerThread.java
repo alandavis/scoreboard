@@ -47,11 +47,19 @@ public class StateTimerThread extends Thread
                 tick(count++);
 
                 long wakeIn = now + tickTime > end ? end - now : tickTime;
-//              System.out.println(state + " wakeIn=" + wakeIn);
+//                System.out.println(state + " wakeIn=" + wakeIn);
                 Thread.sleep(wakeIn);
+                if (terminate)
+                {
+                    break;
+                }
             }
-            end();
-            dataReader.dequeueNextState();
+            if (!terminate)
+            {
+                end();
+                dataReader.dequeueNextState();
+            }
+//            System.out.println("   terminate");
         }
         catch (InterruptedException ignoreAndJustExist)
         {

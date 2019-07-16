@@ -142,7 +142,11 @@ public class Text
         {
             if (line != null)
             {
-                sb.append("    ").append(line).append('\n');
+                if (sb.length() > 0)
+                {
+                    sb.append('\n');
+                }
+                sb.append("    ").append(line);
             }
         }
         return sb.toString();

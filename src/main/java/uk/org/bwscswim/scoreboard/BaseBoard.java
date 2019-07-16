@@ -196,7 +196,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
         if (this.state != state)
         {
             this.state = state;
-            System.out.println(state);
+            System.out.println(state+" - visible state");
             getColors();
             setColors();
         }
