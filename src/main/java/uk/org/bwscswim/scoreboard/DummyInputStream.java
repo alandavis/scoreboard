@@ -83,7 +83,7 @@ public class DummyInputStream extends InputStream
             do
             {
                 line = reader.readLine();
-                i = line.indexOf('[');
+                i = line == null ? -1 : line.indexOf('[');
             }
             while (line != null && i == -1);
 
