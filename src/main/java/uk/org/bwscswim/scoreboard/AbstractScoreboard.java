@@ -181,7 +181,7 @@ public abstract class AbstractScoreboard extends BaseBoard
     protected void getTestText()
     {
         testTitle = getTest("title");
-        if (testCard)
+        if (showTestCardFor > 0)
         {
             String tla = getScoreboardTLA();
             testTitle = pad(testTitle.substring(0, 1) + tla + testTitle.substring(tla.length() + 1), titleLength, 't');
@@ -206,11 +206,11 @@ public abstract class AbstractScoreboard extends BaseBoard
         for (Swimmer swimmer : swimmers)
         {
             lane++;
-            swimmer.lane.setText(testCard ? Integer.toString(lane) : " ");
+            swimmer.lane.setText(showTestCardFor > 0 ? Integer.toString(lane) : " ");
             swimmer.name.setText(testName);
             swimmer.club.setText(testClub);
             swimmer.time.setText(testTime);
-            swimmer.place.setText(getPlace(testCard ? lane : 0));
+            swimmer.place.setText(getPlace(showTestCardFor > 0 ? lane : 0));
             swimmer.combinedClubTimeClock.setText(testTime);
         }
     }

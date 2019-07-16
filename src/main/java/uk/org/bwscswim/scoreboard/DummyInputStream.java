@@ -42,6 +42,7 @@ public class DummyInputStream extends InputStream
     private String line;
     private int i;
     private long time = System.currentTimeMillis();
+    private boolean ignoreFirstDelay = true;
 
     public DummyInputStream(String string, boolean includeDelay)
     {
@@ -95,9 +96,9 @@ public class DummyInputStream extends InputStream
                     {
                         try
                         {
-                            long t = Long.parseLong(delay);
-                            long now = System.currentTimeMillis();
-                            t = t - now + time - 3; // -3 to allow for some processing
+                            long t = ignoreFirstDelay
+                                ? 0
+                                : Long.parseLong(delay) - System.currentTimeMillis() + time - 3; // -3 to allow for some processing;
                             if (t > 0)
                             {
                                 try
@@ -109,14 +110,15 @@ public class DummyInputStream extends InputStream
                                     reader.close();
                                     line = null;
                                 }
-                                time = System.currentTimeMillis();
                             }
                         }
                         catch (NumberFormatException ignore)
                         {
                         }
+                        time = System.currentTimeMillis();
                     }
                 }
+                ignoreFirstDelay = false;
             }
         }
 

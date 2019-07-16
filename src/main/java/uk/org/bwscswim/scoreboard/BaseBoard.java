@@ -1,11 +1,8 @@
 package uk.org.bwscswim.scoreboard;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
 
 import static uk.org.bwscswim.scoreboard.ScoreboardState.TEST;
 
@@ -21,7 +18,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
     protected Color background;
     protected Color titleForeground;
     protected Color laneForeground;
-    protected Boolean testCard;
+    protected long showTestCardFor;
 
     private DataReader dataReader;
 
@@ -32,7 +29,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
         contentPane = getContentPane();
         String activeScoreboardName = getActiveScoreboardName(config);
         this.scoreboardVisible = name.equals(activeScoreboardName);
-        testCard = config.getBoolean("testCard", true);
+        showTestCardFor = config.getInt("showTestCardFor", 0);
     }
 
     public static BaseBoard createScoreboard(Config config)
@@ -114,7 +111,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
                 }
                 else
                 {
-                    // Tick to move this Frame to the required device
+                    // Trick to move this Frame to the required device
                     javax.swing.JFrame dualview = new javax.swing.JFrame(graphicsDevice.getDefaultConfiguration());
                     setLocationRelativeTo(dualview);
                     dualview.dispose();
@@ -160,7 +157,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
     protected String getTest(String componentName)
     {
         String string = config.getString(null, null, null, componentName + "Test", "");
-        if (!testCard)
+        if (showTestCardFor <= 0)
         {
             string = string.replaceAll(".", " ");
         }
@@ -180,11 +177,12 @@ public abstract class BaseBoard extends javax.swing.JFrame
     {
         String graphicsDeviceId = config.getString("graphicsDevice", null);
         GraphicsDevice graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        System.out.println("GraphicsDevices");
+        System.out.println("\nGraphicsDevices");
+        int i = 1;
         for (GraphicsDevice device : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices())
         {
             String id = device.getIDstring();
-            System.out.println("    "+ id);
+            System.out.println((i++)+". "+ id);
             if (id.equals(graphicsDeviceId))
             {
                 graphicsDevice = device;
@@ -250,5 +248,19 @@ public abstract class BaseBoard extends javax.swing.JFrame
     public void setDataReader(DataReader dataReader)
     {
         this.dataReader = dataReader;
+    }
+
+    public void beforeFirstRead()
+    {
+        if (showTestCardFor > 0)
+        {
+            try
+            {
+                Thread.sleep(showTestCardFor);
+            }
+            catch (InterruptedException ignore)
+            {
+            }
+        }
     }
 }

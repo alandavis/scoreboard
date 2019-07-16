@@ -23,7 +23,6 @@
 package uk.org.bwscswim.scoreboard;
 
 import com.fazecast.jSerialComm.SerialPort;
-import org.apache.log4j.Logger;
 
 import java.io.BufferedWriter;
 import java.io.EOFException;
@@ -41,17 +40,15 @@ import java.util.List;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.CLEAR;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP_COMPLETE;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE_COMPLETE;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE_FINISHING;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULT;
-import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULT_COMPLETE;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.TIME_OF_DAY;
 
 public class DataReader
 {
-    private static final Logger logger = Logger.getLogger(DataReader.class);
-
     private static final int SOL = 0x16; // Start of transmission
     private static final int SOH = 0x01; // Separator 1
     private static final int STX = 0x02; // Separator 2
@@ -155,17 +152,15 @@ public class DataReader
 
     public void readDataInBackground()
     {
-        if (logger.isInfoEnabled())
+        System.out.println("\nAvailable serial ports:");
+        SerialPort[] commPorts = SerialPort.getCommPorts();
+        for (int i = 0; i < commPorts.length; i++)
         {
-            logger.info("Available serial ports:");
-            SerialPort[] commPorts = SerialPort.getCommPorts();
-            for (int i = 0; i < commPorts.length; i++)
-            {
-                logger.info((i + 1) + ". " + commPorts[i].getPortDescription());
-            }
+            System.out.println((i + 1) + ". " + commPorts[i].getPortDescription());
         }
         Thread t = new Thread(() ->
         {
+            scoreboard.beforeFirstRead();
             String testFilename = config.getString("testFilename", null);
             if (testFilename != null && !testFilename.isEmpty())
             {
@@ -201,7 +196,7 @@ public class DataReader
             }
             else
             {
-                // Keep trying in case the port is temporary not there.
+                // Keep trying in case the port is temporarily not there.
                 for (; ; )
                 {
                     try
@@ -247,12 +242,12 @@ public class DataReader
             }
             catch (EOFException e)
             {
-                logger.error(e.getMessage());
+                System.err.println(e.getMessage());
                 break;
             }
             catch (IOException e)
             {
-                logger.error(e.getMessage());
+                System.err.println(e.getMessage());
             }
         }
     }
