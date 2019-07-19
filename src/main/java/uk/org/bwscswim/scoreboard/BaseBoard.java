@@ -29,7 +29,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
         contentPane = getContentPane();
         String activeScoreboardName = getActiveScoreboardName(config);
         this.scoreboardVisible = name.equals(activeScoreboardName);
-        showTestCardFor = config.getInt("showTestCardFor", 0);
+        showTestCardFor = config.getInt("showTestCardFor", 30);
     }
 
     public static BaseBoard createScoreboard(Config config)
@@ -175,7 +175,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
 
     private GraphicsDevice getGraphicsDevice()
     {
-        String graphicsDeviceId = config.getString("graphicsDevice", null);
+        String graphicsDeviceId = config.getString("graphicsDevice", "\\Display1");
         GraphicsDevice graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         System.out.println("\nGraphicsDevices");
         int i = 1;

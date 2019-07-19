@@ -74,7 +74,7 @@ public class Config
         return new Font(
                 getFontName(scoreboardName, state, null, componentName+'.'+FONT_NAME, "Arial"),
                 getFontStyle(scoreboardName, state, null, componentName+'.'+FONT_STYLE, Font.BOLD),
-                getInt(scoreboardName, state, null, componentName+'.'+FONT_SIZE, 88));
+                getInt(scoreboardName, state, null, componentName+'.'+FONT_SIZE, 85));
     }
 
     private String getFontName(String scoreboardName, ScoreboardState state, String componentName, String attributeName,
@@ -278,7 +278,7 @@ public class Config
 
     public SerialPort getPort()
     {
-        String port = getString("port", "COM3");
+        String port = getString("port", "COM5");
         SerialPort commPort = SerialPort.getCommPort(port);
 
         commPort.setBaudRate(getInt("baudRate", 19200));

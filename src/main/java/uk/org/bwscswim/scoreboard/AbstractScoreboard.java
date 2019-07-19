@@ -304,7 +304,7 @@ public abstract class AbstractScoreboard extends BaseBoard
 
     public int getTopGap()
     {
-        return config.getInt(name, null, null, "topGap", 0);
+        return config.getInt(name, null, null, "topGap", 10);
     }
 
     public int getBottomGap()
@@ -314,7 +314,7 @@ public abstract class AbstractScoreboard extends BaseBoard
 
     public int getLeftGap()
     {
-        return config.getInt(name, null, null, "leftGap", 50);
+        return config.getInt(name, null, null, "leftGap", 30);
     }
 
     public int getRightGap()

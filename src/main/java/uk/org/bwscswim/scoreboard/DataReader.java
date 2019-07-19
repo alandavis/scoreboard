@@ -118,8 +118,8 @@ public class DataReader
         timeRange = config.getCharRange("timeRange", null);
 
         displayFinishFor = config.getInt("displayFinishFor", 3000);
-        displayResultsFor = config.getInt("displayResultsFor", 5000);
-        displayLineupFor = config.getInt("displayLineupFor", 5000);
+        displayResultsFor = config.getInt("displayResultsFor", 10000);
+        displayLineupFor = config.getInt("displayLineupFor", 10000);
 
         setTrace(config.getBoolean("trace", true));
 
