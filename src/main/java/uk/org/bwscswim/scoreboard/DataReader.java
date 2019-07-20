@@ -63,7 +63,8 @@ public class DataReader
     private        final String CONTROL_CLOCK;
     private static final int CONTROL_LINE_SUFFIX_LENGTH = CONTROL_LINE_SUFFIX.length();
 
-    private final BaseBoard scoreboard;
+    private final BaseBoard scoreboard1;
+    private final BaseBoard scoreboard2;
     private final Config config;
     private final String titleRange;
     private final String subTitleRange;
@@ -97,10 +98,11 @@ public class DataReader
     private List<ScoreboardState> statesThatMayBeQueued = Collections.EMPTY_LIST;
     private StateTimerThread stateTimerThread;
 
-    public DataReader(Config config, BaseBoard scoreboard)
+    public DataReader(Config config, BaseBoard scoreboard1, BaseBoard scoreboard2)
     {
         this.config = config;
-        this.scoreboard = scoreboard;
+        this.scoreboard1 = scoreboard1;
+        this.scoreboard2 = scoreboard2;
 
         titleRange = config.getRange("titleRange", null);
         subTitleRange = config.getRange("subTitleRange", null);
@@ -160,7 +162,8 @@ public class DataReader
         }
         Thread t = new Thread(() ->
         {
-            scoreboard.beforeFirstRead();
+            scoreboard1.beforeFirstRead();
+            scoreboard2.beforeFirstRead();
             String testFilename = config.getString("testFilename", null);
             if (testFilename != null && !testFilename.isEmpty())
             {
@@ -418,13 +421,15 @@ public class DataReader
             int offset = position % 100;
             text.setText(lineNumber, offset, data);
 
-            if (scoreboard instanceof RawDisplay)
+            if (scoreboard1 instanceof RawDisplay)
             {
-                ((RawDisplay) scoreboard).setText(lineNumber, offset, data);
+                ((RawDisplay) scoreboard1).setText(lineNumber, offset, data);
+                ((RawDisplay) scoreboard2).setText(lineNumber, offset, data);
             }
             else
             {
-                AbstractScoreboard scoreboard = (AbstractScoreboard)this.scoreboard;
+                AbstractScoreboard scoreboard1 = (AbstractScoreboard)this.scoreboard1;
+                AbstractScoreboard scoreboard2 = (AbstractScoreboard)this.scoreboard2;
                 if (control.equals(CONTROL_CLOCK))
                 {
                     String clock = text.getText(clockRange, "");
@@ -450,7 +455,8 @@ public class DataReader
                     {
                         if (showData())
                         {
-                            scoreboard.setClock(clock);
+                            scoreboard1.setClock(clock);
+                            scoreboard2.setClock(clock);
                             makeScoreboardVisible();
                         }
                     }
@@ -576,9 +582,12 @@ public class DataReader
         String title = text.getText(titleRange, "");
         String subTitle = text.getText(subTitleRange, "");
 
-        AbstractScoreboard scoreboard = (AbstractScoreboard)this.scoreboard;
-        scoreboard.setTitle(title);
-        scoreboard.setSubTitle(subTitle);
+        AbstractScoreboard scoreboard1 = (AbstractScoreboard)this.scoreboard1;
+        AbstractScoreboard scoreboard2 = (AbstractScoreboard)this.scoreboard2;
+        scoreboard1.setTitle(title);
+        scoreboard1.setSubTitle(subTitle);
+        scoreboard2.setTitle(title);
+        scoreboard2.setSubTitle(subTitle);
     }
 
     private void drawClock()
@@ -588,7 +597,8 @@ public class DataReader
         {
             clock = "";
         }
-        ((AbstractScoreboard)this.scoreboard).setClock(clock);
+        ((AbstractScoreboard)this.scoreboard1).setClock(clock);
+        ((AbstractScoreboard)this.scoreboard2).setClock(clock);
     }
 
     private void drawLane(int laneIndex)
@@ -613,26 +623,30 @@ public class DataReader
                 lane = 0;
                 place = 0;
             }
-            ((AbstractScoreboard) scoreboard).setLaneValues(laneIndex, lane, place, name, club, time);
+            ((AbstractScoreboard) scoreboard1).setLaneValues(laneIndex, lane, place, name, club, time);
+            ((AbstractScoreboard) scoreboard2).setLaneValues(laneIndex, lane, place, name, club, time);
         }
     }
 
     public void makeScoreboardVisible()
     {
-        scoreboard.setVisible(true);
+        scoreboard1.setVisible(true);
+        scoreboard2.setVisible(true);
     }
 
     public void clearScoreboard()
     {
-        if (scoreboard instanceof AbstractScoreboard)
+        if (scoreboard1 instanceof AbstractScoreboard)
         {
-            ((AbstractScoreboard)scoreboard).clear();
+            ((AbstractScoreboard) scoreboard1).clear();
+            ((AbstractScoreboard) scoreboard2).clear();
         }
     }
 
     public void setClock(String clock)
     {
-        ((AbstractScoreboard)scoreboard).setClock(clock);
+        ((AbstractScoreboard) scoreboard1).setClock(clock);
+        ((AbstractScoreboard) scoreboard2).setClock(clock);
     }
 
     public String getClock()
@@ -809,7 +823,8 @@ public class DataReader
         this.state = state;
         if (showData())
         {
-            scoreboard.setState(state);
+            scoreboard1.setState(state);
+            scoreboard2.setState(state);
         }
     }
 

@@ -290,7 +290,7 @@ public class DataReaderTest
 
     private Config config = new Config(null);
     private AbstractScoreboard scoreboard = new OriginalScoreboard(config);
-    private DataReader dataReader = new DataReader(config, scoreboard);
+    private DataReader dataReader = new DataReader(config, scoreboard, null);
     private InputStream inputStream;
 
     @Before

@@ -7,9 +7,14 @@ import javax.swing.*;
  */
 public class New4Scoreboard extends AbstractScoreboard
 {
-    public New4Scoreboard(Config config)
+    public New4Scoreboard(Config config, boolean secondScreen)
     {
         super(config, "new4");
+        this.secondScreen = secondScreen;
+        if (secondScreen && !config.getBoolean("secondScoreboardVisible", true))
+        {
+            scoreboardVisible = false;
+        }
 
         //    T1111111111111111111111111
         //    2 NNNNNNNNNNNNNN CLUBBBB P

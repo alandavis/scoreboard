@@ -9,10 +9,12 @@ public class Application
             try
             {
                 Config config = new Config("config.properties");
-                BaseBoard scoreboard = BaseBoard.createScoreboard(config);
-                DataReader dataReader = new DataReader(config, scoreboard);
+                BaseBoard scoreboard1 = BaseBoard.createScoreboard(config, false);
+                BaseBoard scoreboard2 = BaseBoard.createScoreboard(config, true);
+                DataReader dataReader = new DataReader(config, scoreboard1, scoreboard2);
                 dataReader.readDataInBackground();
-                scoreboard.setDataReader(dataReader);
+                scoreboard1.setDataReader(dataReader);
+                scoreboard2.setDataReader(dataReader);
             }
             catch (Exception e)
             {
