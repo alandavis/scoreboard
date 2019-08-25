@@ -121,7 +121,7 @@ public class DataReader
 
         displayFinishFor = config.getInt("displayFinishFor", 3000);
         displayResultsFor = config.getInt("displayResultsFor", 10000);
-        displayLineupFor = config.getInt("displayLineupFor", 10000);
+        displayLineupFor = config.getInt("displayLineupFor", 7000);
 
         setTrace(config.getBoolean("trace", true));
 
@@ -421,73 +421,65 @@ public class DataReader
             int offset = position % 100;
             text.setText(lineNumber, offset, data);
 
-            if (scoreboard1 instanceof RawDisplay)
+            AbstractScoreboard scoreboard1 = (AbstractScoreboard)this.scoreboard1;
+            AbstractScoreboard scoreboard2 = (AbstractScoreboard)this.scoreboard2;
+            if (control.equals(CONTROL_CLOCK))
             {
-                ((RawDisplay) scoreboard1).setText(lineNumber, offset, data);
-                ((RawDisplay) scoreboard2).setText(lineNumber, offset, data);
-            }
-            else
-            {
-                AbstractScoreboard scoreboard1 = (AbstractScoreboard)this.scoreboard1;
-                AbstractScoreboard scoreboard2 = (AbstractScoreboard)this.scoreboard2;
-                if (control.equals(CONTROL_CLOCK))
+                String clock = text.getText(clockRange, "");
+                if (state == LINEUP) // clock is probably 0.0
                 {
-                    String clock = text.getText(clockRange, "");
-                    if (state == LINEUP) // clock is probably 0.0
+                    setState(LINEUP_COMPLETE);
+                }
+                else if (state == LINEUP_COMPLETE) // clock is probably 0.1
+                {
+                    if (!"0.0".equals(clock.trim())) // Think we are getting another 0.0 sometimes with test runs on data system
                     {
-                        setState(LINEUP_COMPLETE);
-                    }
-                    else if (state == LINEUP_COMPLETE) // clock is probably 0.1
-                    {
-                        if (!"0.0".equals(clock.trim())) // Think we are getting another 0.0 sometimes with test runs on data system
-                        {
-                            setState(RACE);
-                        }
-                    }
-                    else if (state == RACE)
-                    {
-                        if (showData() && raceTimerThread != null)
-                        {
-                            raceTimerThread.setClock(clock);
-                        }
-                    }
-                    else if (state == TIME_OF_DAY)
-                    {
-                        if (showData())
-                        {
-                            scoreboard1.setClock(clock);
-                            scoreboard2.setClock(clock);
-                            makeScoreboardVisible();
-                        }
-                    }
-                    else
-                    {
-                        // Similar to if (state == LINEUP_COMPLETE), but is for the situation we need to restart the scoreboard
-                        System.out.println("clearScoreboard");
-                        clearStateQueue();
-                        clearRaceTimer();
-                        clearScoreboard();
-                        state = CLEAR;
-                        setState(LINEUP);
+                        setState(RACE);
                     }
                 }
-                else if (state == RESULT && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber &&
-                         lanesWithTimes == countLanesWithTimes())
+                else if (state == RACE)
                 {
-                    setState(RESULT_COMPLETE);
+                    if (showData() && raceTimerThread != null)
+                    {
+                        raceTimerThread.setClock(clock);
+                    }
                 }
-                else if ((state == RACE || state == RACE_FINISHING) && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber)
+                else if (state == TIME_OF_DAY)
                 {
                     if (showData())
                     {
-                        lastLaneResultAt = System.currentTimeMillis();
-                        drawLane(lineNumber - firstLaneLineNumber);
+                        scoreboard1.setClock(clock);
+                        scoreboard2.setClock(clock);
                         makeScoreboardVisible();
                     }
-                    if (state == RACE_FINISHING && countLanesWithNames() == countLanesWithTimes())
-                    {
-                        setState(RACE_COMPLETE);
-                    }
+                }
+                else
+                {
+                    // Similar to if (state == LINEUP_COMPLETE), but is for the situation we need to restart the scoreboard
+                    System.out.println("clearScoreboard");
+                    clearStateQueue();
+                    clearRaceTimer();
+                    clearScoreboard();
+                    state = CLEAR;
+                    setState(LINEUP);
+                }
+            }
+            else if (state == RESULT && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber &&
+                    lanesWithTimes == countLanesWithTimes())
+            {
+                setState(RESULT_COMPLETE);
+            }
+            else if ((state == RACE || state == RACE_FINISHING) && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber)
+            {
+                if (showData())
+                {
+                    lastLaneResultAt = System.currentTimeMillis();
+                    drawLane(lineNumber - firstLaneLineNumber);
+                    makeScoreboardVisible();
+                }
+                if (state == RACE_FINISHING && countLanesWithNames() == countLanesWithTimes())
+                {
+                    setState(RACE_COMPLETE);
                 }
             }
         }

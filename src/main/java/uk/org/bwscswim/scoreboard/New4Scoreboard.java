@@ -9,12 +9,7 @@ public class New4Scoreboard extends AbstractScoreboard
 {
     public New4Scoreboard(Config config, boolean secondScreen)
     {
-        super(config, "new4");
-        this.secondScreen = secondScreen;
-        if (secondScreen && !config.getBoolean("secondScoreboardVisible", true))
-        {
-            scoreboardVisible = false;
-        }
+        super(config, secondScreen);
 
         //    T1111111111111111111111111
         //    2 NNNNNNNNNNNNNN CLUBBBB P
@@ -78,11 +73,5 @@ public class New4Scoreboard extends AbstractScoreboard
         }
 
         postConstructor();
-    }
-
-    @Override
-    protected String getScoreboardTLA()
-    {
-        return "NEW4";
     }
 }

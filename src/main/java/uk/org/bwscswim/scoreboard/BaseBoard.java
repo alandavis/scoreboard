@@ -9,47 +9,29 @@ import static uk.org.bwscswim.scoreboard.ScoreboardState.TEST;
 public abstract class BaseBoard extends javax.swing.JFrame
 {
     protected final Config config;
-    protected final String name;
+    private final boolean secondScreen;
+    protected final String name = "new4";
+    protected final long showTestCardFor;
+    private final boolean scoreboardVisible;
+
     protected Container contentPane;
-    protected boolean scoreboardVisible;
 
     protected ScoreboardState state = TEST;
 
     protected Color background;
     protected Color titleForeground;
     protected Color laneForeground;
-    protected long showTestCardFor;
 
     private DataReader dataReader;
-    protected boolean secondScreen;
 
-    public BaseBoard(Config config, String name)
+    public BaseBoard(Config config, boolean secondScreen)
     {
         this.config = config;
-        this.name = name;
-        contentPane = getContentPane();
-        String activeScoreboardName = getActiveScoreboardName(config);
-        this.scoreboardVisible = name.equals(activeScoreboardName);
+        this.secondScreen = secondScreen;
         showTestCardFor = config.getInt("showTestCardFor", 30);
-    }
+        scoreboardVisible = !secondScreen || config.getBoolean("secondScoreboardVisible", false);
 
-    public static BaseBoard createScoreboard(Config config, boolean secondScreen)
-    {
-        String activeScoreboardName = getActiveScoreboardName(config);
-        BaseBoard board =
-                activeScoreboardName.equalsIgnoreCase("raw") ? new RawDisplay(config) :
-                activeScoreboardName.equalsIgnoreCase("old") ? new OldScoreboard(config) :
-                activeScoreboardName.equalsIgnoreCase("new1") ? new New1Scoreboard(config) :
-                activeScoreboardName.equalsIgnoreCase("new2") ? new New2Scoreboard(config) :
-                activeScoreboardName.equalsIgnoreCase("new3") ? new New3Scoreboard(config) :
-                activeScoreboardName.equalsIgnoreCase("new4") ? new New4Scoreboard(config, secondScreen) :
-                new OriginalScoreboard(config);
-        return board;
-    }
-
-    private static String getActiveScoreboardName(Config config)
-    {
-        return config.getString("scoreboardName", "new4");
+        contentPane = getContentPane();
     }
 
     protected void postConstructor()

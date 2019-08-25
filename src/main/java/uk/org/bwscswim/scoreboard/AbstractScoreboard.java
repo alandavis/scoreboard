@@ -108,9 +108,9 @@ public abstract class AbstractScoreboard extends BaseBoard
     protected int horizontalGap;
     protected int preLaneGap;
 
-    public AbstractScoreboard(Config config, String name)
+    public AbstractScoreboard(Config config, boolean secondScreen)
     {
-        super(config, name);
+        super(config, secondScreen);
 
         laneCount = config.getInt("laneCount", 6);
 
@@ -126,10 +126,6 @@ public abstract class AbstractScoreboard extends BaseBoard
 
         contentPane.setLayout(layout);
         createSwimmers();
-        if (scoreboardVisible)
-        {
-            System.out.println("Using scoreboard: "+name);
-        }
     }
 
     protected void createSwimmers()
@@ -180,12 +176,7 @@ public abstract class AbstractScoreboard extends BaseBoard
 
     protected void getTestText()
     {
-        testTitle = getTest("title");
-        if (showTestCardFor > 0)
-        {
-            String tla = getScoreboardTLA();
-            testTitle = pad(testTitle.substring(0, 1) + tla + testTitle.substring(tla.length() + 1), titleLength, 't');
-        }
+        testTitle = pad(getTest("title"), titleLength, 't');
         testSubTitle = pad(getTest("subTitle"), subTitleLength, 's');
         testSingleTitle = pad(getTest("singleTitle"), singleTitleLength, 's');
         testClock = pad(getTest("clock"), clockLength, 'c');
@@ -214,8 +205,6 @@ public abstract class AbstractScoreboard extends BaseBoard
             swimmer.combinedClubTimeClock.setText(testTime);
         }
     }
-
-    protected abstract String getScoreboardTLA();
 
     protected void getFonts()
     {
@@ -379,7 +368,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         for (int lane=1; lane<=laneCount; lane++)
         {
             Swimmer swimmer = swimmers.get(lane-1);
-            setcombinedClubTimeClock(lane, swimmer);
+            setCombinedClubTimeClock(lane, swimmer);
         }
     }
 
@@ -391,10 +380,10 @@ public abstract class AbstractScoreboard extends BaseBoard
         swimmer.name.setText(pad(name, nameLength));
         swimmer.club.setText(pad(club, clubLength));
         swimmer.time.setText(pad(time, timeLength));
-        setcombinedClubTimeClock(lane, swimmer);
+        setCombinedClubTimeClock(lane, swimmer);
     }
 
-    private void setcombinedClubTimeClock(int lane, Swimmer swimmer)
+    private void setCombinedClubTimeClock(int lane, Swimmer swimmer)
     {
         String combinedClubTimeClockText = "";
         if (state != TIME_OF_DAY)

@@ -9,8 +9,8 @@ public class Application
             try
             {
                 Config config = new Config("config.properties");
-                BaseBoard scoreboard1 = BaseBoard.createScoreboard(config, false);
-                BaseBoard scoreboard2 = BaseBoard.createScoreboard(config, true);
+                BaseBoard scoreboard1 = new New4Scoreboard(config, false);
+                BaseBoard scoreboard2 = new New4Scoreboard(config, true);
                 DataReader dataReader = new DataReader(config, scoreboard1, scoreboard2);
                 dataReader.readDataInBackground();
                 scoreboard1.setDataReader(dataReader);

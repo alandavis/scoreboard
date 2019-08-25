@@ -289,7 +289,7 @@ public class DataReaderTest
                 "[16]00000000[01]0040100700[02]P6  Millie sab               23.24 6 [04]3A[17]\n";
 
     private Config config = new Config(null);
-    private AbstractScoreboard scoreboard = new OriginalScoreboard(config);
+    private AbstractScoreboard scoreboard = new New4Scoreboard(config, false);
     private DataReader dataReader = new DataReader(config, scoreboard, null);
     private InputStream inputStream;
 
