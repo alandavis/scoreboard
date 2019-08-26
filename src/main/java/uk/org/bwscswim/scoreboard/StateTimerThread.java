@@ -1,26 +1,43 @@
+/*
+ * #%L
+ * BWSC Scoreboard
+ * %%
+ * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
+ * %%
+ * This file is part of BWSC Scoreboard.
+ *
+ * BWSC Scoreboard is free software: you can redistribute it and/or modify
+ * it under the terms of the LGNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BWSC Scoreboard is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * LGNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the LGNU Lesser General Public License
+ * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
+ * #L%
+ */
 package uk.org.bwscswim.scoreboard;
 
 /**
+ * A Thread that calls {@link #end()} after {code}runForTime{code} milliseconds and then exits. It also calls
+ * {@link #tick(int)} after starting and then every {code}tickTime{code} milliseconds.
+ * Used to remove states that have been queued up waiting for the scoreboard minimum display times.
+ *
  * @author adavis
  */
-public class StateTimerThread extends Thread
+class StateTimerThread extends Thread
 {
-    private final DataReader dataReader;
-    private final ScoreboardState state;
     private final long tickTime;
     private final long end;
     private int count;
     private boolean terminate;
 
-    public StateTimerThread(DataReader dataReader, ScoreboardState state, long start, long runForTime)
+    StateTimerThread(ScoreboardState state, long start, long tickTime, long runForTime)
     {
-        this(dataReader, state, start, runForTime, runForTime);
-    }
-
-    public StateTimerThread(DataReader dataReader, ScoreboardState state, long start, long tickTime, long runForTime)
-    {
-        this.dataReader = dataReader;
-        this.state = state;
         this.tickTime = tickTime;
         end = start + runForTime;
         setDaemon(true);
@@ -47,7 +64,6 @@ public class StateTimerThread extends Thread
                 tick(count++);
 
                 long wakeIn = now + tickTime > end ? end - now : tickTime;
-//                System.out.println(state + " wakeIn=" + wakeIn);
                 Thread.sleep(wakeIn);
                 if (terminate)
                 {
@@ -57,12 +73,11 @@ public class StateTimerThread extends Thread
             if (!terminate)
             {
                 end();
-                dataReader.dequeueNextState();
             }
-//            System.out.println("   terminate");
         }
-        catch (InterruptedException ignoreAndJustExist)
+        catch (InterruptedException ignore)
         {
+            // Just exit
         }
     }
 
@@ -74,7 +89,7 @@ public class StateTimerThread extends Thread
     {
     }
 
-    public synchronized void terminate()
+    synchronized void terminate()
     {
         terminate = true;
     }

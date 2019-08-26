@@ -1,19 +1,44 @@
+/*
+ * #%L
+ * BWSC Scoreboard
+ * %%
+ * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
+ * %%
+ * This file is part of BWSC Scoreboard.
+ *
+ * BWSC Scoreboard is free software: you can redistribute it and/or modify
+ * it under the terms of the LGNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BWSC Scoreboard is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * LGNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the LGNU Lesser General Public License
+ * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
+ * #L%
+ */
 package uk.org.bwscswim.scoreboard;
 
-import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE;
-import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE_FINISHING;
-
 /**
+ * A Thread that make the race clock look like it is running in hundredths of a second rather than tenths for most of
+ * the time with splits and results in hundredths. Once started it calls {@link DataReader#setClock(String)} to set
+ * the time. When a new time is read the thread resets itself. It also looks keeps the race clock running after splits
+ * and after the first competitor finishes. The clock terminates when requested to do so or when it appears the race is
+ * over.
+ *
  * @author adavis
  */
-public class RaceTimerThread extends Thread
+class RaceTimerThread extends Thread
 {
     private boolean terminate;
     private DataReader dataReader;
     private long lastClock;
     private long timeZero;
 
-    public RaceTimerThread(DataReader dataReader, String clock)
+    RaceTimerThread(DataReader dataReader, String clock)
     {
         this.dataReader = dataReader;
         setClock(clock);
@@ -46,7 +71,7 @@ public class RaceTimerThread extends Thread
                         winnerFinished = true;
                     }
 
-                    if (terminate || (dataReader.state != RACE && dataReader.state != RACE_FINISHING))
+                    if (terminate || !dataReader.isRaceInProgress())
                     {
                         dataReader.setClock("");
                         break;
@@ -56,13 +81,14 @@ public class RaceTimerThread extends Thread
                 setThreadTime(timeNow);
             }
         }
-        catch (InterruptedException ignoreAndJustExist)
+        catch (InterruptedException ignore)
         {
+            // Just exit
         }
 //      System.out.println("  timerThread EXITS");
     }
 
-    public void setClock(String clock)
+    void setClock(String clock)
     {
         clock = clock.trim();
         int i = clock.indexOf(':');
@@ -87,15 +113,15 @@ public class RaceTimerThread extends Thread
         secs = secs % 60;
         String clock = "    "+
             (mins == 0 ? "" : Integer.toString(mins)+':')+
-            (mins > 0 && secs <= 9 ? "0" : "")+Integer.toString(secs)+'.'+
-            (hunds <= 9 ? "0" : "")+Integer.toString(hunds);
+            (mins > 0 && secs <= 9 ? "0" : "")+secs+'.'+
+            (hunds <= 9 ? "0" : "")+hunds;
         clock = clock.substring(clock.length()-8);
 //      System.out.println("  timeNow="+timeNow+" '"+clock+"' "+mins+"-"+secs+"-"+hunds+" ++++++++");
         dataReader.setClock(clock);
         dataReader.makeScoreboardVisible();
     }
 
-    public synchronized void terminate()
+    synchronized void terminate()
     {
         terminate = true;
     }

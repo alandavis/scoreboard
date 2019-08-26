@@ -1,23 +1,23 @@
 /*
  * #%L
- * BWSC AbstractScoreboard
+ * BWSC Scoreboard
  * %%
  * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
  * %%
- * This file is part of BWSC AbstractScoreboard.
+ * This file is part of BWSC Scoreboard.
  *
- * BWSC AbstractScoreboard is free software: you can redistribute it and/or modify
+ * BWSC Scoreboard is free software: you can redistribute it and/or modify
  * it under the terms of the LGNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * BWSC AbstractScoreboard is distributed in the hope that it will be useful,
+ * BWSC Scoreboard is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * LGNU Lesser General Public License for more details.
  *
  * You should have received a copy of the LGNU Lesser General Public License
- * along with BWSC AbstractScoreboard.  If not, see <https://www.gnu.org/licenses/>.
+ * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
  * #L%
  */
 package uk.org.bwscswim.scoreboard;
@@ -47,13 +47,21 @@ import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULT;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULT_COMPLETE;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.TIME_OF_DAY;
 
-public class DataReader
+/**
+ * Reads data from port or test file and generates events for scoreboards to display their data. Some events are
+ * automatically held or discarded so that minimum display times occur for results or line ups.
+ *
+ * @author adavis
+ */
+class DataReader
 {
     private static final int SOL = 0x16; // Start of transmission
     private static final int SOH = 0x01; // Separator 1
     private static final int STX = 0x02; // Separator 2
     private static final int EOT = 0x04; // Separator 2
     private static final int ETB = 0x17; // End of transmission
+
+    private static int[] FILED_SEPARATORS = new int[] {SOH, STX, EOT};
 
     private static final String CONTROL_CLEAR = "008010000002048000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
     private static final String CONTROL_LINEUP = "003000001";
@@ -63,8 +71,8 @@ public class DataReader
     private        final String CONTROL_CLOCK;
     private static final int CONTROL_LINE_SUFFIX_LENGTH = CONTROL_LINE_SUFFIX.length();
 
-    private final BaseBoard scoreboard1;
-    private final BaseBoard scoreboard2;
+    private final AbstractScoreboard scoreboard1;
+    private final AbstractScoreboard scoreboard2;
     private final Config config;
     private final String titleRange;
     private final String subTitleRange;
@@ -92,13 +100,13 @@ public class DataReader
     private long lastLaneResultAt;
 
     private int lanesWithTimes;
-    public ScoreboardState state;
+    private ScoreboardState state;
 
     private List<StateData> queuedStateData = new ArrayList<>();
-    private List<ScoreboardState> statesThatMayBeQueued = Collections.EMPTY_LIST;
+    private List<ScoreboardState> statesThatMayBeQueued = Collections.emptyList();
     private StateTimerThread stateTimerThread;
 
-    public DataReader(Config config, BaseBoard scoreboard1, BaseBoard scoreboard2)
+    DataReader(Config config, AbstractScoreboard scoreboard1, AbstractScoreboard scoreboard2)
     {
         this.config = config;
         this.scoreboard1 = scoreboard1;
@@ -121,7 +129,7 @@ public class DataReader
 
         displayFinishFor = config.getInt("displayFinishFor", 3000);
         displayResultsFor = config.getInt("displayResultsFor", 10000);
-        displayLineupFor = config.getInt("displayLineupFor", 7000);
+        displayLineupFor = config.getInt("displayLineupFor", 6000);
 
         setTrace(config.getBoolean("trace", true));
 
@@ -147,12 +155,12 @@ public class DataReader
         this.inputStream = inputStream;
     }
 
-    public void setTrace(boolean trace)
+    void setTrace(boolean trace)
     {
         this.trace = trace;
     }
 
-    public void readDataInBackground()
+    void readDataInBackground()
     {
         System.out.println("\nAvailable serial ports:");
         SerialPort[] commPorts = SerialPort.getCommPorts();
@@ -239,8 +247,8 @@ public class DataReader
         {
             try
             {
-                waitFor(SOL);
-                String[] fields = readStrings(ETB, SOH, STX, EOT);
+                waitForSOL();
+                String[] fields = readFields();
                 handleTransmission(fields);
             }
             catch (EOFException e)
@@ -255,21 +263,27 @@ public class DataReader
         }
     }
 
-    private String[] readStrings(int endByte, int... separators) throws IOException, InterruptedException
+    private void waitForSOL() throws IOException, InterruptedException
+    {
+        while (readByte() != SOL)
+            ;
+    }
+
+    private String[] readFields() throws IOException, InterruptedException
     {
         List<String> list = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
 
         loop:
-        for (int b = readByte(); b != endByte; b = readByte())
+        for (int b = readByte(); b != ETB; b = readByte())
         {
             if ((b >= 0x20 && b <= 0x7F))
             {
                 sb.append((char) b);
-                continue loop;
+                continue;
             }
 
-            for (int separator : separators)
+            for (int separator : FILED_SEPARATORS)
             {
                 if (b == separator)
                 {
@@ -283,13 +297,7 @@ public class DataReader
         }
         list.add(sb.toString());
 
-        return list.toArray(new String[list.size()]);
-    }
-
-    private void waitFor(int startByte) throws IOException, InterruptedException
-    {
-        while (readByte() != startByte)
-            ;
+        return list.toArray(new String[0]);
     }
 
     private boolean waitingForFirstByteOfTransmission = true;
@@ -385,10 +393,12 @@ public class DataReader
         return sb.toString();
     }
 
-    private int parseInt(String str, int from, int len) throws StreamCorruptedException
+    private int getPosition(String str) throws StreamCorruptedException
     {
+        int from = CONTROL_LINE_SUFFIX_LENGTH;
+        int len = 4;
         int to = from + len;
-        String n = (len <= 0 || to > str.length()
+        String n = (to > str.length()
                 ? str.substring(from)
                 : str.substring(from, to)).trim();
         if (n.isEmpty())
@@ -416,13 +426,11 @@ public class DataReader
     {
         if (control.startsWith(CONTROL_LINE_SUFFIX))
         {
-            int position = parseInt(control, CONTROL_LINE_SUFFIX_LENGTH, 4);
+            int position = getPosition(control);
             int lineNumber = position / 100;
             int offset = position % 100;
             text.setText(lineNumber, offset, data);
 
-            AbstractScoreboard scoreboard1 = (AbstractScoreboard)this.scoreboard1;
-            AbstractScoreboard scoreboard2 = (AbstractScoreboard)this.scoreboard2;
             if (control.equals(CONTROL_CLOCK))
             {
                 String clock = text.getText(clockRange, "");
@@ -509,7 +517,7 @@ public class DataReader
         return stateTimerThread == null;
     }
 
-    public void setRaceFinishing()
+    void setRaceFinishing()
     {
         if (countLanesWithNames() == countLanesWithTimes())
         {
@@ -558,6 +566,11 @@ public class DataReader
         return count;
     }
 
+    boolean isRaceInProgress()
+    {
+        return state == RACE || state == RACE_FINISHING;
+    }
+
     private void drawScoreboard()
     {
         drawTitles();
@@ -574,8 +587,6 @@ public class DataReader
         String title = text.getText(titleRange, "");
         String subTitle = text.getText(subTitleRange, "");
 
-        AbstractScoreboard scoreboard1 = (AbstractScoreboard)this.scoreboard1;
-        AbstractScoreboard scoreboard2 = (AbstractScoreboard)this.scoreboard2;
         scoreboard1.setTitle(title);
         scoreboard1.setSubTitle(subTitle);
         scoreboard2.setTitle(title);
@@ -589,8 +600,8 @@ public class DataReader
         {
             clock = "";
         }
-        ((AbstractScoreboard)this.scoreboard1).setClock(clock);
-        ((AbstractScoreboard)this.scoreboard2).setClock(clock);
+        scoreboard1.setClock(clock);
+        scoreboard2.setClock(clock);
     }
 
     private void drawLane(int laneIndex)
@@ -615,36 +626,27 @@ public class DataReader
                 lane = 0;
                 place = 0;
             }
-            ((AbstractScoreboard) scoreboard1).setLaneValues(laneIndex, lane, place, name, club, time);
-            ((AbstractScoreboard) scoreboard2).setLaneValues(laneIndex, lane, place, name, club, time);
+            scoreboard1.setLaneValues(laneIndex, lane, place, name, club, time);
+            scoreboard2.setLaneValues(laneIndex, lane, place, name, club, time);
         }
     }
 
-    public void makeScoreboardVisible()
+    void makeScoreboardVisible()
     {
         scoreboard1.setVisible(true);
         scoreboard2.setVisible(true);
     }
 
-    public void clearScoreboard()
+    private void clearScoreboard()
     {
-        if (scoreboard1 instanceof AbstractScoreboard)
-        {
-            ((AbstractScoreboard) scoreboard1).clear();
-            ((AbstractScoreboard) scoreboard2).clear();
-        }
+        scoreboard1.clear();
+        scoreboard2.clear();
     }
 
-    public void setClock(String clock)
+    void setClock(String clock)
     {
-        ((AbstractScoreboard) scoreboard1).setClock(clock);
-        ((AbstractScoreboard) scoreboard2).setClock(clock);
-    }
-
-    public String getClock()
-    {
-        String clock = text.getText(clockRange, "");
-        return clock;
+        scoreboard1.setClock(clock);
+        scoreboard2.setClock(clock);
     }
 
     private synchronized void setState(ScoreboardState state)
@@ -675,7 +677,7 @@ public class DataReader
 
     private void clearStateQueue()
     {
-        statesThatMayBeQueued = Collections.EMPTY_LIST;
+        statesThatMayBeQueued = Collections.emptyList();
         queuedStateData.clear();
         if (stateTimerThread != null)
         {
@@ -693,7 +695,7 @@ public class DataReader
         }
     }
 
-    public synchronized void dequeueNextState()
+    private synchronized void dequeueNextState()
     {
         if (!queuedStateData.isEmpty())
         {
@@ -743,14 +745,21 @@ public class DataReader
                 {
                     statesThatMayBeQueued = new ArrayList<>(Arrays.asList(CLEAR, RESULT, RESULT_COMPLETE, CLEAR, LINEUP, LINEUP_COMPLETE, RACE));
                 }
-                stateTimerThread = new StateTimerThread(this, state, stateStart, displayFinishFor)
+                stateTimerThread = new StateTimerThread(state, stateStart, displayFinishFor, displayFinishFor)
                 {
                     @Override
                     public void end()
                     {
                         System.out.println("RACE_COMPLETE - SWITCH TO RESULTS IF AVAILABLE");
+                        dequeueNextState();
                     }
                 };
+
+                if (isRaceInProgress())
+                {
+                    raceTimerThread.terminate();
+                    raceTimerThread = null;
+                }
             }
             else if (state == RESULT_COMPLETE)
             {
@@ -759,7 +768,7 @@ public class DataReader
                 {
                     statesThatMayBeQueued = new ArrayList<>(Arrays.asList(CLEAR, LINEUP, LINEUP_COMPLETE, RACE));
                 }
-                stateTimerThread = new StateTimerThread(this, state, stateStart, 1000, displayResultsFor)
+                stateTimerThread = new StateTimerThread(state, stateStart, 1000, displayResultsFor)
                 {
                     @Override
                     public void tick(int count)
@@ -773,6 +782,7 @@ public class DataReader
                     public void end()
                     {
                         System.out.println("RESULT_COMPLETE - SWITCH TO LINEUP IF AVAILABLE");
+                        dequeueNextState();
                     }
                 };
             }
@@ -781,14 +791,15 @@ public class DataReader
                 drawScoreboard();
                 if (statesThatMayBeQueued.isEmpty())
                 {
-                    statesThatMayBeQueued = new ArrayList<>(Arrays.asList(RACE));
+                    statesThatMayBeQueued = new ArrayList<>(Collections.singletonList(RACE));
                 }
-                stateTimerThread = new StateTimerThread(this, state, stateStart, displayLineupFor)
+                stateTimerThread = new StateTimerThread(state, stateStart, displayLineupFor, displayLineupFor)
                 {
                     @Override
                     public void end()
                     {
                         System.out.println("LINEUP_COMPLETE - SWITCH TO THE RACE IF AVAILABLE");
+                        dequeueNextState();
                     }
                 };
             }
@@ -796,11 +807,6 @@ public class DataReader
             {
                 String clock = text.getText(clockRange, "");
                 raceTimerThread = new RaceTimerThread(this, clock);
-            }
-            else if (state == RACE_COMPLETE && (this.state == RACE || this.state == RACE_FINISHING))
-            {
-                raceTimerThread.terminate();
-                raceTimerThread = null;
             }
             else if (state == CLEAR)
             {
@@ -820,7 +826,7 @@ public class DataReader
         }
     }
 
-    public void close()
+    void close()
     {
         if (writer != null)
         {

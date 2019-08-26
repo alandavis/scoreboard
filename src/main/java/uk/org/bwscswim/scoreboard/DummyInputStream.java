@@ -1,23 +1,23 @@
 /*
  * #%L
- * BWSC AbstractScoreboard
+ * BWSC Scoreboard
  * %%
  * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
  * %%
- * This file is part of BWSC AbstractScoreboard.
+ * This file is part of BWSC Scoreboard.
  *
- * BWSC AbstractScoreboard is free software: you can redistribute it and/or modify
+ * BWSC Scoreboard is free software: you can redistribute it and/or modify
  * it under the terms of the LGNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * BWSC AbstractScoreboard is distributed in the hope that it will be useful,
+ * BWSC Scoreboard is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * LGNU Lesser General Public License for more details.
  *
  * You should have received a copy of the LGNU Lesser General Public License
- * along with BWSC AbstractScoreboard.  If not, see <https://www.gnu.org/licenses/>.
+ * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
  * #L%
  */
 package uk.org.bwscswim.scoreboard;
@@ -34,8 +34,10 @@ import java.io.StringReader;
  * Turns a String into an InputStream that may only contain ASCII characters. Control characters are supplied
  * as hex in the form {@code "[xx]"}. The first byte of each line to be returned must be a control character.
  * A delay in milliseconds may be optionally specified at the start of each line.
+ *
+ * @author adavis
  */
-public class DummyInputStream extends InputStream
+class DummyInputStream extends InputStream
 {
     private boolean includeDelay = true;
     private BufferedReader reader;
@@ -44,13 +46,13 @@ public class DummyInputStream extends InputStream
     private long time = System.currentTimeMillis();
     private boolean ignoreFirstDelay = true;
 
-    public DummyInputStream(String string, boolean includeDelay)
+    DummyInputStream(String string, boolean includeDelay)
     {
         this.includeDelay = includeDelay;
         reader = new BufferedReader(new StringReader(string));
     }
 
-    public DummyInputStream(String filename) throws FileNotFoundException
+    DummyInputStream(String filename) throws FileNotFoundException
     {
         try
         {
@@ -142,5 +144,5 @@ public class DummyInputStream extends InputStream
         }
         return b;
     }
-};
+}
 

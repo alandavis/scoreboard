@@ -1,12 +1,41 @@
+/*
+ * #%L
+ * BWSC Scoreboard
+ * %%
+ * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
+ * %%
+ * This file is part of BWSC Scoreboard.
+ *
+ * BWSC Scoreboard is free software: you can redistribute it and/or modify
+ * it under the terms of the LGNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BWSC Scoreboard is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * LGNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the LGNU Lesser General Public License
+ * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
+ * #L%
+ */
 package uk.org.bwscswim.scoreboard;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import static uk.org.bwscswim.scoreboard.ScoreboardState.TEST;
 
-public abstract class BaseBoard extends javax.swing.JFrame
+/**
+ * Abstract class containing methods used to setup the window onto the Scoreboard.
+ *
+ * @author adavis
+ */
+public abstract class BaseScoreboard extends javax.swing.JFrame
 {
     protected final Config config;
     private final boolean secondScreen;
@@ -24,7 +53,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
 
     private DataReader dataReader;
 
-    public BaseBoard(Config config, boolean secondScreen)
+    public BaseScoreboard(Config config, boolean secondScreen)
     {
         this.config = config;
         this.secondScreen = secondScreen;
@@ -132,7 +161,8 @@ public abstract class BaseBoard extends javax.swing.JFrame
             dataReader.close();
         }
         setFocusable(true);
-        addKeyListener(new KeyAdapter() {
+        addKeyListener(new KeyAdapter()
+        {
             @Override
             public void keyTyped(KeyEvent e)
             {
@@ -142,6 +172,13 @@ public abstract class BaseBoard extends javax.swing.JFrame
                     System.exit(0);
                 }
                 super.keyTyped(e);
+            }
+        });
+        addWindowListener(new WindowAdapter()
+        {
+            public void windowClosing(WindowEvent e)
+            {
+                System.exit(0);
             }
         });
     }
@@ -197,7 +234,7 @@ public abstract class BaseBoard extends javax.swing.JFrame
 
     protected void setState(ScoreboardState state)
     {
-        if (this.state != state)
+        if (this.state != state && scoreboardVisible)
         {
             this.state = state;
             System.out.println(state+" - visible state");
@@ -207,47 +244,6 @@ public abstract class BaseBoard extends javax.swing.JFrame
     }
 
     public abstract void clear();
-
-    protected String pad(String value, int length)
-    {
-        return pad(value, length, ' ');
-    }
-
-    protected String pad(String value, int length, char c)
-    {
-        if (value.length() >= length)
-        {
-            value = value.substring(0, length);
-        }
-        else
-        {
-            StringBuilder sb = new StringBuilder(value);
-            while (sb.length() < length)
-            {
-                sb.append(c);
-            }
-            value = sb.toString();
-        }
-        return value;
-    }
-
-    protected String lpad(String value, int length)
-    {
-        if (value.length() >= length)
-        {
-            value = value.substring(0, length);
-        }
-        else
-        {
-            StringBuilder sb = new StringBuilder(value);
-            while (sb.length() < length)
-            {
-                sb.insert(0, ' ');
-            }
-            value = sb.toString();
-        }
-        return value;
-    }
 
     public void setDataReader(DataReader dataReader)
     {

@@ -1,8 +1,36 @@
+/*
+ * #%L
+ * BWSC Scoreboard
+ * %%
+ * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
+ * %%
+ * This file is part of BWSC Scoreboard.
+ *
+ * BWSC Scoreboard is free software: you can redistribute it and/or modify
+ * it under the terms of the LGNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BWSC Scoreboard is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * LGNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the LGNU Lesser General Public License
+ * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
+ * #L%
+ */
 package uk.org.bwscswim.scoreboard;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Holds the raw scoreboard text that has been read from the port. As the scoreboard display needs to display some data
+ * for minimum amounts of time copies of the data in each state are made.
+ *
+ * @author adavis
+ */
 public class Text
 {
     List<String> lines = new ArrayList<>();
@@ -85,20 +113,9 @@ public class Text
         return Integer.parseInt(lineStr);
     }
 
-    public static int getOffset(String range)
-    {
-        String offsetStr = range.substring(2, 4);
-        return Integer.parseInt(offsetStr);
-    }
-
     public static String getFromRange(String range)
     {
         return range.substring(0, 4);
-    }
-
-    public static String getToRange(String range)
-    {
-        return range.substring(6, 10);
     }
 
     private String getCharRange(String range)
@@ -114,20 +131,6 @@ public class Text
     public static int getCharRangeTo(String charRange)
     {
         return Integer.parseInt(charRange.substring(4,6))+1;
-    }
-
-    public char getChar(int lineNumber, int offset, char defaultValue)
-    {
-        char c = defaultValue;
-        String line = getText(lineNumber, null);
-        if (line != null)
-        {
-            if (offset < line.length())
-            {
-                c = line.charAt(offset);
-            }
-        }
-        return c;
     }
 
     public void clear()

@@ -1,23 +1,23 @@
 /*
  * #%L
- * BWSC AbstractScoreboard
+ * BWSC Scoreboard
  * %%
  * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
  * %%
- * This file is part of BWSC AbstractScoreboard.
+ * This file is part of BWSC Scoreboard.
  *
- * BWSC AbstractScoreboard is free software: you can redistribute it and/or modify
+ * BWSC Scoreboard is free software: you can redistribute it and/or modify
  * it under the terms of the LGNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * BWSC AbstractScoreboard is distributed in the hope that it will be useful,
+ * BWSC Scoreboard is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * LGNU Lesser General Public License for more details.
  *
  * You should have received a copy of the LGNU Lesser General Public License
- * along with BWSC AbstractScoreboard.  If not, see <https://www.gnu.org/licenses/>.
+ * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
  * #L%
  */
 package uk.org.bwscswim.scoreboard;
@@ -32,8 +32,15 @@ import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP_COMPLETE;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.TIME_OF_DAY;
 
-public abstract class AbstractScoreboard extends BaseBoard
+/**
+ * Abstract class contains fields used to display the scoreboard, but without any layout.
+ *
+ * @author adavis
+ */
+abstract class AbstractScoreboard extends BaseScoreboard
 {
+    private static final long serialVersionUID = 8350711464804648105L;
+
     class Swimmer
     {
         protected JLabel lane = new JLabel();
@@ -59,48 +66,6 @@ public abstract class AbstractScoreboard extends BaseBoard
     protected boolean laneVisible;
     protected boolean placeVisible;
 
-    protected int titleLength;
-    protected int subTitleLength;
-    protected int combinedTitleLength;
-    protected int singleTitleLength;
-    protected int clockLength;
-    protected int laneLength;
-    protected int nameLength;
-    protected int clubLength;
-    protected int timeLength;
-    protected int placeLength;
-    protected int combinedClubTimeClockLength;
-
-    protected Color subTitleForeground;
-    protected Color combinedTitleForeground;
-    protected Color singleTitleForeground;
-    protected Color clockForeground;
-    protected Color nameForeground;
-    protected Color clubForeground;
-    protected Color timeForeground;
-    protected Color placeForeground;
-    protected Color combinedClubTimeClockForeground;
-
-    protected Font titleFont;
-    protected Font subTitleFont;
-    protected Font combinedTitleFont;
-    protected Font singleTitleFont;
-    protected Font clockFont;
-    protected Font laneFont;
-    protected Font nameFont;
-    protected Font clubFont;
-    protected Font timeFont;
-    protected Font placeFont;
-    protected Font combinedClubTimeClockFont;
-
-    protected String testTitle;
-    protected String testSubTitle;
-    protected String testSingleTitle;
-    protected String testClock;
-    protected String testName;
-    protected String testClub;
-    protected String testTime;
-
     protected int topGap;
     protected int bottomGap;
     protected int leftGap;
@@ -108,7 +73,49 @@ public abstract class AbstractScoreboard extends BaseBoard
     protected int horizontalGap;
     protected int preLaneGap;
 
-    public AbstractScoreboard(Config config, boolean secondScreen)
+    private int titleLength;
+    private int subTitleLength;
+    private int combinedTitleLength;
+    private int singleTitleLength;
+    private int clockLength;
+    private int laneLength;
+    private int nameLength;
+    private int clubLength;
+    private int timeLength;
+    private int placeLength;
+    private int combinedClubTimeClockLength;
+
+    private Color subTitleForeground;
+    private Color combinedTitleForeground;
+    private Color singleTitleForeground;
+    private Color clockForeground;
+    private Color nameForeground;
+    private Color clubForeground;
+    private Color timeForeground;
+    private Color placeForeground;
+    private Color combinedClubTimeClockForeground;
+
+    private Font titleFont;
+    private Font subTitleFont;
+    private Font combinedTitleFont;
+    private Font singleTitleFont;
+    private Font clockFont;
+    private Font laneFont;
+    private Font nameFont;
+    private Font clubFont;
+    private Font timeFont;
+    private Font placeFont;
+    private Font combinedClubTimeClockFont;
+
+    private String testTitle;
+    private String testSubTitle;
+    private String testSingleTitle;
+    private String testClock;
+    private String testName;
+    private String testClub;
+    private String testTime;
+
+    AbstractScoreboard(Config config, boolean secondScreen)
     {
         super(config, secondScreen);
 
@@ -128,7 +135,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         createSwimmers();
     }
 
-    protected void createSwimmers()
+    private void createSwimmers()
     {
         for (int lane=1; lane<=laneCount; lane++)
         {
@@ -174,7 +181,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         placeLength = config.getInt(name, null, null, "placeLength", 3);
     }
 
-    protected void getTestText()
+    private void getTestText()
     {
         testTitle = pad(getTest("title"), titleLength, 't');
         testSubTitle = pad(getTest("subTitle"), subTitleLength, 's');
@@ -185,7 +192,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         testTime = pad(getTest("time"), timeLength, 't');
     }
 
-    protected void setTestText()
+    private void setTestText()
     {
         title.setText(testTitle);
         subTitle.setText(testSubTitle);
@@ -206,7 +213,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         }
     }
 
-    protected void getFonts()
+    private void getFonts()
     {
         titleFont = config.getFont(name, state, "title");
         subTitleFont = config.getFont(name, state, "subTitle");
@@ -221,7 +228,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         combinedClubTimeClockFont = config.getFont(name, state, "combinedClubTimeClock");
     }
 
-    protected void setFonts()
+    private void setFonts()
     {
         title.setFont(titleFont);
         subTitle.setFont(subTitleFont);
@@ -291,32 +298,32 @@ public abstract class AbstractScoreboard extends BaseBoard
         }
     }
 
-    public int getTopGap()
+    private int getTopGap()
     {
         return config.getInt(name, null, null, "topGap", 10);
     }
 
-    public int getBottomGap()
+    private int getBottomGap()
     {
         return config.getInt(name, null, null, "bottomGap", 0);
     }
 
-    public int getLeftGap()
+    private int getLeftGap()
     {
         return config.getInt(name, null, null, "leftGap", 30);
     }
 
-    public int getRightGap()
+    private int getRightGap()
     {
         return config.getInt(name, null, null, "rightGap", 0);
     }
 
-    public int getHorizontalGap()
+    private int getHorizontalGap()
     {
         return config.getInt(name, null, null, "horizontalGap", 20);
     }
 
-    public int getPreLaneGap()
+    private int getPreLaneGap()
     {
         return config.getInt(name, null, null, "preLaneGap", 10);
     }
@@ -345,7 +352,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         singleTitle.setText(text);
     }
 
-    public void setSubTitle(String subTitle)
+    void setSubTitle(String subTitle)
     {
         String text = pad(subTitle, subTitleLength);
         this.subTitle.setText(text);
@@ -361,7 +368,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         singleTitle.setText(text);
     }
 
-    public void setClock(String clock)
+    void setClock(String clock)
     {
         String clockText = pad(clock, clockLength);
         this.clock.setText(clockText);
@@ -372,7 +379,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         }
     }
 
-    public void setLaneValues(int index, int lane, int place, String name, String club, String time)
+    void setLaneValues(int index, int lane, int place, String name, String club, String time)
     {
         Swimmer swimmer = swimmers.get(index);
         swimmer.lane.setText(lane == 0 ? " "  : Integer.toString(lane));
@@ -420,7 +427,7 @@ public abstract class AbstractScoreboard extends BaseBoard
         return 0;
     }
 
-    protected String getPlace(int place)
+    private String getPlace(int place)
     {
         String str =
             place <= 0 ? "   " :
@@ -429,6 +436,47 @@ public abstract class AbstractScoreboard extends BaseBoard
             place == 3 ? "3rd" :
             place + "th";
         return pad(str, placeLength);
+    }
+
+    private String pad(String value, int length)
+    {
+        return pad(value, length, ' ');
+    }
+
+    private String pad(String value, int length, char c)
+    {
+        if (value.length() >= length)
+        {
+            value = value.substring(0, length);
+        }
+        else
+        {
+            StringBuilder sb = new StringBuilder(value);
+            while (sb.length() < length)
+            {
+                sb.append(c);
+            }
+            value = sb.toString();
+        }
+        return value;
+    }
+
+    private String lpad(String value, int length)
+    {
+        if (value.length() >= length)
+        {
+            value = value.substring(0, length);
+        }
+        else
+        {
+            StringBuilder sb = new StringBuilder(value);
+            while (sb.length() < length)
+            {
+                sb.insert(0, ' ');
+            }
+            value = sb.toString();
+        }
+        return value;
     }
 
     @Override

@@ -1,15 +1,34 @@
+/*
+ * #%L
+ * BWSC Scoreboard
+ * %%
+ * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
+ * %%
+ * This file is part of BWSC Scoreboard.
+ *
+ * BWSC Scoreboard is free software: you can redistribute it and/or modify
+ * it under the terms of the LGNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BWSC Scoreboard is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * LGNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the LGNU Lesser General Public License
+ * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
+ * #L%
+ */
 package uk.org.bwscswim.scoreboard;
 
 import com.fazecast.jSerialComm.SerialPort;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GraphicsEnvironment;
+import java.awt.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,19 +36,26 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 
-public class Config
+/**
+ * Reads the Scoreboard's configuration properties. Values in a file called {code}config.properties{code} override those
+ * found in a resource file called {code}defaultConfig.properties{code}. The getter methods also provide a default value
+ * parameter if there is not a value in ether file.
+ *
+ * @author adavis
+ */
+class Config
 {
-    public static final String FONT_NAME = "fontName";
-    public static final String FONT_STYLE = "fontStyle";
-    public static final String FONT_SIZE = "fontSize";
+    private static final String FONT_NAME = "fontName";
+    private static final String FONT_STYLE = "fontStyle";
+    private static final String FONT_SIZE = "fontSize";
 
     private final Properties properties;
-    private final Map<String, String> fontFamilyNames = new HashMap();
+    private final Map<String, String> fontFamilyNames = new HashMap<>();
 
     Config(String configFilename)
     {
         properties = getProperties(configFilename);
-        for (String fontFamilyName: Arrays.asList(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames()))
+        for (String fontFamilyName: GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames())
         {
             fontFamilyNames.put(fontFamilyName.toLowerCase(), fontFamilyName);
         }
@@ -53,7 +79,7 @@ public class Config
         }
         catch (IOException e)
         {
-            System.err.println("");
+            System.err.println();
             System.err.println(e.getMessage());
             return defaultProperties;
         }
@@ -69,7 +95,7 @@ public class Config
         return prop;
     }
 
-    public Font getFont(String scoreboardName, ScoreboardState state, String componentName)
+    Font getFont(String scoreboardName, ScoreboardState state, String componentName)
     {
         return new Font(
                 getFontName(scoreboardName, state, null, componentName+'.'+FONT_NAME, "Arial"),
@@ -121,12 +147,12 @@ public class Config
         return defaultValue;
     }
 
-    public String getString(String attributeName, String defaultValue)
+    String getString(String attributeName, String defaultValue)
     {
         return getString(null, null, null, attributeName, defaultValue);
     }
 
-    public String getString(String scoreboardName, ScoreboardState state, String componentName, String attributeName, String defaultValue)
+    String getString(String scoreboardName, ScoreboardState state, String componentName, String attributeName, String defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
@@ -140,12 +166,12 @@ public class Config
         return defaultValue;
     }
 
-    public int getInt(String attributeName, int defaultValue)
+    int getInt(String attributeName, int defaultValue)
     {
         return getInt(null, null, null, attributeName, defaultValue);
     }
 
-    public int getInt(String scoreboardName, ScoreboardState state, String componentName, String attributeName, int defaultValue)
+    int getInt(String scoreboardName, ScoreboardState state, String componentName, String attributeName, int defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
@@ -166,12 +192,12 @@ public class Config
         return defaultValue;
     }
 
-    public Boolean getBoolean(String attributeName, Boolean defaultValue)
+    Boolean getBoolean(String attributeName, Boolean defaultValue)
     {
         return getBoolean(null, null, null, attributeName, defaultValue);
     }
 
-    public Boolean getBoolean(String scoreboardName, ScoreboardState state, String componentName, String attributeName, Boolean defaultValue)
+    Boolean getBoolean(String scoreboardName, ScoreboardState state, String componentName, String attributeName, Boolean defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
@@ -196,7 +222,7 @@ public class Config
         return defaultValue;
     }
 
-    public Color getColor(String scoreboardName, ScoreboardState state, String componentName, String attributeName, Color defaultValue)
+    Color getColor(String scoreboardName, ScoreboardState state, String componentName, String attributeName, Color defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
@@ -276,7 +302,7 @@ public class Config
     }
 
 
-    public SerialPort getPort()
+    SerialPort getPort()
     {
         String port = getString("port", "COM5");
         SerialPort commPort = SerialPort.getCommPort(port);
@@ -392,8 +418,7 @@ public class Config
                     int i = attrName.indexOf('.');
                     attrName = i == -1 ? "" : attrName.substring(i+1);
                 }
-                String key = sb.toString();
-                return key;
+                return sb.toString();
             }
         };
     }
