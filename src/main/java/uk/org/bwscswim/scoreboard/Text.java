@@ -149,7 +149,7 @@ public class Text
                 {
                     sb.append('\n');
                 }
-                sb.append("    ").append(line);
+                sb.append("      ").append(line);
             }
         }
         return sb.toString();

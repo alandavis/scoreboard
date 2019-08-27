@@ -38,14 +38,16 @@ import static uk.org.bwscswim.scoreboard.DataReader.ETB;
 class TimingEquipmentTrace
 {
     private final Writer writer;
+    private final StateTrace stateTrace;
 
     private int prevByte;
     private boolean waitingForFirstByteOfTransmission = true;
     private int traceZeroCount = 0;
     private long time = -1;
 
-    TimingEquipmentTrace(Config config)
+    TimingEquipmentTrace(Config config, StateTrace stateTrace)
     {
+        this.stateTrace = stateTrace;
         reset();
 
         Writer writer = null;
@@ -69,6 +71,7 @@ class TimingEquipmentTrace
     {
         waitingForFirstByteOfTransmission = true;
         time = -1;
+        stateTrace.setTime(time);
     }
 
     void trace(int b) throws InterruptedException
@@ -84,9 +87,10 @@ class TimingEquipmentTrace
             if (time != -1)
             {
                 long delay = ((now - time + 5) / 10) * 10; // round to 10 ms
-                trace(((delay == 0) ? "   " : Long.toString(delay)) + ' ');
+                trace(((delay == 0) ? "      " : String.format("%5d ", delay)));
             }
             time = now;
+            stateTrace.setTime(time);
         }
         // Some ports just return 0 endlessly in disconnected.
         if (b == 0)

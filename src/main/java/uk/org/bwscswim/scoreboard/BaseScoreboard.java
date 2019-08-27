@@ -236,7 +236,6 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
         if (this.state != state && scoreboardVisible)
         {
             this.state = state;
-            System.out.println(state+" - visible state");
             getColors();
             setColors();
         }

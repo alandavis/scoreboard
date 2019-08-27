@@ -33,14 +33,17 @@ package uk.org.bwscswim.scoreboard;
  */
 class RaceTimerThread extends Thread
 {
+    private final DataReader dataReader;
+    private final StateTrace stateTrace;
     private boolean terminate;
-    private DataReader dataReader;
     private long lastClock;
     private long timeZero;
 
-    RaceTimerThread(DataReader dataReader, String clock)
+    RaceTimerThread(DataReader dataReader, String clock, StateTrace stateTrace)
     {
         this.dataReader = dataReader;
+        this.stateTrace = stateTrace;
+
         setClock(clock);
         setDaemon(true);
         setName("RaceTimerThread");
@@ -57,7 +60,7 @@ class RaceTimerThread extends Thread
             for(;;)
             {
                 long wakeIn = 75 - (now % 75);
-//              System.out.println("  wakeIn="+wakeIn);
+//              stateTrace.trace("  wakeIn="+wakeIn);
                 Thread.sleep(wakeIn);
                 now = System.currentTimeMillis();
                 int timeNow;
@@ -85,7 +88,7 @@ class RaceTimerThread extends Thread
         {
             // Just exit
         }
-//      System.out.println("  timerThread EXITS");
+//      stateTrace.trace("  timerThread EXITS");
     }
 
     void setClock(String clock)
@@ -102,7 +105,7 @@ class RaceTimerThread extends Thread
         {
             timeZero = lastClock - time;
         }
-//      System.out.println("  setClock "+clock+" "+mins+"-"+secs+"-"+hunds+" --------- "+timeZero);
+      stateTrace.trace("resetClock "+clock);
     }
 
     private void setThreadTime(int timeNow)
@@ -116,7 +119,7 @@ class RaceTimerThread extends Thread
             (mins > 0 && secs <= 9 ? "0" : "")+secs+'.'+
             (hunds <= 9 ? "0" : "")+hunds;
         clock = clock.substring(clock.length()-8);
-//      System.out.println("  timeNow="+timeNow+" '"+clock+"' "+mins+"-"+secs+"-"+hunds+" ++++++++");
+        stateTrace.trace("setClock "+clock.trim());
         dataReader.setClock(clock);
         dataReader.makeScoreboardVisible();
     }
