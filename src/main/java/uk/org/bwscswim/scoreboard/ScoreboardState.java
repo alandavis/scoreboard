@@ -45,8 +45,8 @@ public enum ScoreboardState
     RACE_FINISHING,
     /** All result lines have been set after and the race timer has stopped */
     RACE_COMPLETE,
-    /** About to display the results */
-    RESULT,
-    /** The results are complete */
-    RESULT_COMPLETE
+    /** Displaying the results */
+    RESULTS,
+    /** The display of the results is finished */
+    RESULTS_COMPLETE
 }

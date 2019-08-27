@@ -24,14 +24,11 @@ package uk.org.bwscswim.scoreboard;
 
 import com.fazecast.jSerialComm.SerialPort;
 
-import java.io.BufferedWriter;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StreamCorruptedException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,9 +40,10 @@ import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP_COMPLETE;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE_COMPLETE;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE_FINISHING;
-import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULT;
-import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULT_COMPLETE;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULTS;
+import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULTS_COMPLETE;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.TIME_OF_DAY;
+import static uk.org.bwscswim.scoreboard.TimingEquipmentTrace.format;
 
 /**
  * Reads data from port or test file and generates events for scoreboards to display their data. Some events are
@@ -55,11 +53,11 @@ import static uk.org.bwscswim.scoreboard.ScoreboardState.TIME_OF_DAY;
  */
 class DataReader
 {
-    private static final int SOL = 0x16; // Start of transmission
+            static final int SOL = 0x16; // Start of transmission
     private static final int SOH = 0x01; // Separator 1
     private static final int STX = 0x02; // Separator 2
     private static final int EOT = 0x04; // Separator 2
-    private static final int ETB = 0x17; // End of transmission
+            static final int ETB = 0x17; // End of transmission
 
     private static int[] FILED_SEPARATORS = new int[] {SOH, STX, EOT};
 
@@ -86,14 +84,13 @@ class DataReader
     private final String nameRange;
     private final String clubRange;
     private final String timeRange;
-    private final Writer writer;
+    private final TimingEquipmentTrace timingEquipmentTrace;
 
     private final long displayFinishFor;
     private final long displayResultsFor;
     private final long displayLineupFor;
 
     private boolean trace = true;
-    private int prevByte;
     private InputStream inputStream;
     private Text text = new Text();
     private RaceTimerThread raceTimerThread;
@@ -132,22 +129,7 @@ class DataReader
         displayLineupFor = config.getInt("displayLineupFor", 6000);
 
         setTrace(config.getBoolean("trace", true));
-
-        Writer writer = null;
-        if (config.getBoolean("traceFile", false))
-        {
-            String filename = System.currentTimeMillis()+".log";
-
-            try
-            {
-                writer = new BufferedWriter(new FileWriter(filename));
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-        this.writer = writer;
+        timingEquipmentTrace = new TimingEquipmentTrace(config);
     }
 
     void setInputStream(InputStream inputStream)
@@ -179,7 +161,7 @@ class DataReader
                 {
                     try
                     {
-                        inputStream = new DummyInputStream(testFilename);
+                        setInputStream(new DummyInputStream(testFilename));
                         readInputStream();
                     }
                     catch (InterruptedException ignore)
@@ -217,7 +199,7 @@ class DataReader
                         {
                             try
                             {
-                                inputStream = port.getInputStream();
+                                setInputStream(port.getInputStream());
                                 readInputStream();
                             } finally
                             {
@@ -300,97 +282,21 @@ class DataReader
         return list.toArray(new String[0]);
     }
 
-    private boolean waitingForFirstByteOfTransmission = true;
-    private int traceZeroCount = 0;
-    private long time = -1;
-
     private int readByte() throws IOException, InterruptedException
     {
         int b = inputStream.read();
         if (b == -1)
         {
-            waitingForFirstByteOfTransmission = true;
-            time = -1;
+            timingEquipmentTrace.reset();
             throw new EOFException("Unexpected end of data from timing equipment");
         }
 
         if (trace)
         {
-            if (b == SOL)
-            {
-                if (waitingForFirstByteOfTransmission)
-                {
-                    waitingForFirstByteOfTransmission = false;
-                    log("\n");
-                }
-                long now = System.currentTimeMillis();
-                if (time != -1)
-                {
-                    long delay = ((now - time + 5) / 10) * 10; // round to 10 ms
-                    log(((delay == 0) ? "   " : Long.toString(delay)) + ' ');
-                }
-                time = now;
-            }
-            // Some ports just return 0 endlessly in disconnected.
-            if (b == 0)
-            {
-                if (traceZeroCount < 30)
-                {
-                    log(format(b));
-                    if (++traceZeroCount == 30)
-                    {
-                        log("...\n");
-                    }
-                }
-                Thread.sleep(100); // don't take all the CPU if disconnected.
-            }
-            else
-            {
-                traceZeroCount = 0;
-                if (prevByte != ETB || b != ETB)
-                {
-                    log(format(b));
-                    if (b == ETB)
-                    {
-                        log("\n");
-                    }
-                }
-                prevByte = b;
-            }
+            timingEquipmentTrace.trace(b);
         }
 
         return b;
-    }
-
-    private void log(String str)
-    {
-        System.err.print(str);
-        if (writer != null)
-        {
-            try
-            {
-                writer.write(str);
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private String format(int b)
-    {
-        return ((b >= 0x20 && b <= 0x7F)) ? Character.toString((char) b) : String.format("[%02x]", b);
-    }
-
-    private String format(String str)
-    {
-        StringBuilder sb = new StringBuilder();
-        for (char c : str.toCharArray())
-        {
-            sb.append(format(c));
-        }
-        return sb.toString();
     }
 
     private int getPosition(String str) throws StreamCorruptedException
@@ -472,10 +378,10 @@ class DataReader
                     setState(LINEUP);
                 }
             }
-            else if (state == RESULT && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber &&
+            else if (state == RESULTS && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber &&
                     lanesWithTimes == countLanesWithTimes())
             {
-                setState(RESULT_COMPLETE);
+                setState(RESULTS_COMPLETE);
             }
             else if ((state == RACE || state == RACE_FINISHING) && lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber)
             {
@@ -503,7 +409,7 @@ class DataReader
         }
         else if (CONTROL_RESULTS.equals(control))
         {
-            setState(RESULT);
+            setState(RESULTS);
         }
         else if (CONTROL_TIME_OF_DAY.equals(control))
         {
@@ -536,7 +442,7 @@ class DataReader
         {
             int lineNumber = firstLaneLineNumber + laneIndex;
 
-            boolean result = state == RESULT || state == RESULT_COMPLETE;
+            boolean result = state == RESULTS || state == RESULTS_COMPLETE;
             int indent = result ? 1 : 0;
 
             String name = text.getText(lineNumber, nameRange, indent, "").trim();
@@ -554,7 +460,7 @@ class DataReader
         for (int laneIndex=0; laneIndex<laneCount; laneIndex++)
         {
             int lineNumber = firstLaneLineNumber + laneIndex;
-            boolean result = state == RESULT || state == RESULT_COMPLETE;
+            boolean result = state == RESULTS || state == RESULTS_COMPLETE;
             int indent = result ? 1 : 0;
 
             String time = text.getText(lineNumber, timeRange, indent, "").trim();
@@ -610,7 +516,7 @@ class DataReader
         {
             int lineNumber = firstLaneLineNumber + laneIndex;
             String placeRange = config.getCharRange("placeRange", null);
-            boolean result = state == RESULT || state == RESULT_COMPLETE;
+            boolean result = state == RESULTS || state == RESULTS_COMPLETE;
             int indent = result ? 1 : 0;
             int lane = result
                     ? text.getInt(lineNumber, placeRange, indent, 0)
@@ -743,14 +649,14 @@ class DataReader
                 drawScoreboard();
                 if (statesThatMayBeQueued.isEmpty())
                 {
-                    statesThatMayBeQueued = new ArrayList<>(Arrays.asList(CLEAR, RESULT, RESULT_COMPLETE, CLEAR, LINEUP, LINEUP_COMPLETE, RACE));
+                    statesThatMayBeQueued = new ArrayList<>(Arrays.asList(CLEAR, RESULTS, RESULTS_COMPLETE, CLEAR, LINEUP, LINEUP_COMPLETE, RACE));
                 }
                 stateTimerThread = new StateTimerThread(state, stateStart, displayFinishFor, displayFinishFor)
                 {
                     @Override
                     public void end()
                     {
-                        System.out.println("RACE_COMPLETE - SWITCH TO RESULTS IF AVAILABLE");
+                        System.out.println("RACE_COMPLETE - SWITCH TO RESULTS");
                         dequeueNextState();
                     }
                 };
@@ -761,7 +667,7 @@ class DataReader
                     raceTimerThread = null;
                 }
             }
-            else if (state == RESULT_COMPLETE)
+            else if (state == RESULTS_COMPLETE)
             {
                 drawScoreboard();
                 if (statesThatMayBeQueued.isEmpty())
@@ -775,13 +681,13 @@ class DataReader
                     {
                         int mod = count % 3;
                         String display = mod == 0 ? "TIMEs" : mod == 1 ? "PBs" : "CTs";
-//                        System.out.println("DISPLAY RESULT " + display);
+//                        System.out.println("DISPLAY RESULTS " + display);
                     }
 
                     @Override
                     public void end()
                     {
-                        System.out.println("RESULT_COMPLETE - SWITCH TO LINEUP IF AVAILABLE");
+                        System.out.println("RESULTS_COMPLETE - SWITCH TO LINEUP IF AVAILABLE");
                         dequeueNextState();
                     }
                 };
@@ -828,16 +734,6 @@ class DataReader
 
     void close()
     {
-        if (writer != null)
-        {
-            try
-            {
-                writer.close();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
-        }
+        timingEquipmentTrace.close();
     }
 }
