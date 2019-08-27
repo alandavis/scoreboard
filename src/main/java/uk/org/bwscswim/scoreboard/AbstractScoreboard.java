@@ -121,10 +121,10 @@ abstract class AbstractScoreboard extends BaseScoreboard
 
         laneCount = config.getInt("laneCount", 6);
 
-        combinedClubTimeClockEnabledabledClock = config.getBoolean(name, null, null, "combinedClubTimeClock.enabledabledClock", true);
+        combinedClubTimeClockEnabledabledClock = config.getBoolean(null, null, "combinedClubTimeClock.enabledabledClock", true);
 
-        laneVisible = config.getBoolean(name, null, null, "lane.visible", true);
-        placeVisible = config.getBoolean(name, null, null, "place.visible", true);
+        laneVisible = config.getBoolean(null, null, "lane.visible", true);
+        placeVisible = config.getBoolean(null, null, "place.visible", true);
 
         getGaps();
         getLengths();
@@ -165,20 +165,20 @@ abstract class AbstractScoreboard extends BaseScoreboard
 
     private void getLengths()
     {
-        titleLength = config.getInt(name, null, null, "titleLength", 30);
-        subTitleLength = config.getInt(name, null, null, "subTitleLength", 17);
-        combinedTitleLength = config.getInt(name, null, null, "combinedTitleLength", 17);
-        singleTitleLength = config.getInt(name, null, null, "singleTitleLength", 30);
-        clockLength = config.getInt(name, null, null, "clockLength", 8);
-        laneLength = config.getInt(name, null, null, "laneLength", 1);
-        nameLength = config.getInt(name, null, null, "nameLength", 16);
-        clubLength = config.getInt(name, null, null, "clubLength", 4);
-        timeLength = config.getInt(name, null, null, "timeLength", 8);
-        combinedClubTimeClockLength = config.getInt(name, null, null, "combinedClubTimeClockLength", 8);
+        titleLength = config.getInt(null, null, "titleLength", 30);
+        subTitleLength = config.getInt(null, null, "subTitleLength", 17);
+        combinedTitleLength = config.getInt(null, null, "combinedTitleLength", 17);
+        singleTitleLength = config.getInt(null, null, "singleTitleLength", 30);
+        clockLength = config.getInt(null, null, "clockLength", 8);
+        laneLength = config.getInt(null, null, "laneLength", 1);
+        nameLength = config.getInt(null, null, "nameLength", 16);
+        clubLength = config.getInt(null, null, "clubLength", 4);
+        timeLength = config.getInt(null, null, "timeLength", 8);
+        combinedClubTimeClockLength = config.getInt(null, null, "combinedClubTimeClockLength", 8);
         combinedClubTimeClockLength = Math.min(Math.max(clubLength, timeLength), combinedClubTimeClockLength);
         clubLength = Math.min(clubLength, combinedClubTimeClockLength);
         timeLength = Math.min(timeLength, combinedClubTimeClockLength);
-        placeLength = config.getInt(name, null, null, "placeLength", 3);
+        placeLength = config.getInt(null, null, "placeLength", 3);
     }
 
     private void getTestText()
@@ -215,17 +215,17 @@ abstract class AbstractScoreboard extends BaseScoreboard
 
     private void getFonts()
     {
-        titleFont = config.getFont(name, state, "title");
-        subTitleFont = config.getFont(name, state, "subTitle");
-        combinedTitleFont = config.getFont(name, state, "combinedTitle");
-        singleTitleFont = config.getFont(name, state, "singleTitle");
-        clockFont = config.getFont(name, state, "clock");
-        laneFont = config.getFont(name, state, "lane");
-        nameFont = config.getFont(name, state, "name");
-        clubFont = config.getFont(name, state, "club");
-        timeFont = config.getFont(name, state, "time");
-        placeFont = config.getFont(name, state, "place");
-        combinedClubTimeClockFont = config.getFont(name, state, "combinedClubTimeClock");
+        titleFont = config.getFont(state, "title");
+        subTitleFont = config.getFont(state, "subTitle");
+        combinedTitleFont = config.getFont(state, "combinedTitle");
+        singleTitleFont = config.getFont(state, "singleTitle");
+        clockFont = config.getFont(state, "clock");
+        laneFont = config.getFont(state, "lane");
+        nameFont = config.getFont(state, "name");
+        clubFont = config.getFont(state, "club");
+        timeFont = config.getFont(state, "time");
+        placeFont = config.getFont(state, "place");
+        combinedClubTimeClockFont = config.getFont(state, "combinedClubTimeClock");
     }
 
     private void setFonts()
@@ -252,15 +252,15 @@ abstract class AbstractScoreboard extends BaseScoreboard
     {
         super.getColors();
 
-        subTitleForeground = config.getColor(name, state, name, "subTitle.foreground", Color.YELLOW);
-        combinedTitleForeground = config.getColor(name, state, name, "combinedTitle.foreground", Color.YELLOW);
-        singleTitleForeground = config.getColor(name, state, name, "singleTitle.foreground", Color.YELLOW);
-        clockForeground = config.getColor(name, state, name, "clock.foreground", Color.YELLOW);
-        nameForeground = config.getColor(name, state, name, "lane.foreground", Color.WHITE);
-        clubForeground = config.getColor(name, state, name, "club.foreground", Color.WHITE);
-        timeForeground = config.getColor(name, state, name, "time.foreground", Color.WHITE);
-        placeForeground = config.getColor(name, state, name, "place.foreground", Color.YELLOW);
-        combinedClubTimeClockForeground = config.getColor(name, state, name, "combinedClubTimeClock.foreground", Color.WHITE);
+        subTitleForeground = config.getColor(state, null, "subTitle.foreground", Color.YELLOW);
+        combinedTitleForeground = config.getColor(state, null, "combinedTitle.foreground", Color.YELLOW);
+        singleTitleForeground = config.getColor(state, null, "singleTitle.foreground", Color.YELLOW);
+        clockForeground = config.getColor(state, null, "clock.foreground", Color.YELLOW);
+        nameForeground = config.getColor(state, null, "lane.foreground", Color.WHITE);
+        clubForeground = config.getColor(state, null, "club.foreground", Color.WHITE);
+        timeForeground = config.getColor(state, null, "time.foreground", Color.WHITE);
+        placeForeground = config.getColor(state, null, "place.foreground", Color.YELLOW);
+        combinedClubTimeClockForeground = config.getColor(state, null, "combinedClubTimeClock.foreground", Color.WHITE);
     }
 
     @Override
@@ -300,32 +300,32 @@ abstract class AbstractScoreboard extends BaseScoreboard
 
     private int getTopGap()
     {
-        return config.getInt(name, null, null, "topGap", 10);
+        return config.getInt(null, null, "topGap", 10);
     }
 
     private int getBottomGap()
     {
-        return config.getInt(name, null, null, "bottomGap", 0);
+        return config.getInt(null, null, "bottomGap", 0);
     }
 
     private int getLeftGap()
     {
-        return config.getInt(name, null, null, "leftGap", 30);
+        return config.getInt(null, null, "leftGap", 30);
     }
 
     private int getRightGap()
     {
-        return config.getInt(name, null, null, "rightGap", 0);
+        return config.getInt(null, null, "rightGap", 0);
     }
 
     private int getHorizontalGap()
     {
-        return config.getInt(name, null, null, "horizontalGap", 20);
+        return config.getInt(null, null, "horizontalGap", 20);
     }
 
     private int getPreLaneGap()
     {
-        return config.getInt(name, null, null, "preLaneGap", 10);
+        return config.getInt(null, null, "preLaneGap", 10);
     }
 
     public void clear()

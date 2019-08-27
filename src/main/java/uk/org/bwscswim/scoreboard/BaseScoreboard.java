@@ -39,7 +39,6 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
 {
     protected final Config config;
     private final boolean secondScreen;
-    protected final String name = "new4";
     protected final long showTestCardFor;
     private final boolean scoreboardVisible;
 
@@ -100,8 +99,8 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
             }
             else
             {
-                Boolean fullScreen = config.getBoolean(name, null, null, "fullScreen", true);
-                if (config.getBoolean(name, null, null, "originalScreenSetup", false))
+                Boolean fullScreen = config.getBoolean(null, null, "fullScreen", true);
+                if (config.getBoolean(null, null, "originalScreenSetup", false))
                 {
                     System.out.println("Using original screen setup");
                     pack();
@@ -185,9 +184,9 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
 
     protected void getColors()
     {
-        background = config.getColor(name, state, null, "background", Color.BLACK);
-        titleForeground = config.getColor(name, state, name, "title.foreground", Color.YELLOW);
-        laneForeground = config.getColor(name, state, name, "lane.foreground", Color.WHITE);
+        background = config.getColor(state, null, "background", Color.BLACK);
+        titleForeground = config.getColor(state, null, "title.foreground", Color.YELLOW);
+        laneForeground = config.getColor(state, null, "lane.foreground", Color.WHITE);
     }
 
     protected void setColors()
@@ -197,7 +196,7 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
 
     protected String getTest(String componentName)
     {
-        String string = config.getString(null, null, null, componentName + "Test", "");
+        String string = config.getString(null, null, componentName + "Test", "");
         if (showTestCardFor <= 0)
         {
             string = string.replaceAll(".", " ");

@@ -95,19 +95,19 @@ class Config
         return prop;
     }
 
-    Font getFont(String scoreboardName, ScoreboardState state, String componentName)
+    Font getFont(ScoreboardState state, String componentName)
     {
         return new Font(
-                getFontName(scoreboardName, state, null, componentName+'.'+FONT_NAME, "Arial"),
-                getFontStyle(scoreboardName, state, null, componentName+'.'+FONT_STYLE, Font.BOLD),
-                getInt(scoreboardName, state, null, componentName+'.'+FONT_SIZE, 85));
+                getFontName(state, null, componentName+'.'+FONT_NAME, "Arial"),
+                getFontStyle(state, null, componentName+'.'+FONT_STYLE, Font.BOLD),
+                getInt(state, null, componentName+'.'+FONT_SIZE, 85));
     }
 
-    private String getFontName(String scoreboardName, ScoreboardState state, String componentName, String attributeName,
+    private String getFontName(ScoreboardState state, String componentName, String attributeName,
                                String defaultValue)
     {
         String stateName = getStateName(state);
-        for (String key: getKeys(scoreboardName, stateName, componentName, attributeName))
+        for (String key: getKeys(stateName, componentName, attributeName))
         {
             String value = properties.getProperty(key);
             if (value != null)
@@ -124,11 +124,11 @@ class Config
         return defaultValue;
     }
 
-    private int getFontStyle(String scoreboardName, ScoreboardState state, String componentName, String attributeName,
+    private int getFontStyle(ScoreboardState state, String componentName, String attributeName,
                              int defaultValue)
     {
         String stateName = getStateName(state);
-        for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
+        for (String key : getKeys(stateName, componentName, attributeName))
         {
             String value = properties.getProperty(key);
             if (value != null)
@@ -149,13 +149,13 @@ class Config
 
     String getString(String attributeName, String defaultValue)
     {
-        return getString(null, null, null, attributeName, defaultValue);
+        return getString(null, null, attributeName, defaultValue);
     }
 
-    String getString(String scoreboardName, ScoreboardState state, String componentName, String attributeName, String defaultValue)
+    String getString(ScoreboardState state, String componentName, String attributeName, String defaultValue)
     {
         String stateName = getStateName(state);
-        for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
+        for (String key : getKeys(stateName, componentName, attributeName))
         {
             String value = properties.getProperty(key);
             if (value != null)
@@ -168,13 +168,13 @@ class Config
 
     int getInt(String attributeName, int defaultValue)
     {
-        return getInt(null, null, null, attributeName, defaultValue);
+        return getInt(null, null, attributeName, defaultValue);
     }
 
-    int getInt(String scoreboardName, ScoreboardState state, String componentName, String attributeName, int defaultValue)
+    int getInt(ScoreboardState state, String componentName, String attributeName, int defaultValue)
     {
         String stateName = getStateName(state);
-        for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
+        for (String key : getKeys(stateName, componentName, attributeName))
         {
             String value = properties.getProperty(key);
             if (value != null)
@@ -194,13 +194,13 @@ class Config
 
     Boolean getBoolean(String attributeName, Boolean defaultValue)
     {
-        return getBoolean(null, null, null, attributeName, defaultValue);
+        return getBoolean(null, null, attributeName, defaultValue);
     }
 
-    Boolean getBoolean(String scoreboardName, ScoreboardState state, String componentName, String attributeName, Boolean defaultValue)
+    Boolean getBoolean(ScoreboardState state, String componentName, String attributeName, Boolean defaultValue)
     {
         String stateName = getStateName(state);
-        for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
+        for (String key : getKeys(stateName, componentName, attributeName))
         {
             String value = properties.getProperty(key);
             if (value != null)
@@ -222,10 +222,10 @@ class Config
         return defaultValue;
     }
 
-    Color getColor(String scoreboardName, ScoreboardState state, String componentName, String attributeName, Color defaultValue)
+    Color getColor(ScoreboardState state, String componentName, String attributeName, Color defaultValue)
     {
         String stateName = getStateName(state);
-        for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
+        for (String key : getKeys(stateName, componentName, attributeName))
         {
             String value = properties.getProperty(key);
             if (value != null)
@@ -257,13 +257,13 @@ class Config
 
     public String getRange(String attributeName, String defaultValue)
     {
-        return getRange(null, null, null, attributeName, defaultValue);
+        return getRange(null, null, attributeName, defaultValue);
     }
 
-    private String getRange(String scoreboardName, ScoreboardState state, String componentName, String attributeName, String defaultValue)
+    private String getRange(ScoreboardState state, String componentName, String attributeName, String defaultValue)
     {
         String stateName = getStateName(state);
-        for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
+        for (String key : getKeys(stateName, componentName, attributeName))
         {
             String value = properties.getProperty(key);
             if (value != null)
@@ -280,13 +280,13 @@ class Config
 
     public String getCharRange(String attributeName, String defaultValue)
     {
-        return getCharRange(null, null, null, attributeName, defaultValue);
+        return getCharRange(null, null, attributeName, defaultValue);
     }
 
-    private String getCharRange(String scoreboardName, ScoreboardState state, String componentName, String attributeName, String defaultValue)
+    private String getCharRange(ScoreboardState state, String componentName, String attributeName, String defaultValue)
     {
         String stateName = getStateName(state);
-        for (String key : getKeys(scoreboardName, stateName, componentName, attributeName))
+        for (String key : getKeys(stateName, componentName, attributeName))
         {
             String value = properties.getProperty(key);
             if (value != null)
