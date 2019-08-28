@@ -71,7 +71,7 @@ class RaceTimerThread extends Thread
                     if (!winnerFinished && lastClockAge > 2500)
                     {
 //                        stateTrace.trace("raceTimerThread setRaceFinishing");
-                        dataReader.setRaceFinishing();
+                        dataReader.setRaceFinishing(now);
                         winnerFinished = true;
                     }
 

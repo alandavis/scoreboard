@@ -95,14 +95,12 @@ class DataReader
     private InputStream inputStream;
     private Text text = new Text();
     private RaceTimerThread raceTimerThread;
-    private long lastLaneResultAt;
 
     private int lanesWithTimes;
     private ScoreboardState state;
     private String clock;
 
     private List<StateData> queuedStateData = new ArrayList<>();
-    private List<ScoreboardState> statesThatMayBeQueued = Collections.emptyList();
     private StateTimerThread stateTimerThread;
 
     DataReader(Config config, AbstractScoreboard scoreboard1, AbstractScoreboard scoreboard2)
@@ -398,7 +396,6 @@ class DataReader
             {
                 if (showData())
                 {
-                    lastLaneResultAt = System.currentTimeMillis();
                     drawLane(lineNumber - firstLaneLineNumber);
                     makeScoreboardVisible();
                 }
@@ -434,15 +431,12 @@ class DataReader
         return stateTimerThread == null;
     }
 
-    void setRaceFinishing()
+    void setRaceFinishing(long now)
     {
+        setState(this.state, RACE_FINISHING, now);
         if (countLanesWithNames() == countLanesWithTimes())
         {
             setState(RACE_COMPLETE);
-        }
-        else
-        {
-            setState(RACE_FINISHING, lastLaneResultAt);
         }
     }
 
@@ -568,24 +562,25 @@ class DataReader
 
     private synchronized void setState(ScoreboardState state)
     {
-        setState(state, System.currentTimeMillis());
+        setState(this.state, state, System.currentTimeMillis());
     }
 
-    private synchronized void setState(ScoreboardState state, long stateStart)
+    private synchronized void setState(ScoreboardState prevState, ScoreboardState state, long stateStart)
     {
-        if (!statesThatMayBeQueued.isEmpty())
+        if (stateTimerThread != null || !queuedStateData.isEmpty())
         {
-            ScoreboardState nextAllowedState = statesThatMayBeQueued.remove(0);
+            ScoreboardState nextAllowedState = prevState.nextRaceState();
             if (state != nextAllowedState)
             {
                 // There has been a break in the expected sequence of queued events, so start again with the live state.
-                stateTrace.trace("Unexpected sequence of queued events - cleared");
+                stateTrace.trace("Unexpected sequence of events. Event queue cleared. Was "+state+" but expected "+nextAllowedState);
                 clearStateQueue();
             }
             else
             {
-                stateTrace.trace("Queue "+state+" lanesWithTimes="+lanesWithTimes+" clock="+clock+"\n"+text);
                 queuedStateData.add(new StateData(this.state, state, clock, text, lanesWithTimes));
+                stateTrace.trace("Queued "+state+" lanesWithTimes="+lanesWithTimes+" clock="+clock.trim()+"\n"+text);
+                queuedStateData.forEach(sd->stateTrace.trace(String.format("%8s %s", sd.getClock().trim(), sd.getState())));
             }
         }
 
@@ -594,7 +589,6 @@ class DataReader
 
     private void clearStateQueue()
     {
-        statesThatMayBeQueued = Collections.emptyList();
         queuedStateData.clear();
         if (stateTimerThread != null)
         {
@@ -676,10 +670,6 @@ class DataReader
             if (state == RACE_COMPLETE)
             {
                 drawScoreboard();
-                if (statesThatMayBeQueued.isEmpty())
-                {
-                    statesThatMayBeQueued = new ArrayList<>(Arrays.asList(CLEAR, RESULTS, RESULTS_COMPLETE, CLEAR, LINEUP, LINEUP_COMPLETE, RACE));
-                }
                 stateTimerThread = new StateTimerThread(state, stateStart, displayFinishFor, displayFinishFor)
                 {
                     @Override
@@ -699,10 +689,6 @@ class DataReader
             else if (state == RESULTS_COMPLETE)
             {
                 drawScoreboard();
-                if (statesThatMayBeQueued.isEmpty())
-                {
-                    statesThatMayBeQueued = new ArrayList<>(Arrays.asList(CLEAR, LINEUP, LINEUP_COMPLETE, RACE));
-                }
                 stateTimerThread = new StateTimerThread(state, stateStart, 1000, displayResultsFor)
                 {
                     @Override
@@ -724,10 +710,6 @@ class DataReader
             else if (state == LINEUP_COMPLETE)
             {
                 drawScoreboard();
-                if (statesThatMayBeQueued.isEmpty())
-                {
-                    statesThatMayBeQueued = new ArrayList<>(Collections.singletonList(RACE));
-                }
                 stateTimerThread = new StateTimerThread(state, stateStart, displayLineupFor, displayLineupFor)
                 {
                     @Override
@@ -745,6 +727,7 @@ class DataReader
             }
             else if (state == RACE)
             {
+                //  TODO see above TODO
                 String clock = text.getText(clockRange, "");
                 stateTrace.trace("setScorteboradState RACE ***BUT NOT WHEN this.state == LINEUP_COMPLETE clock="+clock);
             }
