@@ -33,11 +33,13 @@ public class StateData
     private final ScoreboardState state;
     private final Text text;
     private int lanesWithTimes;
+    private String clock;
 
-    StateData(ScoreboardState prevState, ScoreboardState state, Text text, int lanesWithTimes)
+    StateData(ScoreboardState prevState, ScoreboardState state, String clock, Text text, int lanesWithTimes)
     {
         this.prevState = prevState;
         this.state = state;
+        this.clock = clock;
         this.text = new Text(text);
         this.lanesWithTimes = lanesWithTimes;
     }
@@ -50,6 +52,16 @@ public class StateData
     public ScoreboardState getState()
     {
         return state;
+    }
+
+    public String getClock()
+    {
+        return clock;
+    }
+
+    public void setClock(String clock)
+    {
+        this.clock = clock;
     }
 
     public Text getText()

@@ -44,7 +44,7 @@ class RaceTimerThread extends Thread
         this.dataReader = dataReader;
         this.stateTrace = stateTrace;
 
-        setClock(clock);
+        resetClock(clock);
         setDaemon(true);
         setName("RaceTimerThread");
         start();
@@ -60,7 +60,7 @@ class RaceTimerThread extends Thread
             for(;;)
             {
                 long wakeIn = 75 - (now % 75);
-//              stateTrace.trace("  wakeIn="+wakeIn);
+//                stateTrace.trace("  wakeIn="+wakeIn);
                 Thread.sleep(wakeIn);
                 now = System.currentTimeMillis();
                 int timeNow;
@@ -70,6 +70,7 @@ class RaceTimerThread extends Thread
                     long lastClockAge = now - lastClock;
                     if (!winnerFinished && lastClockAge > 2500)
                     {
+//                        stateTrace.trace("raceTimerThread setRaceFinishing");
                         dataReader.setRaceFinishing();
                         winnerFinished = true;
                     }
@@ -81,17 +82,17 @@ class RaceTimerThread extends Thread
                     }
                     timeNow = (int)((now - timeZero)/10)*10;
                 }
-                setThreadTime(timeNow);
+                setClock(timeNow);
             }
         }
         catch (InterruptedException ignore)
         {
             // Just exit
         }
-//      stateTrace.trace("  timerThread EXITS");
+        stateTrace.trace("raceTimerThread EXITS");
     }
 
-    void setClock(String clock)
+    void resetClock(String clock)
     {
         clock = clock.trim();
         int i = clock.indexOf(':');
@@ -105,10 +106,10 @@ class RaceTimerThread extends Thread
         {
             timeZero = lastClock - time;
         }
-      stateTrace.trace("resetClock "+clock);
+        stateTrace.trace("resetClock "+clock);
     }
 
-    private void setThreadTime(int timeNow)
+    private void setClock(int timeNow)
     {
         int hunds = (timeNow % 1000)/10;
         int secs = timeNow/1000;

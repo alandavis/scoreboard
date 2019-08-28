@@ -99,6 +99,7 @@ class DataReader
 
     private int lanesWithTimes;
     private ScoreboardState state;
+    private String clock;
 
     private List<StateData> queuedStateData = new ArrayList<>();
     private List<ScoreboardState> statesThatMayBeQueued = Collections.emptyList();
@@ -341,7 +342,7 @@ class DataReader
 
             if (control.equals(CONTROL_CLOCK))
             {
-                String clock = text.getText(clockRange, "");
+                clock = text.getText(clockRange, "");
                 if (state == LINEUP) // clock is probably 0.0
                 {
                     setState(LINEUP_COMPLETE);
@@ -355,9 +356,17 @@ class DataReader
                 }
                 else if (state == RACE)
                 {
-                    if (showData() && raceTimerThread != null)
+                    if (showData())
                     {
-                        raceTimerThread.setClock(clock);
+                        if (raceTimerThread != null)
+                        {
+                            raceTimerThread.resetClock(clock);
+                        }
+                    }
+                    else
+                    {
+                        // get last RACE's text and set the clock in that.
+                        setClockInLastRateText(clock);
                     }
                 }
                 else if (state == TIME_OF_DAY)
@@ -503,7 +512,7 @@ class DataReader
 
     private void drawClock()
     {
-        String clock = text.getText(clockRange, "");
+        String clock = this.clock;
         if ("0.0".equals(clock.trim()))
         {
             clock = "";
@@ -575,8 +584,8 @@ class DataReader
             }
             else
             {
-                stateTrace.trace("Queue "+state+" lanesWithTimes="+lanesWithTimes+"\n"+text);
-                queuedStateData.add(new StateData(this.state, state, text, lanesWithTimes));
+                stateTrace.trace("Queue "+state+" lanesWithTimes="+lanesWithTimes+" clock="+clock+"\n"+text);
+                queuedStateData.add(new StateData(this.state, state, clock, text, lanesWithTimes));
             }
         }
 
@@ -603,10 +612,26 @@ class DataReader
         }
     }
 
+    private synchronized void setClockInLastRateText(String clock)
+    {
+        if (!queuedStateData.isEmpty())
+        {
+            for (int i=queuedStateData.size()-1; i >= 0; i--)
+            {
+                StateData stateData = queuedStateData.get(i);
+                if (stateData.getState() == RACE)
+                {
+                    stateData.setClock(clock);
+                }
+            }
+        }
+    }
+
     private synchronized void dequeueNextState()
     {
         if (!queuedStateData.isEmpty())
         {
+            String origClock = clock;
             Text origText = text;
             int origLanesWithTimes = lanesWithTimes;
             ScoreboardState origState = state;
@@ -618,6 +643,7 @@ class DataReader
                     StateData stateData = queuedStateData.remove(0);
 
                     state = stateData.getPrevState();
+                    clock = stateData.getClock();
                     text = stateData.getText();
                     lanesWithTimes = stateData.getLanesWithTimes();
                     ScoreboardState state = stateData.getState();
@@ -630,6 +656,7 @@ class DataReader
             {
                 if (!queuedStateData.isEmpty())
                 {
+                    clock = origClock;
                     text = origText;
                     lanesWithTimes = origLanesWithTimes;
                     state = origState;
@@ -711,10 +738,15 @@ class DataReader
                     }
                 };
             }
-            else if (state == RACE && this.state == LINEUP_COMPLETE)
+            else if (state == RACE && this.state == LINEUP_COMPLETE) // TODO looks wrong having a this.state here
+            {
+                stateTrace.trace("START RACE TIMER WITH CLOCK "+clock);
+                raceTimerThread = new RaceTimerThread(this, clock, stateTrace);
+            }
+            else if (state == RACE)
             {
                 String clock = text.getText(clockRange, "");
-                raceTimerThread = new RaceTimerThread(this, clock, stateTrace);
+                stateTrace.trace("setScorteboradState RACE ***BUT NOT WHEN this.state == LINEUP_COMPLETE clock="+clock);
             }
             else if (state == CLEAR)
             {
