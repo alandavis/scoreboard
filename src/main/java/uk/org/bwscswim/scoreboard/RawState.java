@@ -27,50 +27,59 @@ package uk.org.bwscswim.scoreboard;
  *
  * @author adavis
  */
-public enum ScoreboardState
+public enum RawState
 {
     /** Test page */
-    TEST,
+    TEST(false),
     /** Showing time of day or about to do so */
-    TIME_OF_DAY,
-
-    // Race sequence
-
+    TIME_OF_DAY(false),
     /** Clear the board */
-    CLEAR,
+    CLEAR(false),
     /* About to receive the lineup */
-    LINEUP,
-
-    // The race states we queue
+    LINEUP(false),
 
     /** The lineup is complete and the timer has been set to 0.0 but is not running */
-    LINEUP_COMPLETE,
+    LINEUP_COMPLETE(true),
     /** The race timer is running */
-    RACE,
+    RACE(true),
     /** The race timer has stopped for longer than 2.1 seconds so is not a split time, but there may be more result lines */
-    RACE_FINISHING,
+    RACE_FINISHING(true),
     /** All result lines have been set after and the race timer has stopped */
-    RACE_COMPLETE,
+    RACE_COMPLETE(true),
     /** Displaying the results */
-    RESULTS,
+    RESULTS(true),
     /** The display of the results is finished */
-    RESULTS_COMPLETE;
+    RESULTS_COMPLETE(true);
 
-    public ScoreboardState nextQueueableState()
+    private final boolean queueable;
+
+    RawState(boolean queueable)
     {
-        if (this == RESULTS_COMPLETE)
+        this.queueable = queueable;
+    }
+
+    RawState nextQueueableState()
+    {
+        int i = ordinal();
+        RawState[] values = values();
+        i = i == values.length-1 ? 0 : i+1;
+
+        while (!values[i].queueable)
         {
-            return LINEUP_COMPLETE; // Skip TEST and TIME_OF_DAY and ignore CLEAR and LINEUP
+            i++;
         }
 
-        ScoreboardState[] values = values();
-        int i = ordinal();
-        return values[i+1];
+        return values[i];
+    }
+
+    boolean isQueueable()
+    {
+        return queueable;
     }
 
     public static void main(String[] args) // TODO remove
     {
-        for (ScoreboardState state : ScoreboardState.values())
+        for (RawState state : RawState.values())
         {
             System.out.println("state:"+state+" next:"+state.nextQueueableState());
         }

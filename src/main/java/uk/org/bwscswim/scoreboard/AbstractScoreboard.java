@@ -28,9 +28,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP;
-import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP_COMPLETE;
-import static uk.org.bwscswim.scoreboard.ScoreboardState.TIME_OF_DAY;
+import static uk.org.bwscswim.scoreboard.RawState.LINEUP;
+import static uk.org.bwscswim.scoreboard.RawState.LINEUP_COMPLETE;
+import static uk.org.bwscswim.scoreboard.RawState.TIME_OF_DAY;
 
 /**
  * Abstract class contains fields used to display the scoreboard, but without any layout.

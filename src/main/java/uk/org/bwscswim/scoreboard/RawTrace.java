@@ -35,7 +35,7 @@ import static uk.org.bwscswim.scoreboard.DataReader.ETB;
  *
  * @author adavis
  */
-class TimingEquipmentTrace
+class RawTrace
 {
     private final Writer writer;
     private final StateTrace stateTrace;
@@ -45,7 +45,7 @@ class TimingEquipmentTrace
     private int traceZeroCount = 0;
     private long time = -1;
 
-    TimingEquipmentTrace(Config config, StateTrace stateTrace)
+    RawTrace(Config config, StateTrace stateTrace)
     {
         this.stateTrace = stateTrace;
         reset();

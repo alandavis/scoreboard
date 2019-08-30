@@ -22,6 +22,8 @@
  */
 package uk.org.bwscswim.scoreboard;
 
+import static uk.org.bwscswim.scoreboard.RawState.RACE_FINISHING;
+
 /**
  * A Thread that make the race clock look like it is running in hundredths of a second rather than tenths for most of
  * the time with splits and results in hundredths. Once started it calls {@link DataReader#setClock(String)} to set
@@ -72,7 +74,7 @@ class RaceTimerThread extends Thread
                     if (!winnerFinished && lastClockAge > 2500)
                     {
 //                        stateTrace.trace("raceTimerThread setRaceFinishing");
-                        dataReader.setRaceFinishing();
+                        dataReader.setState(RACE_FINISHING);
                         winnerFinished = true;
                     }
 

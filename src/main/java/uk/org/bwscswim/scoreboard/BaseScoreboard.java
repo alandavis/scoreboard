@@ -28,7 +28,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import static uk.org.bwscswim.scoreboard.ScoreboardState.TEST;
+import static uk.org.bwscswim.scoreboard.RawState.TEST;
 
 /**
  * Abstract class containing methods used to setup the window onto the Scoreboard.
@@ -44,7 +44,7 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
 
     protected Container contentPane;
 
-    protected ScoreboardState state = TEST;
+    protected RawState state = TEST;
 
     protected Color background;
     protected Color titleForeground;
@@ -231,7 +231,7 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
         return graphicsDevice;
     }
 
-    protected void setState(ScoreboardState state)
+    protected void setState(RawState state)
     {
         if (this.state != state && scoreboardVisible)
         {

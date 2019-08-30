@@ -32,15 +32,15 @@ import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP;
-import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP_COMPLETE;
-import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE;
-import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE_COMPLETE;
-import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE_FINISHING;
-import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULTS;
-import static uk.org.bwscswim.scoreboard.ScoreboardState.RESULTS_COMPLETE;
-import static uk.org.bwscswim.scoreboard.ScoreboardState.TIME_OF_DAY;
-import static uk.org.bwscswim.scoreboard.TimingEquipmentTrace.format;
+import static uk.org.bwscswim.scoreboard.RawState.LINEUP;
+import static uk.org.bwscswim.scoreboard.RawState.LINEUP_COMPLETE;
+import static uk.org.bwscswim.scoreboard.RawState.RACE;
+import static uk.org.bwscswim.scoreboard.RawState.RACE_COMPLETE;
+import static uk.org.bwscswim.scoreboard.RawState.RACE_FINISHING;
+import static uk.org.bwscswim.scoreboard.RawState.RESULTS;
+import static uk.org.bwscswim.scoreboard.RawState.RESULTS_COMPLETE;
+import static uk.org.bwscswim.scoreboard.RawState.TIME_OF_DAY;
+import static uk.org.bwscswim.scoreboard.RawTrace.format;
 
 /**
  * Reads data from port or test file and generates events for scoreboards to display their data. Some events are
@@ -81,7 +81,7 @@ class DataReader
     private final String nameRange;
     private final String clubRange;
     private final String timeRange;
-    private final TimingEquipmentTrace timingEquipmentTrace;
+    private final RawTrace rawTrace;
     private final StateTrace stateTrace;
 
     private final long displayFinishFor;
@@ -94,7 +94,7 @@ class DataReader
     private RaceTimerThread raceTimerThread;
 
     private int lanesWithTimesAtTheEndOfTheRace;
-    private ScoreboardState state;
+    private RawState state;
     private int splitCount;
 
     private List<StateData> queuedStateData = new ArrayList<>();
@@ -127,7 +127,7 @@ class DataReader
 
         setTrace(config.getBoolean("trace", true));
         stateTrace = new StateTrace();
-        timingEquipmentTrace = new TimingEquipmentTrace(config, stateTrace);
+        rawTrace = new RawTrace(config, stateTrace);
     }
 
     void setInputStream(InputStream inputStream)
@@ -285,13 +285,13 @@ class DataReader
         int b = inputStream.read();
         if (b == -1)
         {
-            timingEquipmentTrace.reset();
+            rawTrace.reset();
             throw new EOFException("Unexpected end of data from timing equipment");
         }
 
         if (trace)
         {
-            timingEquipmentTrace.trace(b);
+            rawTrace.trace(b);
         }
 
         return b;
@@ -340,13 +340,13 @@ class DataReader
                 String clock = text.getText(clockRange, "");
                 if (state == LINEUP) // clock is probably 0.0
                 {
-                    setOrQueueState(LINEUP_COMPLETE);
+                    setState(LINEUP_COMPLETE);
                 }
                 else if (state == LINEUP_COMPLETE) // clock is probably 0.1
                 {
                     if (!"0.0".equals(clock.trim())) // Think we are getting another 0.0 sometimes with test runs on data system
                     {
-                        setOrQueueState(RACE);
+                        setState(RACE);
                         raceTimerThread = new RaceTimerThread(this, clock, stateTrace);
                     }
                 }
@@ -371,7 +371,7 @@ class DataReader
                      lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber &&
                      lanesWithTimesAtTheEndOfTheRace == countLanesWithTimes(text))
             {
-                setOrQueueState(RESULTS_COMPLETE);
+                setState(RESULTS_COMPLETE);
             }
             else if ((state == RACE || state == RACE_FINISHING) &&
                      lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber)
@@ -381,7 +381,7 @@ class DataReader
 
                 if (state == RACE_FINISHING && countLanesWithNames(text) == countLanesWithTimes(text))
                 {
-                    setOrQueueState(RACE_COMPLETE);
+                    setState(RACE_COMPLETE);
                     raceTimerThread.terminate();
                     raceTimerThread = null;
                 }
@@ -394,27 +394,18 @@ class DataReader
         }
         else if (CONTROL_LINEUP.equals(control))
         {
-            state = LINEUP;
+            setState(LINEUP);
         }
         else if (CONTROL_RESULTS.equals(control))
         {
-            setOrQueueState(RESULTS);
+            setState(RESULTS);
         }
         else if (CONTROL_TIME_OF_DAY.equals(control))
         {
             clearRaceTimer();
             clearStateQueue();
-            state = TIME_OF_DAY;
+            setState(TIME_OF_DAY);
         }
-    }
-
-    void setRaceFinishing()
-    {
-        setOrQueueState(RACE_FINISHING);
-//        if (countLanesWithNames(text) == countLanesWithTimes(text)) // TODO remove? This code resulted in the time for the last swimmer not being sent sometimes.
-//        {
-//            setState(RACE_COMPLETE);
-//        }
     }
 
     private boolean showData()
@@ -466,13 +457,13 @@ class DataReader
         return state == RACE || state == RACE_FINISHING;
     }
 
-    private void drawScoreboard(ScoreboardState state, int count, Text text)
+    private void drawScoreboard(RawState state, int count, Text text)
     {
         if (showData()) // TODO turn into a LineupEvent, RaceEvent or ResultEvent
         {
             String event =
                     ( state == LINEUP_COMPLETE ? "Lineup"
-                    : state == RACE || state == RACE_FINISHING? "Race"
+                    : state == RACE || state == RACE_FINISHING || state == RACE_COMPLETE ? "Race"
                     : state == RESULTS_COMPLETE ? "Result"
                     : null);
             if (event != null)
@@ -490,10 +481,6 @@ class DataReader
                     drawLane(state, text, laneIndex);
                 }
                 makeScoreboardVisible();
-            }
-            else
-            {
-                stateTrace.trace("visible - ignore "+state);
             }
         }
     }
@@ -520,7 +507,7 @@ class DataReader
         scoreboard2.setClock(clock);
     }
 
-    private void drawLane(ScoreboardState state, Text text, int laneIndex)
+    private void drawLane(RawState state, Text text, int laneIndex)
     {
         int lineNumber = firstLaneLineNumber + laneIndex;
         String placeRange = config.getCharRange("placeRange", null);
@@ -550,12 +537,6 @@ class DataReader
         scoreboard2.setVisible(true);
     }
 
-    private void clearScoreboard()
-    {
-        scoreboard1.clear();
-        scoreboard2.clear();
-    }
-
     void setClock(String clock)
     {
         if (showData())
@@ -566,12 +547,21 @@ class DataReader
         }
     }
 
-    private synchronized void setOrQueueState(ScoreboardState state)
+    synchronized void setState(RawState state)
+    {
+        if (state.isQueueable())
+        {
+            handleOrQueueState(state);
+        }
+        this.state = state;
+    }
+
+    private void handleOrQueueState(RawState state)
     {
         boolean emptyQueue = queuedStateData.isEmpty();
         if (stateTimerThread != null || !emptyQueue)
         {
-            ScoreboardState nextState = emptyQueue ? null : queuedStateData.get(queuedStateData.size() - 1).getState().nextQueueableState();
+            RawState nextState = emptyQueue ? null : queuedStateData.get(queuedStateData.size() - 1).getState().nextQueueableState();
             if (emptyQueue || state == nextState)
             {
                 queuedStateData.add(new StateData(state, text));
@@ -587,11 +577,10 @@ class DataReader
         }
         else
         {
-            stateTrace.trace("setState("+state+")");
+            stateTrace.trace(state+" live state");
             Text text = new Text(this.text);
             startStateTimerIfNeeded(state, text);
         }
-        this.state = state;
     }
 
     private synchronized void dequeueState()
@@ -602,18 +591,17 @@ class DataReader
             StateData stateData = queuedStateData.remove(0);
 
             Text text = stateData.getText();
-            ScoreboardState state = stateData.getState();
+            RawState state = stateData.getState();
             stateTrace.trace(state+" removed from queue: ", queuedStateData);
             startStateTimerIfNeeded(state, text);
-            if (queuedStateData.isEmpty())
+            if (queuedStateData.isEmpty() && (state == RACE || state == RACE_FINISHING))
             {
-                splitCount = 0;
                 drawScoreboard(this.state, splitCount++, text);
             }
         }
     }
 
-    private synchronized void startStateTimerIfNeeded(ScoreboardState state, Text text)
+    private synchronized void startStateTimerIfNeeded(RawState state, Text text)
     {
         if (showData())
         {
@@ -621,8 +609,14 @@ class DataReader
             {
                 if (queuedStateData.isEmpty()) // don't hold the race display if we are backed up.
                 {
-                    stateTimerThread = new StateTimerThread(state, displayFinishFor, displayFinishFor)
+                    stateTimerThread = new StateTimerThread(state, 1000, displayFinishFor)
                     {
+                        @Override
+                        public void tick(int count)
+                        {
+                            drawScoreboard(state, count, text);
+                        }
+
                         @Override
                         public void end()
                         {
@@ -633,7 +627,8 @@ class DataReader
                 }
                 else
                 {
-                    stateTrace.trace("RACE_COMPLETE ignored as we have a queue of events and the race will just switch to results from the lineup");
+                    stateTrace.trace("RACE_COMPLETE ignored as we have a queue of events and the race will " +
+                            "visually just switch to RESULTS_COMPLETE from the LINEUP_COMPLETE");
                 }
             }
             else if (state == RESULTS_COMPLETE)
@@ -696,6 +691,6 @@ class DataReader
 
     void close()
     {
-        timingEquipmentTrace.close();
+        rawTrace.close();
     }
 }

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 /**
- * Records the incoming data from the timing equipment.
+ * Records information about our state machine.
  *
  * @author adavis
  */
