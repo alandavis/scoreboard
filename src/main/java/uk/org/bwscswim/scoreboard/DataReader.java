@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 import static uk.org.bwscswim.scoreboard.ScoreboardState.CLEAR;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP;
@@ -408,12 +409,6 @@ class DataReader
         }
     }
 
-    private boolean showData()
-    {
-        // We hold off showing data if we need to display the race finish, results or lineup a bit longer.
-        return stateTimerThread == null;
-    }
-
     void setRaceFinishing()
     {
         setState(RACE_FINISHING);
@@ -421,6 +416,12 @@ class DataReader
 //        {
 //            setState(RACE_COMPLETE);
 //        }
+    }
+
+    private boolean showData()
+    {
+        // We hold off showing data if we need to display the race finish, results or lineup a bit longer.
+        return stateTimerThread == null;
     }
 
     private int countLanesWithNames(Text text)
@@ -570,18 +571,19 @@ class DataReader
         ScoreboardState prevState = this.state;
         if (stateTimerThread != null || !queuedStateData.isEmpty())
         {
-            ScoreboardState nextAllowedState = prevState.nextRaceState(); // TODO change to validNextState(state)
-            if (state != nextAllowedState)
+            ScoreboardState nextAllowedState = prevState.nextRaceState();
+            if (state == nextAllowedState)
+            {
+                queuedStateData.add(new StateData(state, text));
+                StringJoiner q = new StringJoiner(", ", "Queued: ", "");
+                queuedStateData.forEach(sd->q.add(sd.getState().toString()));
+                stateTrace.trace(q.toString());
+            }
+            else
             {
                 // There has been a break in the expected sequence of queued events, so start again with the live state.
                 stateTrace.trace("Unexpected sequence of events. Event queue cleared. Was "+state+" but expected "+nextAllowedState);
                 clearStateQueue();
-            }
-            else
-            {
-                queuedStateData.add(new StateData(state, text));
-                stateTrace.trace("Queued "+state+" lanesWithTimes="+lanesWithTimes+"\n"+text);
-                queuedStateData.forEach(sd->stateTrace.trace("queue: "+sd.getState()));
             }
         }
         else
