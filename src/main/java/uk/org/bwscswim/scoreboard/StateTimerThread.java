@@ -36,10 +36,10 @@ class StateTimerThread extends Thread
     private int count;
     private boolean terminate;
 
-    StateTimerThread(ScoreboardState state, long start, long tickTime, long runForTime)
+    StateTimerThread(ScoreboardState state, long tickTime, long runForTime)
     {
         this.tickTime = tickTime;
-        end = start + runForTime;
+        end = System.currentTimeMillis() + runForTime;
         setDaemon(true);
         setName("StateTimerThread "+state);
         start();
