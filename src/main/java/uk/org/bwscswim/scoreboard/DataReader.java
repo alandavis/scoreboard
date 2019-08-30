@@ -95,7 +95,7 @@ class DataReader
     private Text text = new Text();
     private RaceTimerThread raceTimerThread;
 
-    private int lanesWithTimes;
+    private int lanesWithTimesAtTheEndOfTheRace;
     private ScoreboardState state;
     private int splitCount;
 
@@ -371,7 +371,7 @@ class DataReader
             }
             else if (state == RESULTS &&
                      lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber &&
-                     lanesWithTimes == countLanesWithTimes(text))
+                     lanesWithTimesAtTheEndOfTheRace == countLanesWithTimes(text))
             {
                 setState(RESULTS_COMPLETE);
             }
@@ -389,7 +389,7 @@ class DataReader
         }
         else if (CONTROL_CLEAR.equals(control))
         {
-            lanesWithTimes = countLanesWithTimes(text);
+            lanesWithTimesAtTheEndOfTheRace = countLanesWithTimes(text);
             text.clear();
             setState(CLEAR);
         }
