@@ -589,6 +589,7 @@ class DataReader
         else
         {
             stateTrace.trace("setState("+state+")");
+            Text text = new Text(this.text);
             startStateTimerIfNeeded(state, text);
         }
         this.state = state;
@@ -624,12 +625,6 @@ class DataReader
                     stateTimerThread = new StateTimerThread(state, displayFinishFor, displayFinishFor)
                     {
                         @Override
-                        public void tick(int count)
-                        {
-                            drawScoreboard(state, count, text);
-                        }
-
-                        @Override
                         public void end()
                         {
                             stateTrace.trace("RACE_COMPLETE - SWITCH TO RESULTS");
@@ -644,7 +639,6 @@ class DataReader
             }
             else if (state == RESULTS_COMPLETE)
             {
-                drawScoreboard(state, 0, text);
                 stateTimerThread = new StateTimerThread(state, 1000, displayResultsFor)
                 {
                     @Override
@@ -663,7 +657,6 @@ class DataReader
             }
             else if (state == LINEUP_COMPLETE)
             {
-                drawScoreboard(state, 0, text);
                 stateTimerThread = new StateTimerThread(state, 1000, displayLineupFor)
                 {
                     @Override
