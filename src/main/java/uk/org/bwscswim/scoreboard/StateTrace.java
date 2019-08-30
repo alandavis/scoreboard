@@ -22,6 +22,9 @@
  */
 package uk.org.bwscswim.scoreboard;
 
+import java.util.List;
+import java.util.StringJoiner;
+
 /**
  * Records the incoming data from the timing equipment.
  *
@@ -45,6 +48,13 @@ class StateTrace
         }
         time = now;
         System.out.println(prefix+msg);
+    }
+
+    public void trace(String prefix, List<StateData> queuedStateData)
+    {
+        StringJoiner q = new StringJoiner(", ", prefix, "");
+        queuedStateData.forEach(sd->q.add(sd.getState().toString()));
+        trace(q.toString());
     }
 
     public void setTime(long time)

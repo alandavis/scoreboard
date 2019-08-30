@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
-import static uk.org.bwscswim.scoreboard.ScoreboardState.CLEAR;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP_COMPLETE;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.RACE;
@@ -342,13 +341,13 @@ class DataReader
                 String clock = text.getText(clockRange, "");
                 if (state == LINEUP) // clock is probably 0.0
                 {
-                    setState(LINEUP_COMPLETE);
+                    setOrQueueState(LINEUP_COMPLETE);
                 }
                 else if (state == LINEUP_COMPLETE) // clock is probably 0.1
                 {
                     if (!"0.0".equals(clock.trim())) // Think we are getting another 0.0 sometimes with test runs on data system
                     {
-                        setState(RACE);
+                        setOrQueueState(RACE);
                         raceTimerThread = new RaceTimerThread(this, clock, stateTrace);
                     }
                 }
@@ -373,7 +372,7 @@ class DataReader
                      lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber &&
                      lanesWithTimesAtTheEndOfTheRace == countLanesWithTimes(text))
             {
-                setState(RESULTS_COMPLETE);
+                setOrQueueState(RESULTS_COMPLETE);
             }
             else if ((state == RACE || state == RACE_FINISHING) &&
                      lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber)
@@ -383,7 +382,9 @@ class DataReader
 
                 if (state == RACE_FINISHING && countLanesWithNames(text) == countLanesWithTimes(text))
                 {
-                    setState(RACE_COMPLETE);
+                    setOrQueueState(RACE_COMPLETE);
+                    raceTimerThread.terminate();
+                    raceTimerThread = null;
                 }
             }
         }
@@ -391,27 +392,26 @@ class DataReader
         {
             lanesWithTimesAtTheEndOfTheRace = countLanesWithTimes(text);
             text.clear();
-            setState(CLEAR);
         }
         else if (CONTROL_LINEUP.equals(control))
         {
-            setState(LINEUP);
+            state = LINEUP;
         }
         else if (CONTROL_RESULTS.equals(control))
         {
-            setState(RESULTS);
+            setOrQueueState(RESULTS);
         }
         else if (CONTROL_TIME_OF_DAY.equals(control))
         {
             clearRaceTimer();
             clearStateQueue();
-            setState(TIME_OF_DAY);
+            state = TIME_OF_DAY;
         }
     }
 
     void setRaceFinishing()
     {
-        setState(RACE_FINISHING);
+        setOrQueueState(RACE_FINISHING);
 //        if (countLanesWithNames(text) == countLanesWithTimes(text)) // TODO remove? This code resulted in the time for the last swimmer not being sent sometimes.
 //        {
 //            setState(RACE_COMPLETE);
@@ -421,7 +421,8 @@ class DataReader
     private boolean showData()
     {
         // We hold off showing data if we need to display the race finish, results or lineup a bit longer.
-        return stateTimerThread == null;
+        return stateTimerThread == null || Thread.currentThread() instanceof StateTimerThread;
+
     }
 
     private int countLanesWithNames(Text text)
@@ -566,34 +567,34 @@ class DataReader
         }
     }
 
-    private synchronized void setState(ScoreboardState state)
+    private synchronized void setOrQueueState(ScoreboardState state)
     {
-        ScoreboardState prevState = this.state;
-        if (stateTimerThread != null || !queuedStateData.isEmpty())
+        boolean emptyQueue = queuedStateData.isEmpty();
+        if (stateTimerThread != null || !emptyQueue)
         {
-            ScoreboardState nextAllowedState = prevState.nextRaceState();
-            if (state == nextAllowedState)
+            ScoreboardState nextState = emptyQueue ? null : queuedStateData.get(queuedStateData.size() - 1).getState().nextQueueableState();
+            if (emptyQueue || state == nextState)
             {
                 queuedStateData.add(new StateData(state, text));
-                StringJoiner q = new StringJoiner(", ", "Queued: ", "");
-                queuedStateData.forEach(sd->q.add(sd.getState().toString()));
-                stateTrace.trace(q.toString());
+                stateTrace.trace(state+" added to queue: ", queuedStateData);
             }
             else
             {
                 // There has been a break in the expected sequence of queued events, so start again with the live state.
-                stateTrace.trace("Unexpected sequence of events. Event queue cleared. Was "+state+" but expected "+nextAllowedState);
+                stateTrace.trace("Unexpected sequence of events. Was "+state+" but expected "+nextState+". Clearing queue: ", queuedStateData);
+                clearRaceTimer();
                 clearStateQueue();
             }
         }
         else
         {
+            stateTrace.trace("setState("+state+")");
             startStateTimerIfNeeded(state, text);
         }
         this.state = state;
     }
 
-    private synchronized void dequeueNextState()
+    private synchronized void dequeueState()
     {
         stateTimerThread = null;
         while (stateTimerThread == null && !queuedStateData.isEmpty())
@@ -602,7 +603,7 @@ class DataReader
 
             Text text = stateData.getText();
             ScoreboardState state = stateData.getState();
-            stateTrace.trace(state+" - removed from queue");
+            stateTrace.trace(state+" removed from queue: ", queuedStateData);
             startStateTimerIfNeeded(state, text);
             if (queuedStateData.isEmpty())
             {
@@ -618,26 +619,27 @@ class DataReader
         {
             if (state == RACE_COMPLETE)
             {
-                stateTimerThread = new StateTimerThread(state, displayFinishFor, displayFinishFor)
+                if (queuedStateData.isEmpty()) // don't hold the race display if we are backed up.
                 {
-                    @Override
-                    public void tick(int count)
+                    stateTimerThread = new StateTimerThread(state, displayFinishFor, displayFinishFor)
                     {
-                        drawScoreboard(state, count, text);
-                    }
+                        @Override
+                        public void tick(int count)
+                        {
+                            drawScoreboard(state, count, text);
+                        }
 
-                    @Override
-                    public void end()
-                    {
-                        stateTrace.trace("RACE_COMPLETE - SWITCH TO RESULTS");
-                        dequeueNextState();
-                    }
-                };
-
-                if (isRaceInProgress())
+                        @Override
+                        public void end()
+                        {
+                            stateTrace.trace("RACE_COMPLETE - SWITCH TO RESULTS");
+                            dequeueState();
+                        }
+                    };
+                }
+                else
                 {
-                    raceTimerThread.terminate();
-                    raceTimerThread = null;
+                    stateTrace.trace("RACE_COMPLETE ignored as we have a queue of events and the race will just switch to results from the lineup");
                 }
             }
             else if (state == RESULTS_COMPLETE)
@@ -655,7 +657,7 @@ class DataReader
                     public void end()
                     {
                         stateTrace.trace("RESULTS_COMPLETE - SWITCH TO LINEUP IF AVAILABLE");
-                        dequeueNextState();
+                        dequeueState();
                     }
                 };
             }
@@ -674,7 +676,7 @@ class DataReader
                     public void end()
                     {
                         stateTrace.trace("LINEUP_COMPLETE - SWITCH TO THE RACE IF AVAILABLE");
-                        dequeueNextState();
+                        dequeueState();
                     }
                 };
             }

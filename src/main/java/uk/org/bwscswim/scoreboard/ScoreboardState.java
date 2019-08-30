@@ -40,6 +40,9 @@ public enum ScoreboardState
     CLEAR,
     /* About to receive the lineup */
     LINEUP,
+
+    // The race states we queue
+
     /** The lineup is complete and the timer has been set to 0.0 but is not running */
     LINEUP_COMPLETE,
     /** The race timer is running */
@@ -51,20 +54,13 @@ public enum ScoreboardState
     /** Displaying the results */
     RESULTS,
     /** The display of the results is finished */
-    RESULTS_COMPLETE
-    {
-        @Override
-        public ScoreboardState nextRaceState()
-        {
-            return CLEAR; // Skip TEST and TIME_OF_DAY
-        }
-    };
+    RESULTS_COMPLETE;
 
-    public ScoreboardState nextRaceState()
+    public ScoreboardState nextQueueableState()
     {
         if (this == RESULTS_COMPLETE)
         {
-            return CLEAR;
+            return LINEUP_COMPLETE; // Skip TEST and TIME_OF_DAY and ignore CLEAR and LINEUP
         }
 
         ScoreboardState[] values = values();
@@ -76,7 +72,7 @@ public enum ScoreboardState
     {
         for (ScoreboardState state : ScoreboardState.values())
         {
-            System.out.println("state:"+state+" next:"+state.nextRaceState());
+            System.out.println("state:"+state+" next:"+state.nextQueueableState());
         }
     }
 }
