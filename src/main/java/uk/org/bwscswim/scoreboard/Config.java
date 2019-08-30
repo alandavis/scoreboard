@@ -95,7 +95,7 @@ class Config
         return prop;
     }
 
-    Font getFont(RawState state, String componentName)
+    Font getFont(State state, String componentName)
     {
         return new Font(
                 getFontName(state, null, componentName+'.'+FONT_NAME, "Arial"),
@@ -103,7 +103,7 @@ class Config
                 getInt(state, null, componentName+'.'+FONT_SIZE, 85));
     }
 
-    private String getFontName(RawState state, String componentName, String attributeName,
+    private String getFontName(State state, String componentName, String attributeName,
                                String defaultValue)
     {
         String stateName = getStateName(state);
@@ -124,7 +124,7 @@ class Config
         return defaultValue;
     }
 
-    private int getFontStyle(RawState state, String componentName, String attributeName,
+    private int getFontStyle(State state, String componentName, String attributeName,
                              int defaultValue)
     {
         String stateName = getStateName(state);
@@ -152,7 +152,7 @@ class Config
         return getString(null, null, attributeName, defaultValue);
     }
 
-    String getString(RawState state, String componentName, String attributeName, String defaultValue)
+    String getString(State state, String componentName, String attributeName, String defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(stateName, componentName, attributeName))
@@ -171,7 +171,7 @@ class Config
         return getInt(null, null, attributeName, defaultValue);
     }
 
-    int getInt(RawState state, String componentName, String attributeName, int defaultValue)
+    int getInt(State state, String componentName, String attributeName, int defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(stateName, componentName, attributeName))
@@ -197,7 +197,7 @@ class Config
         return getBoolean(null, null, attributeName, defaultValue);
     }
 
-    Boolean getBoolean(RawState state, String componentName, String attributeName, Boolean defaultValue)
+    Boolean getBoolean(State state, String componentName, String attributeName, Boolean defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(stateName, componentName, attributeName))
@@ -222,7 +222,7 @@ class Config
         return defaultValue;
     }
 
-    Color getColor(RawState state, String componentName, String attributeName, Color defaultValue)
+    Color getColor(State state, String componentName, String attributeName, Color defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(stateName, componentName, attributeName))
@@ -260,7 +260,7 @@ class Config
         return getRange(null, null, attributeName, defaultValue);
     }
 
-    private String getRange(RawState state, String componentName, String attributeName, String defaultValue)
+    private String getRange(State state, String componentName, String attributeName, String defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(stateName, componentName, attributeName))
@@ -283,7 +283,7 @@ class Config
         return getCharRange(null, null, attributeName, defaultValue);
     }
 
-    private String getCharRange(RawState state, String componentName, String attributeName, String defaultValue)
+    private String getCharRange(State state, String componentName, String attributeName, String defaultValue)
     {
         String stateName = getStateName(state);
         for (String key : getKeys(stateName, componentName, attributeName))
@@ -330,7 +330,7 @@ class Config
         return commPort;
     }
 
-    private String getStateName(RawState state)
+    private String getStateName(State state)
     {
         return state == null ? null : state.toString().toLowerCase();
     }

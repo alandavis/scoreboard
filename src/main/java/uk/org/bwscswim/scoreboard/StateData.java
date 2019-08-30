@@ -29,16 +29,16 @@ package uk.org.bwscswim.scoreboard;
  */
 public class StateData
 {
-    private final RawState state;
+    private final State state;
     private final Text text;
 
-    StateData(RawState state, Text text)
+    StateData(State state, Text text)
     {
         this.state = state;
         this.text = new Text(text);
     }
 
-    public RawState getState()
+    public State getState()
     {
         return state;
     }

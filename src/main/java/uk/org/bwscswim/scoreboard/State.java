@@ -27,7 +27,7 @@ package uk.org.bwscswim.scoreboard;
  *
  * @author adavis
  */
-public enum RawState
+public enum State
 {
     /** Test page */
     TEST(false),
@@ -53,15 +53,15 @@ public enum RawState
 
     private final boolean queueable;
 
-    RawState(boolean queueable)
+    State(boolean queueable)
     {
         this.queueable = queueable;
     }
 
-    RawState nextQueueableState()
+    State nextQueueableState()
     {
         int i = ordinal();
-        RawState[] values = values();
+        State[] values = values();
         i = i == values.length-1 ? 0 : i+1;
 
         while (!values[i].queueable)
@@ -79,7 +79,7 @@ public enum RawState
 
     public static void main(String[] args) // TODO remove
     {
-        for (RawState state : RawState.values())
+        for (State state : State.values())
         {
             System.out.println("state:"+state+" next:"+state.nextQueueableState());
         }

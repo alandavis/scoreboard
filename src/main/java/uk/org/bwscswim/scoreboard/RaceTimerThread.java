@@ -22,7 +22,7 @@
  */
 package uk.org.bwscswim.scoreboard;
 
-import static uk.org.bwscswim.scoreboard.RawState.RACE_FINISHING;
+import static uk.org.bwscswim.scoreboard.State.RACE_FINISHING;
 
 /**
  * A Thread that make the race clock look like it is running in hundredths of a second rather than tenths for most of

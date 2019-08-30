@@ -32,14 +32,14 @@ import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static uk.org.bwscswim.scoreboard.RawState.LINEUP;
-import static uk.org.bwscswim.scoreboard.RawState.LINEUP_COMPLETE;
-import static uk.org.bwscswim.scoreboard.RawState.RACE;
-import static uk.org.bwscswim.scoreboard.RawState.RACE_COMPLETE;
-import static uk.org.bwscswim.scoreboard.RawState.RACE_FINISHING;
-import static uk.org.bwscswim.scoreboard.RawState.RESULTS;
-import static uk.org.bwscswim.scoreboard.RawState.RESULTS_COMPLETE;
-import static uk.org.bwscswim.scoreboard.RawState.TIME_OF_DAY;
+import static uk.org.bwscswim.scoreboard.State.LINEUP;
+import static uk.org.bwscswim.scoreboard.State.LINEUP_COMPLETE;
+import static uk.org.bwscswim.scoreboard.State.RACE;
+import static uk.org.bwscswim.scoreboard.State.RACE_COMPLETE;
+import static uk.org.bwscswim.scoreboard.State.RACE_FINISHING;
+import static uk.org.bwscswim.scoreboard.State.RESULTS;
+import static uk.org.bwscswim.scoreboard.State.RESULTS_COMPLETE;
+import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
 import static uk.org.bwscswim.scoreboard.RawTrace.format;
 
 /**
@@ -94,7 +94,7 @@ class DataReader
     private RaceTimerThread raceTimerThread;
 
     private int lanesWithTimesAtTheEndOfTheRace;
-    private RawState state;
+    private State state;
     private int splitCount;
 
     private List<StateData> queuedStateData = new ArrayList<>();
@@ -457,7 +457,7 @@ class DataReader
         return state == RACE || state == RACE_FINISHING;
     }
 
-    private void drawScoreboard(RawState state, int count, Text text)
+    private void drawScoreboard(State state, int count, Text text)
     {
         if (showData()) // TODO turn into a LineupEvent, RaceEvent or ResultEvent
         {
@@ -507,7 +507,7 @@ class DataReader
         scoreboard2.setClock(clock);
     }
 
-    private void drawLane(RawState state, Text text, int laneIndex)
+    private void drawLane(State state, Text text, int laneIndex)
     {
         int lineNumber = firstLaneLineNumber + laneIndex;
         String placeRange = config.getCharRange("placeRange", null);
@@ -547,7 +547,7 @@ class DataReader
         }
     }
 
-    synchronized void setState(RawState state)
+    synchronized void setState(State state)
     {
         if (state.isQueueable())
         {
@@ -556,12 +556,12 @@ class DataReader
         this.state = state;
     }
 
-    private void handleOrQueueState(RawState state)
+    private void handleOrQueueState(State state)
     {
         boolean emptyQueue = queuedStateData.isEmpty();
         if (stateTimerThread != null || !emptyQueue)
         {
-            RawState nextState = emptyQueue ? null : queuedStateData.get(queuedStateData.size() - 1).getState().nextQueueableState();
+            State nextState = emptyQueue ? null : queuedStateData.get(queuedStateData.size() - 1).getState().nextQueueableState();
             if (emptyQueue || state == nextState)
             {
                 queuedStateData.add(new StateData(state, text));
@@ -591,7 +591,7 @@ class DataReader
             StateData stateData = queuedStateData.remove(0);
 
             Text text = stateData.getText();
-            RawState state = stateData.getState();
+            State state = stateData.getState();
             stateTrace.trace(state+" removed from queue: ", queuedStateData);
             startStateTimerIfNeeded(state, text);
             if (queuedStateData.isEmpty() && (state == RACE || state == RACE_FINISHING))
@@ -601,7 +601,7 @@ class DataReader
         }
     }
 
-    private synchronized void startStateTimerIfNeeded(RawState state, Text text)
+    private synchronized void startStateTimerIfNeeded(State state, Text text)
     {
         if (showData())
         {

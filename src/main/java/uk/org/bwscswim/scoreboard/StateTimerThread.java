@@ -36,7 +36,7 @@ class StateTimerThread extends Thread
     private int count;
     private boolean terminate;
 
-    StateTimerThread(RawState state, long tickTime, long runForTime)
+    StateTimerThread(uk.org.bwscswim.scoreboard.State state, long tickTime, long runForTime)
     {
         this.tickTime = tickTime;
         end = System.currentTimeMillis() + runForTime;
