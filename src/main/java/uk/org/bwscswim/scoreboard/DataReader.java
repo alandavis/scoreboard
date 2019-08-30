@@ -31,7 +31,6 @@ import java.io.InputStream;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 
 import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP;
 import static uk.org.bwscswim.scoreboard.ScoreboardState.LINEUP_COMPLETE;
@@ -488,7 +487,7 @@ class DataReader
                 drawClock(text);
                 for (int laneIndex = 0; laneIndex < laneCount; laneIndex++)
                 {
-                    drawLane(text, laneIndex);
+                    drawLane(state, text, laneIndex);
                 }
                 makeScoreboardVisible();
             }
@@ -521,7 +520,7 @@ class DataReader
         scoreboard2.setClock(clock);
     }
 
-    private void drawLane(Text text, int laneIndex)
+    private void drawLane(ScoreboardState state, Text text, int laneIndex)
     {
         int lineNumber = firstLaneLineNumber + laneIndex;
         String placeRange = config.getCharRange("placeRange", null);
