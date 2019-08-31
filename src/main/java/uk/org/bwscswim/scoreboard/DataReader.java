@@ -443,7 +443,7 @@ class DataReader
             boolean result = state == RESULTS || state == RESULTS_COMPLETE;
             int indent = result ? 1 : 0;
 
-            String time = this.text.getText(lineNumber, timeRange, indent, "").trim();
+            String time = text.getText(lineNumber, timeRange, indent, "").trim();
             if (!time.isEmpty())
             {
                 count++;
