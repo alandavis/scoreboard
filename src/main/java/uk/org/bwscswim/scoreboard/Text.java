@@ -22,136 +22,203 @@
  */
 package uk.org.bwscswim.scoreboard;
 
-import java.util.ArrayList;
-import java.util.List;
+import static uk.org.bwscswim.scoreboard.State.RESULTS;
+import static uk.org.bwscswim.scoreboard.State.RESULTS_COMPLETE;
+import static uk.org.bwscswim.scoreboard.State.TEST;
 
 /**
- * Holds the raw scoreboard text that has been read from the port. As the scoreboard display needs to display some data
- * for minimum amounts of time copies of the data in each state are made.
+ * Provides access to fields in the raw scoreboard text held by the super class.
  *
  * @author adavis
  */
-public class Text
+public class Text extends RawText
 {
-    List<String> lines = new ArrayList<>();
+    private final Config config;
 
-    public Text()
+    private final String TITLE_RANGE;
+    private final String SUBTITLE_RANGE;
+    private final String CLOCK_RANGE;
+
+    private final String LANE_RANGE;
+    private final String NAME_RANGE;
+    private final String CLUB_RANGE;
+    private final String TIME_RANGE;
+    private final String PLACE_RANGE;
+
+    private final int FIRST_LANE_LINE_NUMBER;
+    private final int LANE_COUNT;
+
+    private State state;
+
+    Text(Config config)
     {
+        this(config, null, TEST);
     }
 
-    public Text(Text orig)
+    /**
+     * Creates a clone. As the scoreboard needs to display some data for a minimum amounts of time, copies are made
+     * at these points.
+     */
+    Text(Text orig, State state)
     {
-        for (String line : orig.lines)
+        this(orig.config, orig, state);
+    }
+
+    private Text(Config config, Text orig, State state)
+    {
+        super(orig);
+
+        this.config = config;
+        this.state = state;
+
+        String LANES_RANGE = config.getCharRange("lanesRange", "02..07");
+        FIRST_LANE_LINE_NUMBER = getCharRangeFrom(LANES_RANGE);
+        int lastLaneLineNumber = getCharRangeTo(LANES_RANGE);
+        LANE_COUNT = lastLaneLineNumber- FIRST_LANE_LINE_NUMBER;
+
+        TITLE_RANGE = config.getRange("titleRange", "0000..0037");
+        SUBTITLE_RANGE = config.getRange("subTitleRange", "0100..0116");
+        CLOCK_RANGE = config.getRange("clockRange", "1100..1107");
+
+        LANE_RANGE = config.getCharRange("laneRange", "00..00");
+        NAME_RANGE = config.getCharRange("nameRange", "03..18");
+        CLUB_RANGE = config.getCharRange("clubRange", "20..23");
+        TIME_RANGE = config.getCharRange("timeRange", "25..32");
+        PLACE_RANGE = config.getCharRange("placeRange", "34..37");
+    }
+
+    public State getState()
+    {
+        return state;
+    }
+
+    public void setState(State state)
+    {
+        this.state = state;
+    }
+
+    String getClockFromRange()
+    {
+        return getFromRange(CLOCK_RANGE);
+    }
+
+    public int getLaneCount()
+    {
+        return LANE_COUNT;
+    }
+
+    boolean isLaneLineNumber(int lineNumber)
+    {
+        return lineNumber >= FIRST_LANE_LINE_NUMBER && lineNumber < FIRST_LANE_LINE_NUMBER + LANE_COUNT;
+    }
+
+    public int getLaneIndex(int lineNumber)
+    {
+        return isLaneLineNumber(lineNumber) ? lineNumber-FIRST_LANE_LINE_NUMBER : -1;
+    }
+
+    int countLanesWithNames(State state)
+    {
+        int count = 0;
+        for (int laneIndex = 0; laneIndex< LANE_COUNT; laneIndex++)
         {
-            lines.add(line);
-        }
-    }
+            int lineNumber = FIRST_LANE_LINE_NUMBER + laneIndex;
 
-    public void setText(int lineNumber, int offset, String text)
-    {
-        String line = getText(lineNumber, "");
-        StringBuilder sb = new StringBuilder(line);
-        while (sb.length() < offset)
-        {
-            sb.append(' ');
-        }
-        sb.replace(offset, offset+text.length(), text);
-        line = sb.toString();
-        while (lines.size() <= lineNumber)
-        {
-            lines.add(null);
-        }
-        lines.set(lineNumber, line);
-    }
+            boolean result = state == RESULTS || state == RESULTS_COMPLETE;
+            int indent = result ? 1 : 0;
 
-    public String getText(int lineNumber, String defaultValue)
-    {
-        String line = lineNumber >= lines.size() ? null : lines.get(lineNumber);
-        return line == null ? defaultValue : line;
-    }
-
-    public String getText(String range, String defaultValue)
-    {
-        int lineNumber = getLineNumber(range);
-        String charRange = getCharRange(range);
-        String text = getText(lineNumber, charRange, 0,"");
-        return text;
-    }
-
-    public int getInt(int lineNumber, String charRange, int offset, int defaultValue)
-    {
-        String text = getText(lineNumber, charRange, offset, Integer.toString(defaultValue)).trim();
-        int i = defaultValue;
-        try
-        {
-            i = Integer.parseInt(text);
-        }
-        catch (NumberFormatException ignore)
-        {
-        }
-        return i;
-    }
-
-    public String getText(int lineNumber, String charRange, int offset, String defaultValue)
-    {
-        String line = getText(lineNumber, "");
-        int from = getCharRangeFrom(charRange)+offset;
-        int to = getCharRangeTo(charRange)+offset;
-        int length = line.length();
-
-        String text =
-                length <= from ? "" :
-                length < to ? line.substring(from, length) :
-                line.substring(from, to);
-
-        return text;
-    }
-
-    public static int getLineNumber(String range)
-    {
-        String lineStr = range.substring(0, 2);
-        return Integer.parseInt(lineStr);
-    }
-
-    public static String getFromRange(String range)
-    {
-        return range.substring(0, 4);
-    }
-
-    private String getCharRange(String range)
-    {
-        return range.substring(2, 6)+range.substring(8,10);
-    }
-
-    public static int getCharRangeFrom(String charRange)
-    {
-        return Integer.parseInt(charRange.substring(0,2));
-    }
-
-    public static int getCharRangeTo(String charRange)
-    {
-        return Integer.parseInt(charRange.substring(4,6))+1;
-    }
-
-    public void clear()
-    {
-        lines.clear();
-    }
-
-    public String toString()
-    {
-        StringBuilder sb = new StringBuilder();
-        for (String line : lines)
-        {
-            if (line != null)
+            String name = getText(lineNumber, NAME_RANGE, indent, "").trim();
+            if (!name.isEmpty())
             {
-                if (sb.length() > 0)
-                {
-                    sb.append('\n');
-                }
-                sb.append("      ").append(line);
+                count++;
             }
         }
-        return sb.toString();
+        return count;
+    }
+
+    int countLanesWithTimes(State state)
+    {
+        int count = 0;
+        for (int laneIndex = 0; laneIndex< LANE_COUNT; laneIndex++)
+        {
+            int lineNumber = FIRST_LANE_LINE_NUMBER + laneIndex;
+            boolean result = state == RESULTS || state == RESULTS_COMPLETE;
+            int indent = result ? 1 : 0;
+
+            String time = getText(lineNumber, TIME_RANGE, indent, "").trim();
+            if (!time.isEmpty())
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public String getTitle()
+    {
+        return getText(TITLE_RANGE, "");
+    }
+
+    public String getSubtitle()
+    {
+        return getText(SUBTITLE_RANGE, "");
+    }
+
+    String getClock()
+    {
+        return getText(CLOCK_RANGE, "");
+    }
+
+    public String getNonZeroClock()
+    {
+        String clock = getText(CLOCK_RANGE, "");
+        if ("0.0".equals(clock.trim()))
+        {
+            clock = "";
+        }
+        return clock;
+    }
+
+    public int getLane(int laneIndex)
+    {
+        return getLaneOrPlace(laneIndex, false);
+    }
+
+    public int getPlace(int laneIndex)
+    {
+        return getLaneOrPlace(laneIndex, true);
+    }
+
+    public String getName(int laneIndex)
+    {
+        return getNameClubOrTime(laneIndex, NAME_RANGE);
+    }
+
+    public String getClub(int laneIndex)
+    {
+        return getNameClubOrTime(laneIndex, CLUB_RANGE);
+    }
+
+    public String getTime(int laneIndex)
+    {
+        return getNameClubOrTime(laneIndex, TIME_RANGE);
+    }
+
+    private int getLaneOrPlace(int laneIndex, boolean place)
+    {
+        int lineNumber = FIRST_LANE_LINE_NUMBER + laneIndex;
+        boolean result = state == RESULTS || state == RESULTS_COMPLETE;
+        int indent = result ? 1 : 0;
+        String range = place
+                ? result ? LANE_RANGE : PLACE_RANGE
+                : result ? PLACE_RANGE : LANE_RANGE;
+        return getInt(lineNumber, range, indent, 0);
+    }
+
+    private String getNameClubOrTime(int laneIndex, String range)
+    {
+        int lineNumber = FIRST_LANE_LINE_NUMBER + laneIndex;
+        int indent = state == RESULTS || state == RESULTS_COMPLETE ? 1 : 0;
+        return getText(lineNumber, range, indent, "").trim();
     }
 }

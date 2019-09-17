@@ -126,7 +126,6 @@ class RaceTimerThread extends Thread
         clock = clock.substring(clock.length()-8);
 //        stateTrace.trace("setClock "+clock.trim());
         dataReader.setClock(clock);
-        dataReader.makeScoreboardVisible();
     }
 
     synchronized void terminate()

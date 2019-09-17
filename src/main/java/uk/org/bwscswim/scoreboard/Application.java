@@ -38,8 +38,11 @@ public class Application
                 Config config = new Config("config.properties");
                 AbstractScoreboard scoreboard1 = new Scoreboard(config, false);
                 AbstractScoreboard scoreboard2 = new Scoreboard(config, true);
-                DataReader dataReader = new DataReader(config, scoreboard1, scoreboard2);
+                DataReader dataReader = new DataReader(config);
+                dataReader.addObserver(scoreboard1);
+                dataReader.addObserver(scoreboard2);
                 dataReader.readDataInBackground();
+
                 scoreboard1.setDataReader(dataReader);
                 scoreboard2.setDataReader(dataReader);
             }

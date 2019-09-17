@@ -22,6 +22,13 @@
  */
 package uk.org.bwscswim.scoreboard;
 
+import uk.org.bwscswim.scoreboard.event.LineupEvent;
+import uk.org.bwscswim.scoreboard.event.Observer;
+import uk.org.bwscswim.scoreboard.event.PageEvent;
+import uk.org.bwscswim.scoreboard.event.RaceEvent;
+import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
+import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -30,6 +37,8 @@ import java.util.List;
 
 import static uk.org.bwscswim.scoreboard.State.LINEUP;
 import static uk.org.bwscswim.scoreboard.State.LINEUP_COMPLETE;
+import static uk.org.bwscswim.scoreboard.State.RACE;
+import static uk.org.bwscswim.scoreboard.State.RESULTS_COMPLETE;
 import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
 
 /**
@@ -37,7 +46,7 @@ import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
  *
  * @author adavis
  */
-abstract class AbstractScoreboard extends BaseScoreboard
+abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 {
     private static final long serialVersionUID = 8350711464804648105L;
 
@@ -168,7 +177,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
         titleLength = config.getInt(null, null, "titleLength", 30);
         subTitleLength = config.getInt(null, null, "subTitleLength", 17);
         combinedTitleLength = config.getInt(null, null, "combinedTitleLength", 17);
-        singleTitleLength = config.getInt(null, null, "singleTitleLength", 30);
+        singleTitleLength = config.getInt(null, null, "singleTitleLength", 29);
         clockLength = config.getInt(null, null, "clockLength", 8);
         laneLength = config.getInt(null, null, "laneLength", 1);
         nameLength = config.getInt(null, null, "nameLength", 16);
@@ -178,7 +187,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
         combinedClubTimeClockLength = Math.min(Math.max(clubLength, timeLength), combinedClubTimeClockLength);
         clubLength = Math.min(clubLength, combinedClubTimeClockLength);
         timeLength = Math.min(timeLength, combinedClubTimeClockLength);
-        placeLength = config.getInt(null, null, "placeLength", 3);
+        placeLength = config.getInt(null, null, "placeLength", 1);
     }
 
     private void getTestText()
@@ -512,5 +521,54 @@ abstract class AbstractScoreboard extends BaseScoreboard
         }
         sb.append("]}");
         return sb.toString();
+    }
+
+    @Override
+    public void update(PageEvent event)
+    {
+        // TODO remove the need for the state in the rest of the code in this class.
+        state =   event instanceof LineupEvent ? LINEUP_COMPLETE
+                : event instanceof RaceEvent ? RACE
+                : event instanceof RaceSplitTimeEvent ? RACE
+                : RESULTS_COMPLETE;
+
+        int from = 0;
+        int to = event.getLaneCount();
+
+        if (event instanceof RaceSplitTimeEvent)
+        {
+            from = ((RaceSplitTimeEvent)event).getIndexOfLaneWithSplitTime();
+            to = from+1;
+        }
+        else
+        {
+            setTitle(event.getTitle());
+            setSubTitle(event.getSubtitle());
+            setClock(event.getClock());
+        }
+
+        for (int laneIndex = from; laneIndex < to; laneIndex++)
+        {
+            Swimmer swimmer = swimmers.get(laneIndex);
+            swimmer.lane.setText(Integer.toString(event.getLane(laneIndex)));
+            swimmer.name.setText(event.getName(laneIndex));
+            swimmer.club.setText(event.getClub(laneIndex));
+            swimmer.time.setText(event.getTime(laneIndex));
+            swimmer.place.setText(getPlace(event.getPlace(laneIndex)));
+            setCombinedClubTimeClock(laneIndex+1, swimmer);
+        }
+
+        getColors();
+        setColors();
+        setVisible(true);
+    }
+
+    @Override
+    public void update(RaceTimerEvent event)
+    {
+        // TODO remove the need for the state from the rest of the code in this class.
+        state = RACE;
+        setClock(event.getClock());
+        setVisible(true);
     }
 }

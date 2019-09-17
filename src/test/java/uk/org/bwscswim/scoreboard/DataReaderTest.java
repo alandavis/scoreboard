@@ -290,7 +290,7 @@ public class DataReaderTest
 
     private Config config = new Config(null);
     private AbstractScoreboard scoreboard = new Scoreboard(config, false);
-    private DataReader dataReader = new DataReader(config, scoreboard, null);
+    private DataReader dataReader = new DataReader(config);
     private InputStream inputStream;
 
     @Before
@@ -298,6 +298,7 @@ public class DataReaderTest
     {
         MockitoAnnotations.initMocks(this);
         dataReader.setTrace(false);
+        dataReader.addObserver(scoreboard);
     }
 
     @After

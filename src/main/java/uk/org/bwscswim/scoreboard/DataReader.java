@@ -23,6 +23,13 @@
 package uk.org.bwscswim.scoreboard;
 
 import com.fazecast.jSerialComm.SerialPort;
+import uk.org.bwscswim.scoreboard.event.LineupEvent;
+import uk.org.bwscswim.scoreboard.event.Observer;
+import uk.org.bwscswim.scoreboard.event.PageEvent;
+import uk.org.bwscswim.scoreboard.event.RaceEvent;
+import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
+import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
+import uk.org.bwscswim.scoreboard.event.ResultEvent;
 
 import java.io.EOFException;
 import java.io.FileNotFoundException;
@@ -66,21 +73,9 @@ class DataReader
     private        final String CONTROL_CLOCK;
     private static final int CONTROL_LINE_SUFFIX_LENGTH = CONTROL_LINE_SUFFIX.length();
 
-    private final AbstractScoreboard scoreboard1;
-    private final AbstractScoreboard scoreboard2;
+    private final List<Observer> observers = new ArrayList<>();
     private final Config config;
-    private final String titleRange;
-    private final String subTitleRange;
-    private final String clockRange;
 
-    private final int firstLaneLineNumber;
-    private final int lastLaneLineNumber;
-    private final int laneCount;
-
-    private final String laneRange;
-    private final String nameRange;
-    private final String clubRange;
-    private final String timeRange;
     private final RawTrace rawTrace;
     private final StateTrace stateTrace;
 
@@ -90,36 +85,21 @@ class DataReader
 
     private boolean trace = true;
     private InputStream inputStream;
-    private Text text = new Text();
+    private Text text;
     private RaceTimerThread raceTimerThread;
 
     private int lanesWithTimesAtTheEndOfTheRace;
-    private State state;
     private int splitCount;
 
-    private List<StateData> queuedStateData = new ArrayList<>();
+    private List<Text> queuedStateData = new ArrayList<>();
     private StateTimerThread stateTimerThread;
 
-    DataReader(Config config, AbstractScoreboard scoreboard1, AbstractScoreboard scoreboard2)
+    DataReader(Config config)
     {
         this.config = config;
-        this.scoreboard1 = scoreboard1;
-        this.scoreboard2 = scoreboard2;
 
-        titleRange = config.getRange("titleRange", null);
-        subTitleRange = config.getRange("subTitleRange", null);
-        clockRange = config.getRange("clockRange", null);
-        CONTROL_CLOCK = CONTROL_LINE_SUFFIX+Text.getFromRange(clockRange);
-
-        String lanesRange = config.getCharRange("lanesRange", null);
-        firstLaneLineNumber = Text.getCharRangeFrom(lanesRange);
-        lastLaneLineNumber = Text.getCharRangeTo(lanesRange);
-        laneCount = lastLaneLineNumber-firstLaneLineNumber;
-
-        laneRange = config.getCharRange("laneRange", null);
-        nameRange = config.getCharRange("nameRange", null);
-        clubRange = config.getCharRange("clubRange", null);
-        timeRange = config.getCharRange("timeRange", null);
+        text = new Text(config);
+        CONTROL_CLOCK = CONTROL_LINE_SUFFIX+text.getClockFromRange();
 
         displayFinishFor = config.getInt("displayFinishFor", 3000);
         displayResultsFor = config.getInt("displayResultsFor", 10000);
@@ -128,6 +108,11 @@ class DataReader
         setTrace(config.getBoolean("trace", true));
         stateTrace = new StateTrace();
         rawTrace = new RawTrace(config, stateTrace);
+    }
+
+    public void addObserver(Observer observer)
+    {
+        observers.add(observer);
     }
 
     void setInputStream(InputStream inputStream)
@@ -150,8 +135,7 @@ class DataReader
         }
         Thread t = new Thread(() ->
         {
-            scoreboard1.beforeFirstRead();
-            scoreboard2.beforeFirstRead();
+            observers.forEach(observer -> observer.beforeFirstRead());
             String testFilename = config.getString("testFilename", null);
             if (testFilename != null && !testFilename.isEmpty())
             {
@@ -328,6 +312,7 @@ class DataReader
 
     private synchronized void handleTransmission(String control, String data) throws IOException
     {
+        State state = text.getState();
         if (control.startsWith(CONTROL_LINE_SUFFIX))
         {
             int position = getPosition(control);
@@ -337,7 +322,7 @@ class DataReader
 
             if (control.equals(CONTROL_CLOCK))
             {
-                String clock = text.getText(clockRange, "");
+                String clock = text.getClock();
                 if (state == LINEUP) // clock is probably 0.0
                 {
                     setState(LINEUP_COMPLETE);
@@ -359,27 +344,20 @@ class DataReader
                 }
                 else if (state == TIME_OF_DAY)
                 {
-                    if (showData())
-                    {
-                        scoreboard1.setClock(clock);
-                        scoreboard2.setClock(clock);
-                        makeScoreboardVisible();
-                    }
+                    // Ignore
                 }
             }
-            else if (state == RESULTS &&
-                     lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber &&
-                     lanesWithTimesAtTheEndOfTheRace == countLanesWithTimes(text))
+            else if (state == RESULTS && text.isLaneLineNumber(lineNumber) &&
+                     lanesWithTimesAtTheEndOfTheRace == text.countLanesWithTimes(state))
             {
                 setState(RESULTS_COMPLETE);
             }
-            else if ((state == RACE || state == RACE_FINISHING) &&
-                     lineNumber >= firstLaneLineNumber && lineNumber < lastLaneLineNumber)
+            else if ((state == RACE || state == RACE_FINISHING) && text.isLaneLineNumber(lineNumber))
             {
                 // Set or clear split/finish time for swimmer if currently visible
-                drawScoreboard(state, splitCount++, text);
+                updateScoreboard(state, splitCount++, text, lineNumber);
 
-                if (state == RACE_FINISHING && countLanesWithNames(text) == countLanesWithTimes(text))
+                if (state == RACE_FINISHING && text.countLanesWithNames(state) == text.countLanesWithTimes(state))
                 {
                     setState(RACE_COMPLETE);
                     raceTimerThread.terminate();
@@ -389,7 +367,7 @@ class DataReader
         }
         else if (CONTROL_CLEAR.equals(control))
         {
-            lanesWithTimesAtTheEndOfTheRace = countLanesWithTimes(text);
+            lanesWithTimesAtTheEndOfTheRace = text.countLanesWithTimes(state);
             text.clear();
         }
         else if (CONTROL_LINEUP.equals(control))
@@ -415,135 +393,36 @@ class DataReader
 
     }
 
-    private int countLanesWithNames(Text text)
-    {
-        int count = 0;
-        for (int laneIndex=0; laneIndex<laneCount; laneIndex++)
-        {
-            int lineNumber = firstLaneLineNumber + laneIndex;
-
-            boolean result = state == RESULTS || state == RESULTS_COMPLETE;
-            int indent = result ? 1 : 0;
-
-            String name = text.getText(lineNumber, nameRange, indent, "").trim();
-            if (!name.isEmpty())
-            {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    private int countLanesWithTimes(Text text)
-    {
-        int count = 0;
-        for (int laneIndex=0; laneIndex<laneCount; laneIndex++)
-        {
-            int lineNumber = firstLaneLineNumber + laneIndex;
-            boolean result = state == RESULTS || state == RESULTS_COMPLETE;
-            int indent = result ? 1 : 0;
-
-            String time = text.getText(lineNumber, timeRange, indent, "").trim();
-            if (!time.isEmpty())
-            {
-                count++;
-            }
-        }
-        return count;
-    }
-
     boolean isRaceInProgress()
     {
+        State state = text.getState();
         return state == RACE || state == RACE_FINISHING;
     }
 
-    private void drawScoreboard(State state, int count, Text text)
+    private void updateScoreboard(State state, int count, Text text, int lineNumberWithSplitTime)
     {
-        if (showData()) // TODO turn into a LineupEvent, RaceEvent or ResultEvent
+        if (showData())
         {
-            String event =
-                    ( state == LINEUP_COMPLETE ? "Lineup"
-                    : state == RACE || state == RACE_FINISHING || state == RACE_COMPLETE ? "Race"
-                    : state == RESULTS_COMPLETE ? "Result"
-                    : null);
-            if (event != null)
-            {
-                event += "Event("+count+")";
+            PageEvent event =
+                      state == LINEUP_COMPLETE ? new LineupEvent(text, count)
+                    : state == RACE || state == RACE_FINISHING || state == RACE_COMPLETE
+                              ? lineNumberWithSplitTime == -1
+                                ? new RaceEvent(text, count)
+                                : new RaceSplitTimeEvent(text, count, lineNumberWithSplitTime)
+                    : new ResultEvent(text, count);
 
-                stateTrace.trace(event);
-                scoreboard1.setState(state);
-                scoreboard2.setState(state);
-
-                drawTitles(text);
-                drawClock(text);
-                for (int laneIndex = 0; laneIndex < laneCount; laneIndex++)
-                {
-                    drawLane(state, text, laneIndex);
-                }
-                makeScoreboardVisible();
-            }
+            stateTrace.trace(event.toString());
+            observers.forEach(observer -> observer.update(event));
         }
-    }
-
-    private void drawTitles(Text text)
-    {
-        String title = text.getText(titleRange, "");
-        String subTitle = text.getText(subTitleRange, "");
-
-        scoreboard1.setTitle(title);
-        scoreboard1.setSubTitle(subTitle);
-        scoreboard2.setTitle(title);
-        scoreboard2.setSubTitle(subTitle);
-    }
-
-    private void drawClock(Text text)
-    {
-        String clock = text.getText(clockRange, "");
-        if ("0.0".equals(clock.trim()))
-        {
-            clock = "";
-        }
-        scoreboard1.setClock(clock);
-        scoreboard2.setClock(clock);
-    }
-
-    private void drawLane(State state, Text text, int laneIndex)
-    {
-        int lineNumber = firstLaneLineNumber + laneIndex;
-        String placeRange = config.getCharRange("placeRange", null);
-        boolean result = state == RESULTS || state == RESULTS_COMPLETE;
-        int indent = result ? 1 : 0;
-        int lane = result
-                ? text.getInt(lineNumber, placeRange, indent, 0)
-                : text.getInt(lineNumber, laneRange, indent, 0);
-        int place = result
-                ? text.getInt(lineNumber, laneRange, indent, 0)
-                : text.getInt(lineNumber, placeRange, indent, 0);
-        String name = text.getText(lineNumber, nameRange, indent, "").trim();
-        String club = text.getText(lineNumber, clubRange, indent, "").trim();
-        String time = text.getText(lineNumber, timeRange, indent, "").trim();
-        if (name.isEmpty())
-        {
-            lane = 0;
-            place = 0;
-        }
-        scoreboard1.setLaneValues(laneIndex, lane, place, name, club, time);
-        scoreboard2.setLaneValues(laneIndex, lane, place, name, club, time);
-    }
-
-    void makeScoreboardVisible()
-    {
-        scoreboard1.setVisible(true);
-        scoreboard2.setVisible(true);
     }
 
     void setClock(String clock)
     {
         if (showData())
         {
-            stateTrace.trace("RaceTimerEvent("+clock.trim()+")");
-            scoreboard1.setClock(clock);
-            scoreboard2.setClock(clock);
+            stateTrace.trace("RaceTimerEvent     "+clock.trim());
+            RaceTimerEvent event = new RaceTimerEvent(clock);
+            observers.forEach(observer -> observer.update(event));
         }
     }
 
@@ -553,7 +432,7 @@ class DataReader
         {
             handleOrQueueState(state);
         }
-        this.state = state;
+        text.setState(state);
     }
 
     private void handleOrQueueState(State state)
@@ -564,7 +443,7 @@ class DataReader
             State nextState = emptyQueue ? null : queuedStateData.get(queuedStateData.size() - 1).getState().nextQueueableState();
             if (emptyQueue || state == nextState)
             {
-                queuedStateData.add(new StateData(state, text));
+                queuedStateData.add(new Text(text, state));
                 stateTrace.trace(state+" added to queue: ", queuedStateData);
             }
             else
@@ -578,7 +457,7 @@ class DataReader
         else
         {
             stateTrace.trace(state+" live state");
-            Text text = new Text(this.text);
+            Text text = new Text(this.text, state);
             startStateTimerIfNeeded(state, text);
         }
     }
@@ -588,15 +467,15 @@ class DataReader
         stateTimerThread = null;
         while (stateTimerThread == null && !queuedStateData.isEmpty())
         {
-            StateData stateData = queuedStateData.remove(0);
+            Text queuedText = queuedStateData.remove(0);
 
-            Text text = stateData.getText();
-            State state = stateData.getState();
+            State state = queuedText.getState();
             stateTrace.trace(state+" removed from queue: ", queuedStateData);
-            startStateTimerIfNeeded(state, text);
+            startStateTimerIfNeeded(state, queuedText);
             if (queuedStateData.isEmpty() && (state == RACE || state == RACE_FINISHING))
             {
-                drawScoreboard(this.state, splitCount++, text);
+                state = this.text.getState();
+                updateScoreboard(state, splitCount++, this.text, -1);
             }
         }
     }
@@ -614,7 +493,7 @@ class DataReader
                         @Override
                         public void tick(int count)
                         {
-                            drawScoreboard(state, count, text);
+                            updateScoreboard(state, count, text, -1);
                         }
 
                         @Override
@@ -638,7 +517,7 @@ class DataReader
                     @Override
                     public void tick(int count)
                     {
-                        drawScoreboard(state, count, text);
+                        updateScoreboard(state, count, text, -1);
                     }
 
                     @Override
@@ -656,7 +535,7 @@ class DataReader
                     @Override
                     public void tick(int count)
                     {
-                        drawScoreboard(state, count, text);
+                        updateScoreboard(state, count, text, -1);
                     }
 
                     @Override

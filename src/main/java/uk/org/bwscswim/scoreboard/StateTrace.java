@@ -50,7 +50,7 @@ class StateTrace
         System.out.println(prefix+msg);
     }
 
-    public void trace(String prefix, List<StateData> queuedStateData)
+    public void trace(String prefix, List<Text> queuedStateData)
     {
         StringJoiner q = new StringJoiner(", ", prefix, "");
         queuedStateData.forEach(sd->q.add(sd.getState().toString()));
