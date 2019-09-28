@@ -24,6 +24,8 @@ package uk.org.bwscswim.scoreboard;
 
 import javax.swing.*;
 
+import static javax.swing.GroupLayout.Alignment.TRAILING;
+
 /**
  * The scoreboard. Class provides the layout of components from super classes.
  *
@@ -40,7 +42,7 @@ public class Scoreboard extends AbstractScoreboard
         //                     TIMEEEE
 
         GroupLayout.ParallelGroup col1 = layout.createParallelGroup();
-        GroupLayout.ParallelGroup col2 = layout.createParallelGroup();
+        GroupLayout.ParallelGroup col2 = layout.createParallelGroup(TRAILING);
         GroupLayout.ParallelGroup col3 = layout.createParallelGroup();
 
         layout.setHorizontalGroup(
