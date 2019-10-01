@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Reads the accepted swims file and populates data structures that may the be accessed via {@link #getEvents()}.
+ *
  * @author adavis
  */
 public class ModelHelper

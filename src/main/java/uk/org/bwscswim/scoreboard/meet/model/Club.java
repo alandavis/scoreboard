@@ -5,22 +5,27 @@ package uk.org.bwscswim.scoreboard.meet.model;
  */
 public class Club
 {
-    private final String name;
+    private final String abbreviation;
     private final Abbreviations abbreviations;
 
     public Club(String name, Abbreviations abbreviations)
     {
-        this.name = name;
+        this.abbreviation = abbreviations.lookupAbbreviation(name);
         this.abbreviations = abbreviations;
-    }
-
-    public String getName()
-    {
-        return name;
     }
 
     public String getAbbreviation()
     {
-        return abbreviations.lookup(name);
+        return abbreviation;
+    }
+
+    public String getShortName()
+    {
+        return abbreviations.lookupShortName(abbreviation);
+    }
+
+    public String getLongName()
+    {
+        return abbreviations.lookupLongName(abbreviation);
     }
 }

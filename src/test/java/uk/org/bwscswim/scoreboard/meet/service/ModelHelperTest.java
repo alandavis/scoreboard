@@ -40,7 +40,7 @@ public class ModelHelperTest
         EntryTime entryTime = entries.get(65).getEntryTime();
         assertEquals("Amber Wildey", swimmer.getName());
         assertEquals(2009,           swimmer.getYearOfBirth().intValue());
-        assertEquals("Bracknell",    swimmer.getClub().getName());
+        assertEquals("Bracknell",    swimmer.getClub().getShortName());
         assertEquals("BRKS",         swimmer.getClub().getAbbreviation());
         assertEquals("1:50.00",      entryTime.toString());
     }
@@ -83,10 +83,10 @@ public class ModelHelperTest
     {
         Abbreviations eventAbbreviations = new Abbreviations("EventAbbreviations.txt");
 
-        assertEquals("does not exist", eventAbbreviations.lookup("does not exist"));
-        assertEquals("Girls 200 IM", eventAbbreviations.lookup("Girls Open 200m IM"));
-        assertEquals("Girls 200 Breast", eventAbbreviations.lookup("Girls Open 200m Breaststroke"));
-        assertEquals("Boys 200 Breast", eventAbbreviations.lookup("Boys Open 200m Breaststroke"));
+        assertEquals("does not exist", eventAbbreviations.lookupAbbreviation("does not exist"));
+        assertEquals("Girls 200 IM", eventAbbreviations.lookupAbbreviation("Girls Open 200m IM"));
+        assertEquals("Girls 200 Breast", eventAbbreviations.lookupAbbreviation("Girls Open 200m Breaststroke"));
+        assertEquals("Boys 200 Breast", eventAbbreviations.lookupAbbreviation("Boys Open 200m Breaststroke"));
     }
 
     @Test
@@ -94,9 +94,17 @@ public class ModelHelperTest
     {
         Abbreviations clubAbbreviations = new Abbreviations("ClubAbbreviations.txt");
 
-        assertEquals("does not exist", clubAbbreviations.lookup("does not exist"));
-        assertEquals("BRKS", clubAbbreviations.lookup("Bracknell"));
-        // TODO other club names
+        assertEquals("does not exist", clubAbbreviations.lookupAbbreviation("does not exist"));
+
+        assertEquals("BRKS", clubAbbreviations.lookupAbbreviation("Bracknell"));
+        assertEquals("BRKS", clubAbbreviations.lookupAbbreviation("Bracknell & Wokingham SC"));
+        assertEquals("Bracknell", clubAbbreviations.lookupShortName("BRKS"));
+        assertEquals("Bracknell & Wokingham SC", clubAbbreviations.lookupLongName("BRKS"));
+
+        assertEquals("Didcot & Barramundi SC", clubAbbreviations.lookupShortName("DABS"));
+        assertEquals("Didcot & Barramundi SC", clubAbbreviations.lookupLongName("DABS"));
+
+        assertEquals("City of Southampton SC", clubAbbreviations.lookupLongName("COSS"));
     }
 
     @Test
@@ -119,8 +127,9 @@ public class ModelHelperTest
         Abbreviations clubAbbreviations = new Abbreviations("ClubAbbreviations.txt");
         Club club = new Club("Bracknell", clubAbbreviations);
 
-        assertEquals("Bracknell", club.getName());
         assertEquals("BRKS", club.getAbbreviation());
+        assertEquals("Bracknell", club.getShortName());
+        assertEquals("Bracknell & Wokingham SC", club.getLongName());
     }
 
 /*

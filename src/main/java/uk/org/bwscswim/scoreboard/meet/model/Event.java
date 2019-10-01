@@ -34,7 +34,7 @@ public class Event implements Comparable<Event>
 
     public String getHeading(int heatNumber)
     {
-        return String.format("Ev%d/%d %s", number, heatNumber, abbreviations.lookup(name));
+        return String.format("Ev%d/%d %s", number, heatNumber, abbreviations.lookupAbbreviation(name));
     }
 
     public List<EventEntry> getEntries()
