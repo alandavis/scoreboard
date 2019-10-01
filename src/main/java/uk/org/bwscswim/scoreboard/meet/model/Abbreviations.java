@@ -39,13 +39,7 @@ public class Abbreviations
                         map.put(abbreviation, list);
                     }
                     list.add(name);
-                    list.stream().sorted(new Comparator<String>() {
-                        @Override
-                        public int compare(String name1, String name2)
-                        {
-                            return name1.length()-name2.length();
-                        }
-                    });
+                    list.stream().sorted((name1, name2) -> name1.length()-name2.length());
                 }
             });
         }
