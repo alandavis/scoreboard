@@ -1,7 +1,5 @@
 package uk.org.bwscswim.scoreboard.meet.model;
 
-import uk.org.bwscswim.scoreboard.meet.service.EntryTime;
-
 /**
  * @author adavis
  */

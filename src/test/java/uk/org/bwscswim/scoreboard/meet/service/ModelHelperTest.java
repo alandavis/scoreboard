@@ -3,6 +3,7 @@ package uk.org.bwscswim.scoreboard.meet.service;
 import org.junit.Test;
 import uk.org.bwscswim.scoreboard.meet.model.Abbreviations;
 import uk.org.bwscswim.scoreboard.meet.model.Club;
+import uk.org.bwscswim.scoreboard.meet.model.EntryTime;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
 import uk.org.bwscswim.scoreboard.meet.model.EventEntry;
 import uk.org.bwscswim.scoreboard.meet.model.Swimmer;

@@ -1,4 +1,4 @@
-package uk.org.bwscswim.scoreboard.meet.service;
+package uk.org.bwscswim.scoreboard.meet.model;
 
 
 /**
