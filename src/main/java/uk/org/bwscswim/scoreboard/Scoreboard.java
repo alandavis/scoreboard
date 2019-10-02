@@ -49,7 +49,7 @@ public class Scoreboard extends AbstractScoreboard
                 layout.createParallelGroup()
                     .addGroup(layout.createSequentialGroup()
                         .addGap(leftGap)
-                        .addComponent(singleTitle))
+                        .addComponent(title))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(leftGap)
                         .addGroup(col1)
@@ -64,7 +64,7 @@ public class Scoreboard extends AbstractScoreboard
         layout.setVerticalGroup(
                 layout.createSequentialGroup()
                         .addGap(topGap)
-                        .addComponent(singleTitle)
+                        .addComponent(title)
                         .addGap(preLaneGap)
                         .addGroup(rows)
                         .addGap(bottomGap));
