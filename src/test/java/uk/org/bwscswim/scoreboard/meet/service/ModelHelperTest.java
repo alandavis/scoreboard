@@ -3,7 +3,7 @@ package uk.org.bwscswim.scoreboard.meet.service;
 import org.junit.Test;
 import uk.org.bwscswim.scoreboard.meet.model.Abbreviations;
 import uk.org.bwscswim.scoreboard.meet.model.Club;
-import uk.org.bwscswim.scoreboard.meet.model.EntryTime;
+import uk.org.bwscswim.scoreboard.meet.model.RaceTime;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
 import uk.org.bwscswim.scoreboard.meet.model.EventEntry;
 import uk.org.bwscswim.scoreboard.meet.model.Swimmer;
@@ -38,7 +38,7 @@ public class ModelHelperTest
         assertEquals("Grace Walker",  entries.get(0).getSwimmer().getName());
 
         Swimmer swimmer = entries.get(65).getSwimmer();
-        EntryTime entryTime = entries.get(65).getEntryTime();
+        RaceTime entryTime = entries.get(65).getEntryTime();
         assertEquals("Amber Wildey", swimmer.getName());
         assertEquals(2009,           swimmer.getYearOfBirth().intValue());
         assertEquals("Bracknell",    swimmer.getClub().getShortName());
@@ -68,15 +68,22 @@ public class ModelHelperTest
     @Test
     public void entryTimeTest()
     {
-        assertEquals("1:23.45", new EntryTime("1:23.45").toString());
-        assertEquals("1:23.45", new EntryTime("12345").toString());
-        assertEquals("12345", new EntryTime("1:23.45").toDigits());
-        assertEquals("12345", new EntryTime("12345").toDigits());
+        assertEquals("1:23.45", new RaceTime("1:23.45").toString());
+        assertEquals("1:23.45", new RaceTime("12345").toString());
+        assertEquals("12345", new RaceTime("1:23.45").toDigits());
+        assertEquals("12345", new RaceTime("12345").toDigits());
 
-        assertEquals("23.45", new EntryTime("23.45").toString());
-        assertEquals("23.45", new EntryTime("2345").toString());
-        assertEquals("2345", new EntryTime("23.45").toDigits());
-        assertEquals("2345", new EntryTime("2345").toDigits());
+        assertEquals("23.45", new RaceTime("23.45").toString());
+        assertEquals("23.45", new RaceTime("2345").toString());
+        assertEquals("2345", new RaceTime("23.45").toDigits());
+        assertEquals("2345", new RaceTime("2345").toDigits());
+
+        assertEquals("11:23.45", new RaceTime("11:23.45").toString());
+        assertEquals("23.45", new RaceTime("23.45").toString());
+        assertEquals("3.45", new RaceTime("3.45").toString());
+
+        assertEquals("3.40", new RaceTime("3.4").toString());
+        assertEquals("11:23.40", new RaceTime("11:23.4").toString());
     }
 
     @Test

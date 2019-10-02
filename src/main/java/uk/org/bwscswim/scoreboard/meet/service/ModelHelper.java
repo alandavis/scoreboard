@@ -2,7 +2,7 @@ package uk.org.bwscswim.scoreboard.meet.service;
 
 import uk.org.bwscswim.scoreboard.meet.model.Abbreviations;
 import uk.org.bwscswim.scoreboard.meet.model.Club;
-import uk.org.bwscswim.scoreboard.meet.model.EntryTime;
+import uk.org.bwscswim.scoreboard.meet.model.RaceTime;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
 import uk.org.bwscswim.scoreboard.meet.model.EventEntry;
 import uk.org.bwscswim.scoreboard.meet.model.Swimmer;
@@ -71,7 +71,7 @@ public class ModelHelper
                 Club club = lookupOrCreateClub(clubName);
                 Event event = lookupOrCreateEvent(eventNumber, eventName);
                 Swimmer swimmer = lookupOrCreateSwimmer(swimmerName, yearOfBirth, club);
-                EntryTime time = createTime(entryTime);
+                RaceTime time = createTime(entryTime);
                 EventEntry eventEntry = new EventEntry(swimmer, time);
                 event.add(eventEntry);
             }
@@ -82,10 +82,10 @@ public class ModelHelper
         }
     }
 
-    private EntryTime createTime(String entryTime)
+    private RaceTime createTime(String entryTime)
     {
         entryTime = entryTime.trim();
-        return entryTime.isEmpty() ? null : new EntryTime(entryTime);
+        return entryTime.isEmpty() ? null : new RaceTime(entryTime);
     }
 
     public void loadSwimEntry(String swimmerName, String asaNumber, String clubName, String fly200)

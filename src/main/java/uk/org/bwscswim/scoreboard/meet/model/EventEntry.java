@@ -6,9 +6,9 @@ package uk.org.bwscswim.scoreboard.meet.model;
 public class EventEntry
 {
     private final Swimmer swimmer;
-    private final EntryTime entryTime;
+    private final RaceTime entryTime;
 
-    public EventEntry(Swimmer swimmer, EntryTime entryTime)
+    public EventEntry(Swimmer swimmer, RaceTime entryTime)
     {
         this.swimmer = swimmer;
         this.entryTime = entryTime;
@@ -19,7 +19,7 @@ public class EventEntry
         return swimmer;
     }
 
-    public EntryTime getEntryTime()
+    public RaceTime getEntryTime()
     {
         return entryTime;
     }
