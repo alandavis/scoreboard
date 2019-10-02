@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +13,8 @@ import java.util.Map;
  */
 public class Abbreviations
 {
-    Map<String, List<String>> map = new HashMap<>();
+    Map<String, String> longNameMap = new HashMap<>();
+    Map<String, String> shortNameMap = new HashMap<>();
     Map<String, String> reverseMap = new HashMap<>();
 
     public Abbreviations(String filename) throws IOException
@@ -26,20 +25,19 @@ public class Abbreviations
             {
                 if (!line.trim().isEmpty())
                 {
-                    String[] split = line.split(",", 2);
-                    String name = split[0].trim();
+                    String[] split = line.split(",");
+                    String shortName = split[0].trim();
                     String abbreviation = split[1].trim();
 
-                    reverseMap.put(name, abbreviation);
+                    reverseMap.put(shortName, abbreviation);
+                    shortNameMap.put(abbreviation, shortName);
 
-                    List<String> list = map.get(abbreviation);
-                    if (list == null)
+                    if (split.length == 3)
                     {
-                        list = new ArrayList<>(1);
-                        map.put(abbreviation, list);
+                        String longName = split[2].trim();
+                        reverseMap.put(longName, abbreviation);
+                        longNameMap.put(abbreviation, longName);
                     }
-                    list.add(name);
-                    list.stream().sorted((name1, name2) -> name1.length()-name2.length());
                 }
             });
         }
@@ -53,13 +51,13 @@ public class Abbreviations
 
     public String lookupLongName(String abbreviation)
     {
-        List<String> list = map.get(abbreviation);
-        return list == null ? abbreviation : list.get(list.size()-1);
+        String longName = longNameMap.get(abbreviation);
+        return longName == null ? abbreviation : longName;
     }
 
     public String lookupShortName(String abbreviation)
     {
-        List<String> list = map.get(abbreviation);
-        return list == null ? abbreviation : list.get(0);
+        String shortName = shortNameMap.get(abbreviation);
+        return shortName == null ? abbreviation : shortName;
     }
 }

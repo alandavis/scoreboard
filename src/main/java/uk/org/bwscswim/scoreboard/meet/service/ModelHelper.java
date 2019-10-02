@@ -32,10 +32,10 @@ public class ModelHelper
 
     private int lineNumber;
 
-    public ModelHelper(String acceptedSwimFilename, String eventAbbreviationFilename, String clubAbbreviationFilename) throws IOException
+    public ModelHelper(String acceptedSwimFilename, String eventsFilename, String clubsFilename) throws IOException
     {
-        eventAbbreviations = new Abbreviations(eventAbbreviationFilename);
-        clubAbbreviations = new Abbreviations(clubAbbreviationFilename);
+        eventAbbreviations = new Abbreviations(eventsFilename);
+        clubAbbreviations = new Abbreviations(clubsFilename);
 
         try (BufferedReader reader = new BufferedReader(new FileReader(acceptedSwimFilename)))
         {

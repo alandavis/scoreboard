@@ -28,6 +28,7 @@ import uk.org.bwscswim.scoreboard.event.PageEvent;
 import uk.org.bwscswim.scoreboard.event.RaceEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
+import uk.org.bwscswim.scoreboard.event.ResultEvent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -58,6 +59,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         protected JLabel time = new JLabel();
         protected JLabel place = new JLabel();
         protected JLabel combinedClubTimeClock = new JLabel();
+        protected JLabel improvement = new JLabel();
     }
 
     protected JLabel title = new JLabel();
@@ -224,6 +226,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             swimmer.name.setFont(nameFont);
             swimmer.club.setFont(clubFont);
             swimmer.time.setFont(timeFont);
+            swimmer.improvement.setFont(timeFont);
             swimmer.place.setFont(placeFont);
             swimmer.combinedClubTimeClock.setFont(combinedClubTimeClockFont);
         }
@@ -260,6 +263,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             swimmer.name.setForeground(nameForeground);
             swimmer.club.setForeground(clubForeground);
             swimmer.time.setForeground(timeForeground);
+            swimmer.improvement.setForeground(timeForeground);
             swimmer.place.setForeground(placeForeground);
             swimmer.combinedClubTimeClock.setForeground(combinedClubTimeClockForeground);
 
@@ -267,6 +271,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             swimmer.name.setBackground(background);
             swimmer.club.setBackground(background);
             swimmer.time.setBackground(background);
+            swimmer.improvement.setBackground(background);
             swimmer.place.setBackground(background);
             swimmer.combinedClubTimeClock.setBackground(background);
         }
@@ -312,6 +317,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             swimmer.name.setText("");
             swimmer.club.setText("");
             swimmer.time.setText("");
+            swimmer.improvement.setText("");
             swimmer.place.setText("");
             swimmer.combinedClubTimeClock.setText("");
         }
@@ -330,31 +336,21 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         for (int lane=1; lane<=laneCount; lane++)
         {
             Swimmer swimmer = swimmers.get(lane-1);
-            setCombinedClubTimeClock(lane, swimmer);
+            setCombinedClubTimeClock(lane, swimmer, -1, false);
         }
     }
 
-    void setLaneValues(int index, int lane, int place, String name, String club, String time)
-    {
-        Swimmer swimmer = swimmers.get(index);
-        swimmer.lane.setText(lane == 0 ? " "  : Integer.toString(lane));
-        swimmer.place.setText(getPlace(place));
-        swimmer.name.setText(pad(name, nameLength));
-        swimmer.club.setText(pad(club, clubLength));
-        swimmer.time.setText(pad(time, timeLength));
-        setCombinedClubTimeClock(lane, swimmer);
-    }
-
-    private void setCombinedClubTimeClock(int lane, Swimmer swimmer)
+    private void setCombinedClubTimeClock(int lane, Swimmer swimmer, int eventCount, boolean hasImprovments)
     {
         String combinedClubTimeClockText = "";
         if (state != TIME_OF_DAY)
         {
             String clubText = swimmer.club.getText().trim();
             String timeText = swimmer.time.getText().trim();
+            String improvement = swimmer.improvement.getText().trim();
             String clockText = state == LINEUP || state == LINEUP_COMPLETE ? "" : clock.getText().trim();
             combinedClubTimeClockText =
-                    !timeText.isEmpty() ? timeText :
+                    !timeText.isEmpty() ? (eventCount > 5 && hasImprovments ? improvement : timeText) :
                     clockText.isEmpty() ? clubText :
                     combinedClubTimeClockEnabledabledClock && lane == getLaneOfFirstBlankTime() ? clockText :
                     "";
@@ -455,6 +451,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
                         append("lane='").append(lane).append("', ").
                         append("place='").append(swimmer.place.getText().trim()).append("', ").
                         append("time='").append(swimmer.time.getText().trim()).append("'}").
+                        append("improvment='").append(swimmer.improvement.getText().trim()).append("'}").
                         append("combinedClubTimeClock='").append(swimmer.combinedClubTimeClock.getText().trim()).append("', ");
                 if (iterator.hasNext())
                 {
@@ -489,6 +486,19 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             setClock(event.getClock());
         }
 
+        int eventCount = event.getCount();
+        boolean hasImprovments = false;
+        for (int laneIndex = from; laneIndex < to; laneIndex++)
+        {
+            Swimmer swimmer = swimmers.get(laneIndex);
+            String improvement = event instanceof ResultEvent ? ((ResultEvent)event).getImprovement(laneIndex) : "";
+            swimmer.improvement.setText(improvement);
+            if (!improvement.isEmpty())
+            {
+                hasImprovments = true;
+            }
+        }
+
         for (int laneIndex = from; laneIndex < to; laneIndex++)
         {
             Swimmer swimmer = swimmers.get(laneIndex);
@@ -497,7 +507,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             swimmer.club.setText(event.getClub(laneIndex));
             swimmer.time.setText(event.getTime(laneIndex));
             swimmer.place.setText(getPlace(event.getPlace(laneIndex)));
-            setCombinedClubTimeClock(laneIndex+1, swimmer);
+            setCombinedClubTimeClock(laneIndex+1, swimmer, eventCount, hasImprovments);
         }
 
         getColors();

@@ -19,7 +19,7 @@ public class PageEvent
     }
 
     /**
-     * Returns the number of time the event has been issued for this state. Starts at 0 and increments. Resets when
+     * Returns the number of times the event has been issued for this state. Starts at 0 and increments. Resets when
      * the state changes. There may be more than one if the state is held for a minimum amount of time and has a 'tick'
      * sub event.
      */
@@ -38,6 +38,19 @@ public class PageEvent
             title = subTitle.substring(3, i)+"/"+subTitle.substring(i+6).trim()+" "+title;
         }
         return title;
+    }
+
+    protected int getEventNumber()
+    {
+        int eventNumber = -1;
+        String subTitle = text.getSubtitle();
+        if (subTitle.startsWith("Ev "))
+        {
+            int i = subTitle.indexOf(",  Ht ");
+            String eventNumberText = subTitle.substring(3, i);
+            eventNumber = Integer.parseInt(eventNumberText);
+        }
+        return eventNumber;
     }
 
     public String getClock()

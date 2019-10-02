@@ -18,8 +18,8 @@ public class ModelHelperTest
     @Test
     public void fullTest() throws IOException
     {
-        ModelHelper helper = new ModelHelper("Accepted Swims data.txt",
-                "EventAbbreviations.txt", "ClubAbbreviations.txt");
+        ModelHelper helper = new ModelHelper("Accepted.txt",
+                "Events.txt", "Clubs.txt");
 
         List<Event> events = helper.getEvents();
         assertEquals(24, events.size());
@@ -49,7 +49,7 @@ public class ModelHelperTest
     @Test
     public void swimmerTest() throws IOException
     {
-        Abbreviations clubAbbreviations = new Abbreviations("ClubAbbreviations.txt");
+        Abbreviations clubAbbreviations = new Abbreviations("Clubs.txt");
         Club club = new Club("Bracknell", clubAbbreviations);
 
         assertEquals("Mia Richardson", new Swimmer("Mia Richardson",  2001, club).getName());
@@ -84,12 +84,26 @@ public class ModelHelperTest
 
         assertEquals("3.40", new RaceTime("3.4").toString());
         assertEquals("11:23.40", new RaceTime("11:23.4").toString());
+
+        assertEquals("-0.01", new RaceTime("1:23.44").minus(new RaceTime("1:23.45")).toString());
+        assertEquals("-0.10", new RaceTime("1:23.35").minus(new RaceTime("1:23.45")).toString());
+        assertEquals("0.00", new RaceTime("1:23.45").minus(new RaceTime("1:23.45")).toString());
+        assertEquals("0.01", new RaceTime("1:23.46").minus(new RaceTime("1:23.45")).toString());
+        assertEquals("0.10", new RaceTime("1:23.55").minus(new RaceTime("1:23.45")).toString());
+
+        assertEquals("-1.00", new RaceTime("1:22.45").minus(new RaceTime("1:23.45")).toString());
+        assertEquals("-1.01", new RaceTime("1:22.44").minus(new RaceTime("1:23.45")).toString());
+        assertEquals("-1:01.01", new RaceTime("22.44").minus(new RaceTime("1:23.45")).toString());
+        assertEquals("-12:01.01", new RaceTime("1:22.44").minus(new RaceTime("13:23.45")).toString());
+        assertEquals("-0.95", new RaceTime("1:22.50").minus(new RaceTime("1:23.45")).toString());
+        assertEquals("-10.95", new RaceTime("1:22.50").minus(new RaceTime("1:33.45")).toString());
+        assertEquals("-2:10.95", new RaceTime("1:22.50").minus(new RaceTime("3:33.45")).toString());
     }
 
     @Test
     public void eventAbbreviationsTest() throws IOException
     {
-        Abbreviations eventAbbreviations = new Abbreviations("EventAbbreviations.txt");
+        Abbreviations eventAbbreviations = new Abbreviations("Events.txt");
 
         assertEquals("does not exist", eventAbbreviations.lookupAbbreviation("does not exist"));
         assertEquals("Girls 200 IM", eventAbbreviations.lookupAbbreviation("Girls Open 200m IM"));
@@ -100,16 +114,19 @@ public class ModelHelperTest
     @Test
     public void clubAbbreviationsTest() throws IOException
     {
-        Abbreviations clubAbbreviations = new Abbreviations("ClubAbbreviations.txt");
+        Abbreviations clubAbbreviations = new Abbreviations("Clubs.txt");
 
         assertEquals("does not exist", clubAbbreviations.lookupAbbreviation("does not exist"));
 
         assertEquals("BRKS", clubAbbreviations.lookupAbbreviation("Bracknell"));
         assertEquals("BRKS", clubAbbreviations.lookupAbbreviation("Bracknell & Wokingham SC"));
-        assertEquals("Bracknell", clubAbbreviations.lookupShortName("BRKS"));
+        assertEquals("Bracknell",               clubAbbreviations.lookupShortName("BRKS"));
         assertEquals("Bracknell & Wokingham SC", clubAbbreviations.lookupLongName("BRKS"));
 
-        assertEquals("Didcot & Barramundi SC", clubAbbreviations.lookupShortName("DABS"));
+        assertEquals("does not exist", clubAbbreviations.lookupShortName("does not exist"));
+        assertEquals("does not exist", clubAbbreviations.lookupLongName("does not exist"));
+
+        assertEquals("Didcot & Bar",          clubAbbreviations.lookupShortName("DABS"));
         assertEquals("Didcot & Barramundi SC", clubAbbreviations.lookupLongName("DABS"));
 
         assertEquals("City of Southampton SC", clubAbbreviations.lookupLongName("COSS"));
@@ -118,7 +135,7 @@ public class ModelHelperTest
     @Test
     public void eventTest() throws IOException
     {
-        Abbreviations eventAbbreviations = new Abbreviations("EventAbbreviations.txt");
+        Abbreviations eventAbbreviations = new Abbreviations("Events.txt");
         Event event = new Event(3,"Girls Open 200m IM", eventAbbreviations);
         assertEquals(3, event.getNumber());
         assertEquals("Girls Open 200m IM", event.getName());
@@ -132,7 +149,7 @@ public class ModelHelperTest
     @Test
     public void clubTest() throws IOException
     {
-        Abbreviations clubAbbreviations = new Abbreviations("ClubAbbreviations.txt");
+        Abbreviations clubAbbreviations = new Abbreviations("Clubs.txt");
         Club club = new Club("Bracknell", clubAbbreviations);
 
         assertEquals("BRKS", club.getAbbreviation());
@@ -142,7 +159,7 @@ public class ModelHelperTest
 
 /*
 
-Index comes from Entry file output.txt which includes the ASA number
+Index comes from Entries.txt which includes the ASA number
 
 Event Index Event Name
 23     0    Boys Open 100m Freestyle

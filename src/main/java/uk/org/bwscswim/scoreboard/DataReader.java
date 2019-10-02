@@ -30,6 +30,7 @@ import uk.org.bwscswim.scoreboard.event.RaceEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
 import uk.org.bwscswim.scoreboard.event.ResultEvent;
+import uk.org.bwscswim.scoreboard.meet.model.Event;
 
 import java.io.EOFException;
 import java.io.FileNotFoundException;
@@ -93,6 +94,7 @@ class DataReader
 
     private List<Text> queuedStateData = new ArrayList<>();
     private StateTimerThread stateTimerThread;
+    private List<Event> events;
 
     DataReader(Config config)
     {
@@ -113,6 +115,11 @@ class DataReader
     public void addObserver(Observer observer)
     {
         observers.add(observer);
+    }
+
+    public void setEvents(List<Event> events)
+    {
+        this.events = events;
     }
 
     void setInputStream(InputStream inputStream)
@@ -409,7 +416,7 @@ class DataReader
                               ? lineNumberWithSplitTime == -1
                                 ? new RaceEvent(text, count)
                                 : new RaceSplitTimeEvent(text, count, lineNumberWithSplitTime)
-                    : new ResultEvent(text, count);
+                    : new   ResultEvent(text, count, events);
 
             stateTrace.trace(event.toString());
             observers.forEach(observer -> observer.update(event));
