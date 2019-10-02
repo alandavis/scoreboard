@@ -28,14 +28,16 @@ public class PageEvent
         return count;
     }
 
-    public String getTitle()
+    public String getCombinedTitle()
     {
-        return text.getTitle();
-    }
-
-    public String getSubtitle()
-    {
-        return text.getSubtitle();
+        String title = text.getTitle();
+        String subTitle = text.getSubtitle();
+        if (subTitle.startsWith("Ev "))
+        {
+            int i = subTitle.indexOf(",  Ht ");
+            title = subTitle.substring(3, i)+"/"+subTitle.substring(i+6).trim()+" "+title;
+        }
+        return title;
     }
 
     public String getClock()

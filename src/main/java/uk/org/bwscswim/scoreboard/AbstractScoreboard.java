@@ -60,7 +60,6 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         protected JLabel combinedClubTimeClock = new JLabel();
     }
 
-    private String mainTitle;
     protected JLabel title = new JLabel();
     protected JLabel clock  = new JLabel();
     protected List<Swimmer> swimmers = new ArrayList<>();
@@ -305,8 +304,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 
     public void clear()
     {
-        setMainTitle("");
-        setSubTitle("");
+        setCombinedTitle("");
         setClock("");
         for (Swimmer swimmer : swimmers)
         {
@@ -319,23 +317,10 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         }
     }
 
-    public void setMainTitle(String mainTitle)
+    public void setCombinedTitle(String title)
     {
-        String text = pad(mainTitle, singleTitleLength);
-        this.mainTitle = text;
+        String text = pad(title, singleTitleLength);
         this.title.setText(text);
-    }
-
-    void setSubTitle(String subTitle)
-    {
-        String text = mainTitle;
-        if (subTitle.startsWith("Ev "))
-        {
-            int i = subTitle.indexOf(",  Ht ");
-            text = subTitle.substring(3, i)+"/"+subTitle.substring(i+6).trim()+" "+text;
-        }
-        text = pad(text, singleTitleLength);
-        title.setText(text);
     }
 
     void setClock(String clock)
@@ -453,7 +438,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     public String toString()
     {
         StringBuilder sb = new StringBuilder("Scoreboard{").
-                append("title='").append(mainTitle.trim()).append("', ").
+                append("title='").append(title.getText().trim()).append("', ").
                 append("state=").append(state.name().toLowerCase()).append(", ").
                 append("clock='").append(clock.getText().trim()).append("', ").
                 append("swimmers=[");
@@ -500,8 +485,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         }
         else
         {
-            setMainTitle(event.getTitle());
-            setSubTitle(event.getSubtitle());
+            setCombinedTitle(event.getCombinedTitle());
             setClock(event.getClock());
         }
 
