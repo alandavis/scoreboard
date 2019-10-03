@@ -29,6 +29,7 @@ import uk.org.bwscswim.scoreboard.event.RaceEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
 import uk.org.bwscswim.scoreboard.event.ResultEvent;
+import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -467,49 +468,58 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     public void update(PageEvent event)
     {
         // TODO remove the need for the state in the rest of the code in this class.
-        state =   event instanceof LineupEvent ? LINEUP_COMPLETE
+        state =   event instanceof TimeOfDayEvent ? TIME_OF_DAY
+                : event instanceof LineupEvent ? LINEUP_COMPLETE
                 : event instanceof RaceEvent ? RACE
                 : event instanceof RaceSplitTimeEvent ? RACE
                 : RESULTS_COMPLETE;
 
-        int from = 0;
-        int to = event.getLaneCount();
-
-        if (event instanceof RaceSplitTimeEvent)
+        if (event instanceof TimeOfDayEvent)
         {
-            from = ((RaceSplitTimeEvent)event).getIndexOfLaneWithSplitTime();
-            to = from+1;
+            System.err.println("TODO: DISPLAY THE TIME OF DAY");
         }
         else
         {
-            setCombinedTitle(event.getCombinedTitle());
-            setClock(event.getClock());
-        }
+            int from = 0;
+            int to = event.getLaneCount();
 
-        int eventCount = event.getCount();
-        boolean hasImprovments = false;
-        for (int laneIndex = from; laneIndex < to; laneIndex++)
-        {
-            Swimmer swimmer = swimmers.get(laneIndex);
-            String improvement = event instanceof ResultEvent ? ((ResultEvent)event).getImprovement(laneIndex) : "";
-            swimmer.improvement.setText(improvement);
-            if (!improvement.isEmpty())
+            if (event instanceof RaceSplitTimeEvent)
             {
-                hasImprovments = true;
+                from = ((RaceSplitTimeEvent) event).getIndexOfLaneWithSplitTime();
+                to = from + 1;
+            }
+            else
+            {
+                setCombinedTitle(event.getCombinedTitle());
+                setClock(event.getClock());
+            }
+
+            int eventCount = event.getCount();
+            boolean hasImprovments = false;
+            for (int laneIndex = from; laneIndex < to; laneIndex++)
+            {
+                Swimmer swimmer = swimmers.get(laneIndex);
+                String improvement = event instanceof ResultEvent ? ((ResultEvent) event).getImprovement(laneIndex) : "";
+                swimmer.improvement.setText(improvement);
+                if (!improvement.isEmpty())
+                {
+                    hasImprovments = true;
+                }
+            }
+
+            for (int laneIndex = from; laneIndex < to; laneIndex++)
+            {
+                Swimmer swimmer = swimmers.get(laneIndex);
+                int lane = event.getLane(laneIndex);
+                String laneText = lane <= 0 ? "" : Integer.toString(lane);
+                swimmer.lane.setText(laneText);
+                swimmer.name.setText(event.getName(laneIndex));
+                swimmer.club.setText(event.getClub(laneIndex));
+                swimmer.time.setText(event.getTime(laneIndex));
+                swimmer.place.setText(getPlace(event.getPlace(laneIndex)));
+                setCombinedClubTimeClock(laneIndex + 1, swimmer, eventCount, hasImprovments);
             }
         }
-
-        for (int laneIndex = from; laneIndex < to; laneIndex++)
-        {
-            Swimmer swimmer = swimmers.get(laneIndex);
-            swimmer.lane.setText(Integer.toString(event.getLane(laneIndex)));
-            swimmer.name.setText(event.getName(laneIndex));
-            swimmer.club.setText(event.getClub(laneIndex));
-            swimmer.time.setText(event.getTime(laneIndex));
-            swimmer.place.setText(getPlace(event.getPlace(laneIndex)));
-            setCombinedClubTimeClock(laneIndex+1, swimmer, eventCount, hasImprovments);
-        }
-
         getColors();
         setColors();
         setVisible(true);

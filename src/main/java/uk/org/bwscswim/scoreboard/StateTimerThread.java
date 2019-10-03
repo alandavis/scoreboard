@@ -39,7 +39,7 @@ class StateTimerThread extends Thread
     StateTimerThread(uk.org.bwscswim.scoreboard.State state, long tickTime, long runForTime)
     {
         this.tickTime = tickTime;
-        end = System.currentTimeMillis() + runForTime;
+        end = runForTime == -1 ? Long.MAX_VALUE : System.currentTimeMillis() + runForTime;
         setDaemon(true);
         setName("StateTimerThread "+state);
         start();
@@ -62,6 +62,10 @@ class StateTimerThread extends Thread
                 }
 
                 tick(count++);
+                if (terminate)
+                {
+                    break;
+                }
 
                 long wakeIn = now + tickTime > end ? end - now : tickTime;
                 Thread.sleep(wakeIn);

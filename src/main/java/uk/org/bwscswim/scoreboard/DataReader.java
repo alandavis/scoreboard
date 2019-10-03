@@ -30,6 +30,7 @@ import uk.org.bwscswim.scoreboard.event.RaceEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
 import uk.org.bwscswim.scoreboard.event.ResultEvent;
+import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
 
 import java.io.EOFException;
@@ -90,7 +91,6 @@ class DataReader
     private RaceTimerThread raceTimerThread;
 
     private int lanesWithTimesAtTheEndOfTheRace;
-    private int splitCount;
 
     private List<Text> queuedStateData = new ArrayList<>();
     private StateTimerThread stateTimerThread;
@@ -362,7 +362,7 @@ class DataReader
             else if ((state == RACE || state == RACE_FINISHING) && text.isLaneLineNumber(lineNumber))
             {
                 // Set or clear split/finish time for swimmer if currently visible
-                updateScoreboard(state, splitCount++, text, lineNumber);
+                updateScoreboard(state, text.getSplitCountAndIncrement(), text, lineNumber);
 
                 if (state == RACE_FINISHING && text.countLanesWithNames(state) == text.countLanesWithTimes(state))
                 {
@@ -411,7 +411,8 @@ class DataReader
         if (showData())
         {
             PageEvent event =
-                      state == LINEUP_COMPLETE ? new LineupEvent(text, count)
+                      state == TIME_OF_DAY ? new TimeOfDayEvent(text, count)
+                    : state == LINEUP_COMPLETE ? new LineupEvent(text, count)
                     : state == RACE || state == RACE_FINISHING || state == RACE_COMPLETE
                               ? lineNumberWithSplitTime == -1
                                 ? new RaceEvent(text, count)
@@ -482,8 +483,17 @@ class DataReader
             if (queuedStateData.isEmpty() && (state == RACE || state == RACE_FINISHING))
             {
                 state = this.text.getState();
-                updateScoreboard(state, splitCount++, this.text, -1);
+                updateScoreboard(state, 0, this.text, -1);
             }
+        }
+        State state = this.text.getState();
+        if (state == RESULTS_COMPLETE && stateTimerThread == null)
+        {
+            state = TIME_OF_DAY;
+
+            Text text = new Text(this.text, state);
+            text.clearLanes();
+            startStateTimerIfNeeded(state, text);
         }
     }
 
@@ -550,6 +560,26 @@ class DataReader
                     {
                         stateTrace.trace("LINEUP_COMPLETE - SWITCH TO THE RACE IF AVAILABLE");
                         dequeueState();
+                    }
+                };
+            }
+            else if (state == TIME_OF_DAY)
+            {
+                stateTimerThread = new StateTimerThread(state, 1000, -1)
+                {
+                    @Override
+                    public void tick(int count)
+                    {
+                        if (queuedStateData.isEmpty())
+                        {
+                            updateScoreboard(state, count, text, -1);
+                        }
+                        else
+                        {
+                            terminate();
+                            stateTrace.trace("TIME_OF_DAY - ENDS");
+                            dequeueState();
+                        }
                     }
                 };
             }

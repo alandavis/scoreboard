@@ -73,11 +73,37 @@ class RawText
         }
         sb.replace(offset, offset+text.length(), text);
         line = sb.toString();
+        ensureLineExists(lineNumber);
+        lines.set(lineNumber, line);
+        trimBlankLines();
+    }
+
+    void setText(int lineNumber, String text)
+    {
+        ensureLineExists(lineNumber);
+        lines.set(lineNumber, text);
+        trimBlankLines();
+    }
+
+    private void trimBlankLines()
+    {
+        for (int i=lines.size()-1; i>=0; i--)
+        {
+            String line = lines.get(i);
+            if (line != null && !line.trim().isEmpty())
+            {
+                break;
+            }
+            lines.remove(i);
+        }
+    }
+
+    private void ensureLineExists(int lineNumber)
+    {
         while (lines.size() <= lineNumber)
         {
             lines.add(null);
         }
-        lines.set(lineNumber, line);
     }
 
     private String getText(int lineNumber, String defaultValue)

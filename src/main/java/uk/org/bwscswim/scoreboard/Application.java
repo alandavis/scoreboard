@@ -41,15 +41,15 @@ public class Application
                 ModelHelper helper = new ModelHelper("Accepted.txt",
                         "Events.txt", "Clubs.txt");
                 AbstractScoreboard scoreboard1 = new Scoreboard(config, false);
-                AbstractScoreboard scoreboard2 = new Scoreboard(config, true);
+//                AbstractScoreboard scoreboard2 = new Scoreboard(config, true);
                 DataReader dataReader = new DataReader(config);
                 dataReader.addObserver(scoreboard1);
-                dataReader.addObserver(scoreboard2);
+//                dataReader.addObserver(scoreboard2);
                 dataReader.setEvents(helper.getEvents());
                 dataReader.readDataInBackground();
 
                 scoreboard1.setDataReader(dataReader);
-                scoreboard2.setDataReader(dataReader);
+//                scoreboard2.setDataReader(dataReader);
             }
             catch (Exception e)
             {

@@ -22,6 +22,7 @@
  */
 package uk.org.bwscswim.scoreboard;
 
+import static uk.org.bwscswim.scoreboard.State.RACE;
 import static uk.org.bwscswim.scoreboard.State.RESULTS;
 import static uk.org.bwscswim.scoreboard.State.RESULTS_COMPLETE;
 import static uk.org.bwscswim.scoreboard.State.TEST;
@@ -49,6 +50,7 @@ public class Text extends RawText
     private final int LANE_COUNT;
 
     private State state;
+    private int splitCount;
 
     Text(Config config)
     {
@@ -95,6 +97,15 @@ public class Text extends RawText
     public void setState(State state)
     {
         this.state = state;
+        if (state == RACE)
+        {
+            splitCount = 0;
+        }
+    }
+
+    public int getSplitCountAndIncrement()
+    {
+        return splitCount++;
     }
 
     String getClockFromRange()
@@ -213,6 +224,15 @@ public class Text extends RawText
                 ? result ? LANE_RANGE : PLACE_RANGE
                 : result ? PLACE_RANGE : LANE_RANGE;
         return getInt(lineNumber, range, indent, 0);
+    }
+
+    public void clearLanes()
+    {
+        for (int laneIndex = 0; laneIndex < LANE_COUNT; laneIndex++)
+        {
+            int lineNumber = FIRST_LANE_LINE_NUMBER + laneIndex;
+            setText(lineNumber, "");
+        }
     }
 
     private String getNameClubOrTime(int laneIndex, String range)
