@@ -26,6 +26,7 @@ import static uk.org.bwscswim.scoreboard.State.RACE;
 import static uk.org.bwscswim.scoreboard.State.RESULTS;
 import static uk.org.bwscswim.scoreboard.State.RESULTS_COMPLETE;
 import static uk.org.bwscswim.scoreboard.State.TEST;
+import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
 
 /**
  * Provides access to fields in the raw scoreboard text held by the super class.
@@ -55,6 +56,7 @@ public class Text extends RawText
     Text(Config config)
     {
         this(config, null, TEST);
+        state = TIME_OF_DAY;
     }
 
     /**

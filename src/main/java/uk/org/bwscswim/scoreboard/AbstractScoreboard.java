@@ -52,6 +52,14 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 {
     private static final long serialVersionUID = 8350711464804648105L;
 
+    private CardLayout cardLayout = new CardLayout();
+    private Container cards = new JPanel(cardLayout);
+
+    private Container timeOfDayPanel = new Panel();
+    protected JLabel logo  = new JLabel(new ImageIcon("Logo600white.jpg"));
+    protected JLabel timeOfDay  = new JLabel();
+    protected GroupLayout layout2 = new GroupLayout(timeOfDayPanel);
+
     class Swimmer
     {
         protected JLabel lane = new JLabel();
@@ -67,13 +75,19 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     protected JLabel clock  = new JLabel();
     protected List<Swimmer> swimmers = new ArrayList<>();
 
-    protected GroupLayout layout = new GroupLayout(contentPane);
+    private Container scoreboardPanel = new Panel();
+
+    protected GroupLayout layout = new GroupLayout(scoreboardPanel);
     protected int laneCount;
 
     protected boolean combinedClubTimeClockEnabledabledClock;
 
     protected boolean laneVisible;
     protected boolean placeVisible;
+
+    protected int timeOfDayTopGap;
+    protected int timeOfDayLeftGap;
+    protected int timeOfDayMiddleGap;
 
     protected int topGap;
     protected int bottomGap;
@@ -82,6 +96,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     protected int horizontalGap;
     protected int preLaneGap;
 
+    private int timeOfDayLength;
     private int singleTitleLength;
     private int clockLength;
     private int laneLength;
@@ -91,6 +106,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     private int placeLength;
     private int combinedClubTimeClockLength;
 
+    private Color timeOfDayForeground;
     private Color singleTitleForeground;
     private Color clockForeground;
     private Color nameForeground;
@@ -99,6 +115,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     private Color placeForeground;
     private Color combinedClubTimeClockForeground;
 
+    private Font timeOfDayFont;
     private Font singleTitleFont;
     private Font clockFont;
     private Font laneFont;
@@ -130,7 +147,15 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         getTestText();
         getFonts();
 
-        contentPane.setLayout(layout);
+        scoreboardPanel.setLayout(layout);
+        timeOfDayPanel.setLayout(layout2);;
+        cards.add(timeOfDayPanel, "timeOfDay");
+        cards.add(scoreboardPanel, "scoreboard");
+
+        contentPane.add(cards);
+
+
+
         createSwimmers();
     }
 
@@ -154,16 +179,22 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 
     private void getGaps()
     {
-        topGap = getTopGap();
-        bottomGap = getBottomGap();
-        leftGap = getLeftGap();
-        rightGap = getRightGap();
-        horizontalGap = getHorizontalGap();
-        preLaneGap = getPreLaneGap();
+        timeOfDayTopGap = config.getInt(null, null, "timeOfDayTopGap", 50);
+        timeOfDayLeftGap = config.getInt(null, null, "timeOfDayLeftGap", 50);
+        timeOfDayMiddleGap = config.getInt(null, null, "timeOfDayMiddleGap", 70);
+
+        topGap = config.getInt(null, null, "topGap", 10);
+        bottomGap = config.getInt(null, null, "bottomGap", 0);
+        leftGap = config.getInt(null, null, "leftGap", 30);
+        rightGap = config.getInt(null, null, "rightGap", 0);
+        horizontalGap = config.getInt(null, null, "horizontalGap", 20);
+        preLaneGap = config.getInt(null, null, "preLaneGap", 10);
     }
 
     private void getLengths()
     {
+        timeOfDayLength = config.getInt(null, null, "timeOfDayLength", 8);
+
         singleTitleLength = config.getInt(null, null, "singleTitleLength", 29);
         clockLength = config.getInt(null, null, "clockLength", 8);
         laneLength = config.getInt(null, null, "laneLength", 1);
@@ -206,6 +237,8 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 
     private void getFonts()
     {
+        timeOfDayFont = config.getFont(state, "timeOfDay");
+
         singleTitleFont = config.getFont(state, "title");
         clockFont = config.getFont(state, "clock");
         laneFont = config.getFont(state, "lane");
@@ -218,6 +251,8 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 
     private void setFonts()
     {
+        timeOfDay.setFont(timeOfDayFont);
+
         title.setFont(singleTitleFont);
         clock.setFont(clockFont);
 
@@ -238,6 +273,8 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     {
         super.getColors();
 
+        timeOfDayForeground = config.getColor(state, null, "timeOfDay.foreground", Color.WHITE);
+
         singleTitleForeground = config.getColor(state, null, "title.foreground", Color.YELLOW);
         clockForeground = config.getColor(state, null, "clock.foreground", Color.YELLOW);
         nameForeground = config.getColor(state, null, "lane.foreground", Color.WHITE);
@@ -252,9 +289,13 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     {
         super.setColors();
 
+        timeOfDayPanel.setBackground(background);
+        scoreboardPanel.setBackground(background);
+
         title.setForeground(singleTitleForeground);
         clock.setForeground(clockForeground);
 
+        timeOfDay.setForeground(timeOfDayForeground);
         title.setBackground(background);
         clock.setBackground(background);
 
@@ -276,36 +317,6 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             swimmer.place.setBackground(background);
             swimmer.combinedClubTimeClock.setBackground(background);
         }
-    }
-
-    private int getTopGap()
-    {
-        return config.getInt(null, null, "topGap", 10);
-    }
-
-    private int getBottomGap()
-    {
-        return config.getInt(null, null, "bottomGap", 0);
-    }
-
-    private int getLeftGap()
-    {
-        return config.getInt(null, null, "leftGap", 30);
-    }
-
-    private int getRightGap()
-    {
-        return config.getInt(null, null, "rightGap", 0);
-    }
-
-    private int getHorizontalGap()
-    {
-        return config.getInt(null, null, "horizontalGap", 20);
-    }
-
-    private int getPreLaneGap()
-    {
-        return config.getInt(null, null, "preLaneGap", 10);
     }
 
     public void clear()
@@ -476,10 +487,12 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 
         if (event instanceof TimeOfDayEvent)
         {
-            System.err.println("TODO: DISPLAY THE TIME OF DAY");
+            timeOfDay.setText(((TimeOfDayEvent) event).getTimeOfDay());
+            cardLayout.show(cards, "timeOfDay");
         }
         else
         {
+            cardLayout.show(cards, "scoreboard");
             int from = 0;
             int to = event.getLaneCount();
 

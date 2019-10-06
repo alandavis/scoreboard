@@ -24,6 +24,7 @@ package uk.org.bwscswim.scoreboard;
 
 import javax.swing.*;
 
+import static javax.swing.GroupLayout.Alignment.CENTER;
 import static javax.swing.GroupLayout.Alignment.TRAILING;
 
 /**
@@ -37,6 +38,13 @@ public class Scoreboard extends AbstractScoreboard
     {
         super(config, secondScreen);
 
+        layoutScoreboard();
+        layoutTimeOfDay();
+        postConstructor();
+    }
+
+    private void layoutScoreboard()
+    {
         //    T1111111111111111111111111
         //    2 NNNNNNNNNNNNNN CLUBBBB P
         //                     TIMEEEE
@@ -47,17 +55,17 @@ public class Scoreboard extends AbstractScoreboard
 
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(leftGap)
-                        .addComponent(title))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(leftGap)
-                        .addGroup(col1)
-                        .addGap(horizontalGap)
-                        .addGroup(col2)
-                        .addGap(horizontalGap)
-                        .addGroup(col3)
-                        .addGap(rightGap)));
+                        .addGroup(layout.createSequentialGroup()
+                                .addGap(leftGap)
+                                .addComponent(title))
+                        .addGroup(layout.createSequentialGroup()
+                                .addGap(leftGap)
+                                .addGroup(col1)
+                                .addGap(horizontalGap)
+                                .addGroup(col2)
+                                .addGap(horizontalGap)
+                                .addGroup(col3)
+                                .addGap(rightGap)));
 
         GroupLayout.SequentialGroup rows = layout.createSequentialGroup();
 
@@ -97,7 +105,24 @@ public class Scoreboard extends AbstractScoreboard
                 col3.addComponent(swimmer.place);
             }
         }
+    }
 
-        postConstructor();
+    private void layoutTimeOfDay()
+    {
+        layout2.setHorizontalGroup(
+                layout2.createParallelGroup(CENTER)
+                        .addGroup(layout2.createSequentialGroup()
+                                .addGap(timeOfDayLeftGap)
+                                .addComponent(logo)
+                                .addGap(timeOfDayMiddleGap)
+                                .addComponent(timeOfDay)));
+
+        layout2.setVerticalGroup(
+                layout2.createSequentialGroup()
+                        .addGap(timeOfDayTopGap)
+                        .addGroup(layout2.createParallelGroup(CENTER)
+                            .addComponent(logo)
+                            .addComponent(timeOfDay))
+                        .addGap(bottomGap));
     }
 }

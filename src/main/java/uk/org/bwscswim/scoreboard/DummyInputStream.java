@@ -54,6 +54,8 @@ class DummyInputStream extends InputStream
 
     DummyInputStream(String filename) throws FileNotFoundException
     {
+        // TODO do we want to remove ignoreFirstDelay now that there is a time of day clock?
+        ignoreFirstDelay = false;
         try
         {
             InputStreamReader inputStreamReader = filename.startsWith(":")

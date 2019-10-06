@@ -143,6 +143,7 @@ class DataReader
         Thread t = new Thread(() ->
         {
             observers.forEach(observer -> observer.beforeFirstRead());
+            showTimeOfDay();
             String testFilename = config.getString("testFilename", null);
             if (testFilename != null && !testFilename.isEmpty())
             {
@@ -489,12 +490,15 @@ class DataReader
         State state = this.text.getState();
         if (state == RESULTS_COMPLETE && stateTimerThread == null)
         {
-            state = TIME_OF_DAY;
-
-            Text text = new Text(this.text, state);
-            text.clearLanes();
-            startStateTimerIfNeeded(state, text);
+            showTimeOfDay();
         }
+    }
+
+    private void showTimeOfDay()
+    {
+        Text text = new Text(this.text, TIME_OF_DAY);
+        text.clearLanes();
+        startStateTimerIfNeeded(TIME_OF_DAY, text);
     }
 
     private synchronized void startStateTimerIfNeeded(State state, Text text)
