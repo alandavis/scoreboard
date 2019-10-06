@@ -52,8 +52,10 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 {
     private static final long serialVersionUID = 8350711464804648105L;
 
+    public static final String TIME_OF_DAY_PANEL = "timeOfDay";
+    public static final String SCOREBOARD_PANEL = "scoreboard";
+
     private CardLayout cardLayout = new CardLayout();
-    private Container cards = new JPanel(cardLayout);
 
     private Container timeOfDayPanel = new Panel();
     protected JLabel logo  = new JLabel(new ImageIcon("Logo600white.jpg"));
@@ -149,12 +151,10 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 
         scoreboardPanel.setLayout(layout);
         timeOfDayPanel.setLayout(layout2);;
-        cards.add(timeOfDayPanel, "timeOfDay");
-        cards.add(scoreboardPanel, "scoreboard");
 
-        contentPane.add(cards);
-
-
+        contentPane.setLayout(cardLayout);
+        contentPane.add(timeOfDayPanel, TIME_OF_DAY_PANEL);
+        contentPane.add(scoreboardPanel, SCOREBOARD_PANEL);
 
         createSwimmers();
     }
@@ -290,12 +290,13 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         super.setColors();
 
         timeOfDayPanel.setBackground(background);
+        timeOfDay.setForeground(timeOfDayForeground);
+
         scoreboardPanel.setBackground(background);
 
         title.setForeground(singleTitleForeground);
         clock.setForeground(clockForeground);
 
-        timeOfDay.setForeground(timeOfDayForeground);
         title.setBackground(background);
         clock.setBackground(background);
 
@@ -485,14 +486,29 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
                 : event instanceof RaceSplitTimeEvent ? RACE
                 : RESULTS_COMPLETE;
 
+        int eventCount = event.getCount();
         if (event instanceof TimeOfDayEvent)
         {
-            timeOfDay.setText(((TimeOfDayEvent) event).getTimeOfDay());
-            cardLayout.show(cards, "timeOfDay");
+            background = config.getColor(state, null, "background", Color.BLACK);
+            timeOfDayForeground = config.getColor(state, null, "timeOfDay.foreground", Color.WHITE);
+
+            timeOfDayPanel.setBackground(background);
+            timeOfDay.setForeground(timeOfDayForeground);
+
+            String time = ((TimeOfDayEvent) event).getTimeOfDay();
+            this.timeOfDay.setText(time);
+
+            if (!timeOfDayPanel.isVisible())
+            {
+                cardLayout.show(contentPane, TIME_OF_DAY_PANEL);
+            }
         }
         else
         {
-            cardLayout.show(cards, "scoreboard");
+            if (!scoreboardPanel.isVisible())
+            {
+                cardLayout.show(contentPane, SCOREBOARD_PANEL);
+            }
             int from = 0;
             int to = event.getLaneCount();
 
@@ -505,9 +521,10 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             {
                 setCombinedTitle(event.getCombinedTitle());
                 setClock(event.getClock());
+//                System.err.println("Event = "+event.getClass().getSimpleName()+" title:"+title.getText()+" clock:"+clock.getText());
+//                setVisible(true);
             }
 
-            int eventCount = event.getCount();
             boolean hasImprovments = false;
             for (int laneIndex = from; laneIndex < to; laneIndex++)
             {
@@ -532,10 +549,10 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
                 swimmer.place.setText(getPlace(event.getPlace(laneIndex)));
                 setCombinedClubTimeClock(laneIndex + 1, swimmer, eventCount, hasImprovments);
             }
+            getColors();
+            setColors();
+            setVisible(true);
         }
-        getColors();
-        setColors();
-        setVisible(true);
     }
 
     @Override
