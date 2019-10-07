@@ -26,4 +26,10 @@ public class TimeOfDayEvent extends PageEvent
     {
         return timeOfDay;
     }
+
+    @Override
+    protected String toStringLine1Suffix()
+    {
+        return " "+timeOfDay;
+    }
 }
