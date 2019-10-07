@@ -548,7 +548,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 
             if (!scoreboardPanel.isVisible())
             {
-                System.err.println("=======> SWITCH TO SCOREBOARD <======="); // DO NOT REMOVE - Appears to add a delay that fixes the rewrite problem
+                System.err.println("=======> SWITCH TO SCOREBOARD <======="); // Appears to add a delay that fixes the rewrite problem most of the time
                 cardLayout.show(contentPane, SCOREBOARD_PANEL);
             }
             setVisible(true);

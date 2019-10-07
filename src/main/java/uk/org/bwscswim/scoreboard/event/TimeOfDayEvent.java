@@ -28,8 +28,10 @@ public class TimeOfDayEvent extends PageEvent
     }
 
     @Override
-    protected String toStringLine1Suffix()
+    public String toString()
     {
-        return " "+timeOfDay;
+        StringBuilder sb = new StringBuilder(getClass().getSimpleName()).
+                append(" ").append(count).append(" ").append(timeOfDay);
+        return sb.toString();
     }
 }

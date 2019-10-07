@@ -10,7 +10,7 @@ import uk.org.bwscswim.scoreboard.Text;
 public class PageEvent
 {
     private final Text text;
-    private final int count;
+    protected final int count;
 
     public PageEvent(Text text, int count)
     {
