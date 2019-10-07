@@ -397,7 +397,6 @@ class DataReader
     private boolean showData()
     {
         // We hold off showing data if we need to display the race finish, results or lineup a bit longer.
-//        return stateTimer == null || Thread.currentThread() instanceof StateTimer;
         return stateTimer == null || Thread.currentThread().getName().startsWith("AWT-EventQueue");
     }
 
@@ -420,7 +419,7 @@ class DataReader
                                 : new RaceSplitTimeEvent(text, count, lineNumberWithSplitTime)
                     : new   ResultEvent(text, count, events);
 
-            stateTrace.trace(Thread.currentThread().getName()+" "+event.toString());
+            stateTrace.trace(event.toString());
             observers.forEach(observer -> observer.update(event));
         }
     }
@@ -429,7 +428,7 @@ class DataReader
     {
         if (showData())
         {
-            stateTrace.trace(Thread.currentThread().getName()+" "+"RaceTimerEvent     "+clock.trim());
+            stateTrace.trace("RaceTimerEvent     "+clock.trim());
             RaceTimerEvent event = new RaceTimerEvent(clock);
             observers.forEach(observer -> observer.update(event));
         }

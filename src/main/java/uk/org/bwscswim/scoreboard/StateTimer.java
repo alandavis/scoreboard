@@ -43,7 +43,7 @@ class StateTimer
     StateTimer(int tickTime, long runForTime)
     {
         end = runForTime == -1 ? Long.MAX_VALUE : System.currentTimeMillis() + runForTime;
-        timer = new Timer(100, new ActionListener() {
+        timer = new Timer(0, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e)
             {

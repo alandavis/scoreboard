@@ -150,7 +150,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         getFonts();
 
         scoreboardPanel.setLayout(layout);
-        timeOfDayPanel.setLayout(layout2);;
+        timeOfDayPanel.setLayout(layout2);
 
         contentPane.setLayout(cardLayout);
         contentPane.add(timeOfDayPanel, TIME_OF_DAY_PANEL);
@@ -505,10 +505,6 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         }
         else
         {
-            if (!scoreboardPanel.isVisible())
-            {
-                cardLayout.show(contentPane, SCOREBOARD_PANEL);
-            }
             int from = 0;
             int to = event.getLaneCount();
 
@@ -521,8 +517,6 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             {
                 setCombinedTitle(event.getCombinedTitle());
                 setClock(event.getClock());
-//                System.err.println("Event = "+event.getClass().getSimpleName()+" title:"+title.getText()+" clock:"+clock.getText());
-//                setVisible(true);
             }
 
             boolean hasImprovments = false;
@@ -551,6 +545,12 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             }
             getColors();
             setColors();
+
+            if (!scoreboardPanel.isVisible())
+            {
+                System.err.println("=======> SWITCH TO SCOREBOARD <======="); // DO NOT REMOVE - Appears to add a delay that fixes the rewrite problem
+                cardLayout.show(contentPane, SCOREBOARD_PANEL);
+            }
             setVisible(true);
         }
     }
