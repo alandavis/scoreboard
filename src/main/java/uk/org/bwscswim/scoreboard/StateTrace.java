@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 /**
- * Records information about our state machine.
+ * Records information about the state machine.
  *
  * @author adavis
  */

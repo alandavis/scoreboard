@@ -93,7 +93,7 @@ class DataReader
     private int lanesWithTimesAtTheEndOfTheRace;
 
     private List<Text> queuedStateData = new ArrayList<>();
-    private StateTimerThread stateTimerThread;
+    private StateTimer stateTimer;
     private List<Event> events;
 
     DataReader(Config config)
@@ -397,8 +397,8 @@ class DataReader
     private boolean showData()
     {
         // We hold off showing data if we need to display the race finish, results or lineup a bit longer.
-        return stateTimerThread == null || Thread.currentThread() instanceof StateTimerThread;
-
+//        return stateTimer == null || Thread.currentThread() instanceof StateTimer;
+        return stateTimer == null || Thread.currentThread().getName().startsWith("AWT-EventQueue");
     }
 
     boolean isRaceInProgress()
@@ -420,7 +420,7 @@ class DataReader
                                 : new RaceSplitTimeEvent(text, count, lineNumberWithSplitTime)
                     : new   ResultEvent(text, count, events);
 
-            stateTrace.trace(event.toString());
+            stateTrace.trace(Thread.currentThread().getName()+" "+event.toString());
             observers.forEach(observer -> observer.update(event));
         }
     }
@@ -429,7 +429,7 @@ class DataReader
     {
         if (showData())
         {
-            stateTrace.trace("RaceTimerEvent     "+clock.trim());
+            stateTrace.trace(Thread.currentThread().getName()+" "+"RaceTimerEvent     "+clock.trim());
             RaceTimerEvent event = new RaceTimerEvent(clock);
             observers.forEach(observer -> observer.update(event));
         }
@@ -447,7 +447,7 @@ class DataReader
     private void handleOrQueueState(State state)
     {
         boolean emptyQueue = queuedStateData.isEmpty();
-        if (stateTimerThread != null || !emptyQueue)
+        if (stateTimer != null || !emptyQueue)
         {
             State nextState = emptyQueue ? null : queuedStateData.get(queuedStateData.size() - 1).getState().nextQueueableState();
             if (emptyQueue || state == nextState)
@@ -473,8 +473,8 @@ class DataReader
 
     private synchronized void dequeueState()
     {
-        stateTimerThread = null;
-        while (stateTimerThread == null && !queuedStateData.isEmpty())
+        stateTimer = null;
+        while (stateTimer == null && !queuedStateData.isEmpty())
         {
             Text queuedText = queuedStateData.remove(0);
 
@@ -488,7 +488,7 @@ class DataReader
             }
         }
         State state = this.text.getState();
-        if (state == RESULTS_COMPLETE && stateTimerThread == null)
+        if (state == RESULTS_COMPLETE && stateTimer == null)
         {
             showTimeOfDay();
         }
@@ -509,7 +509,7 @@ class DataReader
             {
                 if (queuedStateData.isEmpty()) // don't hold the race display if we are backed up.
                 {
-                    stateTimerThread = new StateTimerThread(state, 1000, displayFinishFor)
+                    stateTimer = new StateTimer(1000, displayFinishFor)
                     {
                         @Override
                         public void tick(int count)
@@ -533,7 +533,7 @@ class DataReader
             }
             else if (state == RESULTS_COMPLETE)
             {
-                stateTimerThread = new StateTimerThread(state, 1000, displayResultsFor)
+                stateTimer = new StateTimer(1000, displayResultsFor)
                 {
                     @Override
                     public void tick(int count)
@@ -551,7 +551,7 @@ class DataReader
             }
             else if (state == LINEUP_COMPLETE)
             {
-                stateTimerThread = new StateTimerThread(state, 1000, displayLineupFor)
+                stateTimer = new StateTimer(1000, displayLineupFor)
                 {
                     @Override
                     public void tick(int count)
@@ -569,7 +569,7 @@ class DataReader
             }
             else if (state == TIME_OF_DAY)
             {
-                stateTimerThread = new StateTimerThread(state, 1000, -1)
+                stateTimer = new StateTimer(1000, -1)
                 {
                     @Override
                     public void tick(int count)
@@ -593,10 +593,10 @@ class DataReader
     private void clearStateQueue()
     {
         queuedStateData.clear();
-        if (stateTimerThread != null)
+        if (stateTimer != null)
         {
-            stateTimerThread.terminate();
-            stateTimerThread = null;
+            stateTimer.terminate();
+            stateTimer = null;
         }
     }
 

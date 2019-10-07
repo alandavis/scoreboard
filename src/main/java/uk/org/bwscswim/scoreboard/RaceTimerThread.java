@@ -55,7 +55,6 @@ class RaceTimerThread extends Thread
     @Override
     public void run()
     {
-//        stateTrace.trace("raceTimerThread starts");
         boolean winnerFinished = false;
         try
         {
@@ -63,7 +62,6 @@ class RaceTimerThread extends Thread
             for(;;)
             {
                 long wakeIn = 75 - (now % 75);
-//                stateTrace.trace("  wakeIn="+wakeIn);
                 Thread.sleep(wakeIn);
                 now = System.currentTimeMillis();
                 int timeNow;
@@ -73,14 +71,12 @@ class RaceTimerThread extends Thread
                     long lastClockAge = now - lastClock;
                     if (!winnerFinished && lastClockAge > 2500)
                     {
-//                        stateTrace.trace("raceTimerThread setRaceFinishing");
                         dataReader.setState(RACE_FINISHING);
                         winnerFinished = true;
                     }
 
                     if (terminate || !dataReader.isRaceInProgress())
                     {
-//                        stateTrace.trace("terminate:"+terminate+" isRaceInProgress="+dataReader.isRaceInProgress());
                         dataReader.setClock("");
                         break;
                     }
@@ -93,7 +89,6 @@ class RaceTimerThread extends Thread
         {
             // Just exit
         }
-//        stateTrace.trace("raceTimerThread exits");
     }
 
     void resetClock(String clock)
@@ -110,7 +105,6 @@ class RaceTimerThread extends Thread
         {
             timeZero = lastClock - time;
         }
-//        stateTrace.trace("resetClock "+clock);
     }
 
     private void setClock(int timeNow)
@@ -124,7 +118,6 @@ class RaceTimerThread extends Thread
             (mins > 0 && secs <= 9 ? "0" : "")+secs+'.'+
             (hunds <= 9 ? "0" : "")+hunds;
         clock = clock.substring(clock.length()-8);
-//        stateTrace.trace("setClock "+clock.trim());
         dataReader.setClock(clock);
     }
 
