@@ -11,7 +11,7 @@ Girls Open 200m IM              ,Girls 200 IM
 Girls Open 200m Breaststroke    ,Girls 200 Breast
 Girls Open 100m Freestyle       ,Girls 100 Free
 Boys Open 200m Butterfly        ,Boys 200 Fly
-Boys Open 200m Freestyle        ,Boys 200 Frees
+Boys Open 200m Freestyle        ,Boys 200 Free
 Boys Open 100m Backstroke       ,Boys 100 Back
 Boys Open 400m IM               ,Boys 400 IM
 Boys Open 100m Breaststroke     ,Boys 100 Breast

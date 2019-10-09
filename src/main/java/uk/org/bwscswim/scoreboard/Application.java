@@ -39,7 +39,7 @@ public class Application
             {
                 Config config = new Config("config.properties");
                 ModelHelper helper = new ModelHelper("Accepted.txt",
-                        "Events.txt", "Clubs.txt");
+                        "Events.txt", "Clubs.txt", "CountyTimes.txt");
                 AbstractScoreboard scoreboard1 = new Scoreboard(config, false);
 //                AbstractScoreboard scoreboard2 = new Scoreboard(config, true);
                 DataReader dataReader = new DataReader(config);

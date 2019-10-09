@@ -10,11 +10,13 @@ import uk.org.bwscswim.scoreboard.meet.model.Swimmer;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Reads the accepted swims file and populates data structures that may the be accessed via {@link #getEvents()}.
@@ -32,15 +34,14 @@ public class ModelHelper
 
     private int lineNumber;
 
-    public ModelHelper(String acceptedSwimFilename, String eventsFilename, String clubsFilename) throws IOException
+    public ModelHelper(String acceptedSwimFilename, String eventsFilename, String clubsFilename,
+                       String countyTimesFilename) throws IOException
     {
         eventAbbreviations = new Abbreviations(eventsFilename);
         clubAbbreviations = new Abbreviations(clubsFilename);
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(acceptedSwimFilename)))
-        {
-            reader.lines().forEach(line -> loadAcceptedSwimmer(line));
-        }
+        loadAcceptedSwimmers(acceptedSwimFilename);
+        loadCountyTimes(countyTimesFilename);
     }
 
     public List<Event> getEvents()
@@ -48,6 +49,14 @@ public class ModelHelper
         List<Event> events = new ArrayList<>(this.events.values());
         Collections.sort(events);
         return events;
+    }
+
+    private void loadAcceptedSwimmers(String filename) throws IOException
+    {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename)))
+        {
+            reader.lines().forEach(line -> loadAcceptedSwimmer(line));
+        }
     }
 
     private void loadAcceptedSwimmer(String line)
@@ -71,7 +80,7 @@ public class ModelHelper
                 Club club = lookupOrCreateClub(clubName);
                 Event event = lookupOrCreateEvent(eventNumber, eventName);
                 Swimmer swimmer = lookupOrCreateSwimmer(swimmerName, yearOfBirth, club);
-                RaceTime time = createTime(entryTime);
+                RaceTime time = RaceTime.create(entryTime);
                 EventEntry eventEntry = new EventEntry(swimmer, time);
                 event.add(eventEntry);
             }
@@ -80,25 +89,6 @@ public class ModelHelper
                 System.err.println(e.getMessage());
             }
         }
-    }
-
-    private RaceTime createTime(String entryTime)
-    {
-        entryTime = entryTime.trim();
-        return entryTime.isEmpty() ? null : new RaceTime(entryTime);
-    }
-
-    public void loadSwimEntry(String swimmerName, String asaNumber, String clubName, String fly200)
-    {
-        assertNotNull(swimmerName, "swimmerName");
-        assertNotNull(asaNumber, "ascNumber");
-
-        Club club = lookupOrCreateClub(clubName);
-//        new SwimEntry()
-
-
-
-        // TODO
     }
 
     private void assertNotNull(Object field, String fieldName)
@@ -170,5 +160,66 @@ public class ModelHelper
         {
             throw new NumberFormatException("Line "+line+" invalid "+fieldName+": "+year);
         }
+    }
+
+    private void loadCountyTimes(String filename) throws IOException
+    {
+        List<Event> events = getEvents();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename)))
+        {
+            reader.lines().forEach(line -> loadCountyTime(line, events));
+        }
+
+        for (Event event: events)
+        {
+            if (event.getCountyTimes() == null)
+            {
+                System.err.println("No county times found for "+event.getShortName()+" ("+event.getName()+")");
+            }
+        }
+    }
+
+    private void loadCountyTime(String line, List<Event> events)
+    {
+        String[] split = line.split(",");
+        String eventName = split[0];
+        String abbreviation = eventAbbreviations.lookupAbbreviation(eventName);
+        Event event = lookupEvent(events, abbreviation);
+        if (event != null)
+        {
+            TreeMap<Integer, RaceTime> countyTimes = new TreeMap<>();
+            int baseYear = getYearOfBirthIf11();
+            event.setCountyTimes(countyTimes);
+            for (int i=1; i<split.length; i++)
+            {
+                String timeStr = split[i].trim();
+                if (!timeStr.isEmpty())
+                {
+                    RaceTime time = RaceTime.create(timeStr);
+                    int age = baseYear-i+1;
+                    countyTimes.put(age, time);
+                }
+            }
+        }
+    }
+
+    private int getYearOfBirthIf11()
+    {
+        LocalDate currentDate = LocalDate.now();
+        int year = currentDate.getYear();
+        return year - 11;
+    }
+
+    private Event lookupEvent(List<Event> events, String abbreviation)
+    {
+        for (Event event : events)
+        {
+            String name = event.getShortName();
+            if (abbreviation.equals(name))
+            {
+                return event;
+            }
+        }
+        return null;
     }
 }

@@ -9,8 +9,6 @@ public class Swimmer
     private final Integer yearOfBirth;
     private final Club club;
 
-    private String asaNumber;
-
     public Swimmer(String name, Integer yearOfBirth, Club club)
     {
         this.name = name.trim();
@@ -51,16 +49,6 @@ public class Swimmer
             lastName = lastName.substring(0, length-2);
         }
         return ""+firstName.charAt(0)+' '+lastName;
-    }
-
-    public String getAsaNumber()
-    {
-        return asaNumber;
-    }
-
-    public void setAsaNumber(String asaNumber)
-    {
-        this.asaNumber = asaNumber;
     }
 
     public Integer getYearOfBirth()

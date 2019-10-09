@@ -153,8 +153,8 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         timeOfDayPanel.setLayout(layout2);
 
         contentPane.setLayout(cardLayout);
-        contentPane.add(timeOfDayPanel, TIME_OF_DAY_PANEL);
         contentPane.add(scoreboardPanel, SCOREBOARD_PANEL);
+        contentPane.add(timeOfDayPanel, TIME_OF_DAY_PANEL);
 
         createSwimmers();
     }
@@ -320,6 +320,11 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         }
     }
 
+    private boolean isCountyTime(String text)
+    {
+        return text.indexOf("CT") != -1 || text.indexOf("County") != -1;
+    }
+
     public void clear()
     {
         setCombinedTitle("");
@@ -373,9 +378,9 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             {
                 combinedClubTimeClockText = combinedClubTimeClockText+' ';
             }
+            combinedClubTimeClockText = lpad(combinedClubTimeClockText, combinedClubTimeClockLength);
+            swimmer.combinedClubTimeClock.setText(combinedClubTimeClockText);
         }
-        combinedClubTimeClockText = lpad(combinedClubTimeClockText, combinedClubTimeClockLength);
-        swimmer.combinedClubTimeClock.setText(combinedClubTimeClockText);
     }
 
     private int getLaneOfFirstBlankTime()
@@ -540,7 +545,15 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
                 swimmer.name.setText(event.getName(laneIndex));
                 swimmer.club.setText(event.getClub(laneIndex));
                 swimmer.time.setText(event.getTime(laneIndex));
-                swimmer.place.setText(getPlace(event.getPlace(laneIndex)));
+//                swimmer.place.setText(getPlace(event.getPlace(laneIndex)));
+                if (eventCount > 5 && hasImprovments)
+                {
+                    swimmer.place.setText("");
+                }
+                else
+                {
+                    swimmer.place.setText(getPlace(event.getPlace(laneIndex)));
+                }
                 setCombinedClubTimeClock(laneIndex + 1, swimmer, eventCount, hasImprovments);
             }
             getColors();
@@ -548,8 +561,12 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 
             if (!scoreboardPanel.isVisible())
             {
-                System.err.println("=======> SWITCH TO SCOREBOARD <======="); // Appears to add a delay that fixes the rewrite problem most of the time
+                System.err.println("=======> SWITCH TO SCOREBOARD <======="); // Appears to add a delay that fixes the rewrite problem some of the time
                 cardLayout.show(contentPane, SCOREBOARD_PANEL);
+//                timeOfDayPanel.setVisible(false); // no good
+//                scoreboardPanel.setVisible(true); // no good
+//                scoreboardPanel.validate(); // Try this to avoid rewrite problem. - no good
+//                scoreboardPanel.repaint(); // no good
             }
             setVisible(true);
         }
