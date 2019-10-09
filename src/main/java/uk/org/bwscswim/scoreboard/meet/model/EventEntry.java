@@ -39,18 +39,18 @@ public class EventEntry
 
             if (isCountyTime && (entryTime == null || entryTime.compareTo(countyTime) > 0))
             {
-                improvement = "* CT"; // New county time
+                improvement = "CT"; // New county time
             }
             else if (entryTime != null)
             {
                 String timeDifference = newTime.minus(entryTime);
                 improvement = timeDifference.startsWith("-")
-                    ? timeDifference + // .substring(1) +
+                    ? timeDifference +
                       (isCountyTime && entryTime != null
-                      ? " CT" // improved country time
+                      ? "ct" // improved country time
                       : "")
                     : isCountyTime && entryTime != null
-                      ? "CT" // county time but <=
+                      ? "ct" // county time but <=
                       : "";
             }
         }

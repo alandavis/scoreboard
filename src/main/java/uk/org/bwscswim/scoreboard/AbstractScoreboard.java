@@ -525,14 +525,20 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             }
 
             boolean hasImprovments = false;
-            for (int laneIndex = from; laneIndex < to; laneIndex++)
+            ResultEvent resultEvent = null;
+            if (event instanceof ResultEvent)
             {
-                Swimmer swimmer = swimmers.get(laneIndex);
-                String improvement = event instanceof ResultEvent ? ((ResultEvent) event).getImprovement(laneIndex) : "";
-                swimmer.improvement.setText(improvement);
-                if (!improvement.isEmpty())
+                resultEvent = (ResultEvent)event;
+                for (int laneIndex = from; laneIndex < to; laneIndex++)
                 {
-                    hasImprovments = true;
+                    Swimmer swimmer = swimmers.get(laneIndex);
+                    String improvement = resultEvent.getImprovement(laneIndex);
+                    swimmer.improvement.setText(improvement);
+                    boolean countyTime = resultEvent.isCountyTime(laneIndex);
+                    if (!improvement.isEmpty() || countyTime)
+                    {
+                        hasImprovments = true;
+                    }
                 }
             }
 
@@ -545,15 +551,10 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
                 swimmer.name.setText(event.getName(laneIndex));
                 swimmer.club.setText(event.getClub(laneIndex));
                 swimmer.time.setText(event.getTime(laneIndex));
-//                swimmer.place.setText(getPlace(event.getPlace(laneIndex)));
-                if (eventCount > 5 && hasImprovments)
-                {
-                    swimmer.place.setText("");
-                }
-                else
-                {
-                    swimmer.place.setText(getPlace(event.getPlace(laneIndex)));
-                }
+                swimmer.place.setText(
+                    eventCount > 5 && hasImprovments
+                    ? (resultEvent.isCountyTime(laneIndex) ? "CT" : "")
+                    : getPlace(event.getPlace(laneIndex)));
                 setCombinedClubTimeClock(laneIndex + 1, swimmer, eventCount, hasImprovments);
             }
             getColors();

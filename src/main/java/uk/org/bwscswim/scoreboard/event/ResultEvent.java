@@ -48,7 +48,14 @@ public class ResultEvent extends PageEvent
 
     public String getImprovement(int laneIndex)
     {
-        return improvements.get(laneIndex);
+        String improvement = improvements.get(laneIndex);
+        return isCountyTime(laneIndex) ? improvement.substring(0, improvement.length()-2) : improvement;
+    }
+
+    public boolean isCountyTime(int laneIndex)
+    {
+        String improvement = improvements.get(laneIndex);
+        return improvement.endsWith("CT") || improvement.endsWith("ct");
     }
 
     @Override
