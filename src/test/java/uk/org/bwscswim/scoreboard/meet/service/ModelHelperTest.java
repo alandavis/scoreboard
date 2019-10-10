@@ -3,16 +3,18 @@ package uk.org.bwscswim.scoreboard.meet.service;
 import org.junit.Test;
 import uk.org.bwscswim.scoreboard.meet.model.Abbreviations;
 import uk.org.bwscswim.scoreboard.meet.model.Club;
-import uk.org.bwscswim.scoreboard.meet.model.RaceTime;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
 import uk.org.bwscswim.scoreboard.meet.model.EventEntry;
+import uk.org.bwscswim.scoreboard.meet.model.RaceTime;
 import uk.org.bwscswim.scoreboard.meet.model.Swimmer;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.TreeMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ModelHelperTest
 {

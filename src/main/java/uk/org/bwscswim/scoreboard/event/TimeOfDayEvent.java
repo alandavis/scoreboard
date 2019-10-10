@@ -1,7 +1,5 @@
 package uk.org.bwscswim.scoreboard.event;
 
-import uk.org.bwscswim.scoreboard.Text;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -15,9 +13,9 @@ public class TimeOfDayEvent extends PageEvent
 
     private String timeOfDay;
 
-    public TimeOfDayEvent(Text text, int count)
+    public TimeOfDayEvent(int count)
     {
-        super(text, count);
+        super(null, count);
 
         timeOfDay = dateFormat.format(new Date());
     }

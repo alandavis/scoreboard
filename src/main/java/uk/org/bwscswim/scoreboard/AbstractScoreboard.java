@@ -562,12 +562,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 
             if (!scoreboardPanel.isVisible())
             {
-                System.err.println("=======> SWITCH TO SCOREBOARD <======="); // Appears to add a delay that fixes the rewrite problem some of the time
                 cardLayout.show(contentPane, SCOREBOARD_PANEL);
-//                timeOfDayPanel.setVisible(false); // no good
-//                scoreboardPanel.setVisible(true); // no good
-//                scoreboardPanel.validate(); // Try this to avoid rewrite problem. - no good
-//                scoreboardPanel.repaint(); // no good
             }
             setVisible(true);
         }

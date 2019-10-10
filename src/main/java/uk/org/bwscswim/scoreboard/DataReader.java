@@ -411,7 +411,7 @@ class DataReader
         if (showData())
         {
             PageEvent event =
-                      state == TIME_OF_DAY ? new TimeOfDayEvent(text, count)
+                      state == TIME_OF_DAY ? new TimeOfDayEvent(count)
                     : state == LINEUP_COMPLETE ? new LineupEvent(text, count)
                     : state == RACE || state == RACE_FINISHING || state == RACE_COMPLETE
                               ? lineNumberWithSplitTime == -1
