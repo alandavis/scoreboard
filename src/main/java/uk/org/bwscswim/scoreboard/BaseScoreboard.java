@@ -185,8 +185,8 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
     protected void getColors()
     {
         background = config.getColor(state, null, "background", Color.BLACK);
-        titleForeground = config.getColor(state, null, "title.foreground", Color.YELLOW);
-        laneForeground = config.getColor(state, null, "lane.foreground", Color.WHITE);
+        titleForeground = config.getColor(null, "title.foreground", Color.YELLOW);
+        laneForeground = config.getColor(null, "lane.foreground", Color.WHITE);
     }
 
     protected void setColors()
@@ -230,18 +230,6 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
         }
         return graphicsDevice;
     }
-
-    protected void setState(State state)
-    {
-        if (this.state != state && scoreboardVisible)
-        {
-            this.state = state;
-            getColors();
-            setColors();
-        }
-    }
-
-    public abstract void clear();
 
     public void setDataReader(DataReader dataReader)
     {

@@ -23,8 +23,6 @@
 package uk.org.bwscswim.scoreboard;
 
 import static uk.org.bwscswim.scoreboard.State.RACE;
-import static uk.org.bwscswim.scoreboard.State.RESULTS;
-import static uk.org.bwscswim.scoreboard.State.RESULTS_COMPLETE;
 import static uk.org.bwscswim.scoreboard.State.TEST;
 import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
 
@@ -130,14 +128,13 @@ public class Text extends RawText
         return isLaneLineNumber(lineNumber) ? lineNumber-FIRST_LANE_LINE_NUMBER : -1;
     }
 
-    int countLanesWithNames(State state)
+    int countLanesWithNames()
     {
         int count = 0;
         for (int laneIndex = 0; laneIndex< LANE_COUNT; laneIndex++)
         {
             int lineNumber = FIRST_LANE_LINE_NUMBER + laneIndex;
-
-            boolean result = state == RESULTS || state == RESULTS_COMPLETE;
+            boolean result = isResult(laneIndex);
             int indent = result ? 1 : 0;
 
             String name = getText(lineNumber, NAME_RANGE, indent, "").trim();
@@ -149,13 +146,13 @@ public class Text extends RawText
         return count;
     }
 
-    int countLanesWithTimes(State state)
+    int countLanesWithTimes()
     {
         int count = 0;
         for (int laneIndex = 0; laneIndex< LANE_COUNT; laneIndex++)
         {
             int lineNumber = FIRST_LANE_LINE_NUMBER + laneIndex;
-            boolean result = state == RESULTS || state == RESULTS_COMPLETE;
+            boolean result = isResult(laneIndex);
             int indent = result ? 1 : 0;
 
             String time = getText(lineNumber, TIME_RANGE, indent, "").trim();
@@ -220,7 +217,7 @@ public class Text extends RawText
     private int getLaneOrPlace(int laneIndex, boolean place)
     {
         int lineNumber = FIRST_LANE_LINE_NUMBER + laneIndex;
-        boolean result = state == RESULTS || state == RESULTS_COMPLETE;
+        boolean result = isResult(laneIndex);
         int indent = result ? 1 : 0;
         String range = place
                 ? result ? LANE_RANGE : PLACE_RANGE
@@ -240,7 +237,15 @@ public class Text extends RawText
     private String getNameClubOrTime(int laneIndex, String range)
     {
         int lineNumber = FIRST_LANE_LINE_NUMBER + laneIndex;
-        int indent = state == RESULTS || state == RESULTS_COMPLETE ? 1 : 0;
+        int indent = isResult(laneIndex) ? 1 : 0;
         return getText(lineNumber, range, indent, "").trim();
+    }
+
+    private boolean isResult(int laneIndex)
+    {
+        String place = "P"+(laneIndex+1)+" ";
+        int lineNumber = FIRST_LANE_LINE_NUMBER + laneIndex;
+        String startOfLine = getText(lineNumber, "00..02", 0, "XXX");
+        return startOfLine.equals(place);
     }
 }

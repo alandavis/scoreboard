@@ -30,6 +30,7 @@ import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
 import uk.org.bwscswim.scoreboard.event.ResultEvent;
 import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
+import uk.org.bwscswim.scoreboard.meet.model.RaceTime;
 
 import javax.swing.*;
 import java.awt.*;
@@ -237,16 +238,16 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 
     private void getFonts()
     {
-        timeOfDayFont = config.getFont(state, "timeOfDay");
+        timeOfDayFont = config.getFont(null, "timeOfDay");
 
-        singleTitleFont = config.getFont(state, "title");
-        clockFont = config.getFont(state, "clock");
-        laneFont = config.getFont(state, "lane");
-        nameFont = config.getFont(state, "name");
-        clubFont = config.getFont(state, "club");
-        timeFont = config.getFont(state, "time");
-        placeFont = config.getFont(state, "place");
-        combinedClubTimeClockFont = config.getFont(state, "combinedClubTimeClock");
+        singleTitleFont = config.getFont(null, "title");
+        clockFont = config.getFont(null, "clock");
+        laneFont = config.getFont(null, "lane");
+        nameFont = config.getFont(null, "name");
+        clubFont = config.getFont(null, "club");
+        timeFont = config.getFont(null, "time");
+        placeFont = config.getFont(null, "place");
+        combinedClubTimeClockFont = config.getFont(null, "combinedClubTimeClock");
     }
 
     private void setFonts()
@@ -273,15 +274,15 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     {
         super.getColors();
 
-        timeOfDayForeground = config.getColor(state, null, "timeOfDay.foreground", Color.WHITE);
+        timeOfDayForeground = config.getColor(null, "timeOfDay.foreground", Color.WHITE);
 
-        singleTitleForeground = config.getColor(state, null, "title.foreground", Color.YELLOW);
-        clockForeground = config.getColor(state, null, "clock.foreground", Color.YELLOW);
-        nameForeground = config.getColor(state, null, "lane.foreground", Color.WHITE);
-        clubForeground = config.getColor(state, null, "club.foreground", Color.WHITE);
-        timeForeground = config.getColor(state, null, "time.foreground", Color.WHITE);
-        placeForeground = config.getColor(state, null, "place.foreground", Color.YELLOW);
-        combinedClubTimeClockForeground = config.getColor(state, null, "combinedClubTimeClock.foreground", Color.WHITE);
+        singleTitleForeground = config.getColor(null, "title.foreground", Color.YELLOW);
+        clockForeground = config.getColor(null, "clock.foreground", Color.YELLOW);
+        nameForeground = config.getColor(null, "lane.foreground", Color.WHITE);
+        clubForeground = config.getColor(null, "club.foreground", Color.WHITE);
+        timeForeground = config.getColor(null, "time.foreground", Color.WHITE);
+        placeForeground = config.getColor(null, "place.foreground", Color.YELLOW);
+        combinedClubTimeClockForeground = config.getColor(null, "combinedClubTimeClock.foreground", Color.WHITE);
     }
 
     @Override
@@ -318,11 +319,6 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             swimmer.place.setBackground(background);
             swimmer.combinedClubTimeClock.setBackground(background);
         }
-    }
-
-    private boolean isCountyTime(String text)
-    {
-        return text.indexOf("CT") != -1 || text.indexOf("County") != -1;
     }
 
     public void clear()
@@ -495,7 +491,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         if (event instanceof TimeOfDayEvent)
         {
             background = config.getColor(state, null, "background", Color.BLACK);
-            timeOfDayForeground = config.getColor(state, null, "timeOfDay.foreground", Color.WHITE);
+            timeOfDayForeground = config.getColor(null, "timeOfDay.foreground", Color.WHITE);
 
             timeOfDayPanel.setBackground(background);
             timeOfDay.setForeground(timeOfDayForeground);
@@ -521,7 +517,6 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             else
             {
                 setCombinedTitle(event.getCombinedTitle());
-                setClock(event.getClock());
             }
 
             boolean hasImprovments = false;
@@ -560,6 +555,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             getColors();
             setColors();
 
+//            if (eventCount == 0 && !(event instanceof RaceSplitTimeEvent))
             if (!scoreboardPanel.isVisible())
             {
                 cardLayout.show(contentPane, SCOREBOARD_PANEL);

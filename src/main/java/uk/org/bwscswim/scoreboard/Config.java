@@ -222,6 +222,11 @@ class Config
         return defaultValue;
     }
 
+    Color getColor(String componentName, String attributeName, Color defaultValue)
+    {
+        return getColor(null, componentName, attributeName, defaultValue);
+    }
+
     Color getColor(State state, String componentName, String attributeName, Color defaultValue)
     {
         String stateName = getStateName(state);

@@ -356,7 +356,7 @@ class DataReader
                 }
             }
             else if (state == RESULTS && text.isLaneLineNumber(lineNumber) &&
-                     lanesWithTimesAtTheEndOfTheRace == text.countLanesWithTimes(state))
+                     lanesWithTimesAtTheEndOfTheRace == text.countLanesWithTimes())
             {
                 setState(RESULTS_COMPLETE);
             }
@@ -365,7 +365,7 @@ class DataReader
                 // Set or clear split/finish time for swimmer if currently visible
                 updateScoreboard(state, text.getSplitCountAndIncrement(), text, lineNumber);
 
-                if (state == RACE_FINISHING && text.countLanesWithNames(state) == text.countLanesWithTimes(state))
+                if (state == RACE_FINISHING && text.countLanesWithNames() == text.countLanesWithTimes())
                 {
                     setState(RACE_COMPLETE);
                     raceTimerThread.terminate();
@@ -375,7 +375,7 @@ class DataReader
         }
         else if (CONTROL_CLEAR.equals(control))
         {
-            lanesWithTimesAtTheEndOfTheRace = text.countLanesWithTimes(state);
+            lanesWithTimesAtTheEndOfTheRace = text.countLanesWithTimes();
             text.clear();
         }
         else if (CONTROL_LINEUP.equals(control))
