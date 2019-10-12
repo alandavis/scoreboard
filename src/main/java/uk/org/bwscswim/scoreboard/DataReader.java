@@ -175,6 +175,7 @@ class DataReader
 
         void publishEvent(ScoreboardEvent event)
         {
+            System.err.println("----------- "+Thread.currentThread().getName()+" publish");
             publish(event);
         }
 
@@ -182,6 +183,7 @@ class DataReader
         // Runs in Swing's event dispatch thread
         protected void process(List<ScoreboardEvent> scoreboardEvents)
         {
+            System.err.println("----------- "+Thread.currentThread().getName()+" process");
             scoreboardEvents.forEach(event->observers.forEach(observer -> observer.update(event)));
         }
 
@@ -412,16 +414,14 @@ class DataReader
         }
         else if (CONTROL_TIME_OF_DAY.equals(control))
         {
-            clearRaceTimer();
-            clearStateQueue();
-            setState(TIME_OF_DAY);
+            // ignore as we do our own
         }
     }
 
     private boolean showData()
     {
         // We hold off showing data if we need to display the race finish, results or lineup a bit longer.
-        return stateTimer == null || Thread.currentThread().getName().startsWith("AWT-EventQueue");
+        return stateTimer == null || StateTimer.isStateTimerThread();
     }
 
     boolean isRaceInProgress()
@@ -472,6 +472,7 @@ class DataReader
         boolean emptyQueue = queuedStateData.isEmpty();
         if (stateTimer != null || !emptyQueue)
         {
+            System.err.println("----------- "+Thread.currentThread().getName()+" QueueState");
             State nextState = emptyQueue ? null : queuedStateData.get(queuedStateData.size() - 1).getState().nextQueueableState();
             if (emptyQueue || state == nextState)
             {
@@ -488,6 +489,7 @@ class DataReader
         }
         else
         {
+            System.err.println("----------- "+Thread.currentThread().getName()+" HandleState");
             stateTrace.trace(state+" live state");
             Text text = new Text(this.text, state);
             startStateTimerIfNeeded(state, text);
@@ -502,6 +504,7 @@ class DataReader
             Text queuedText = queuedStateData.remove(0);
 
             State state = queuedText.getState();
+            System.err.println("----------- "+Thread.currentThread().getName()+" Dequeue State");
             stateTrace.trace(state+" removed from queue: ", queuedStateData);
             startStateTimerIfNeeded(state, queuedText);
             if (queuedStateData.isEmpty() && (state == RACE || state == RACE_FINISHING))
@@ -513,6 +516,7 @@ class DataReader
         State state = this.text.getState();
         if (state == RESULTS_COMPLETE && stateTimer == null)
         {
+            System.err.println("----------- "+Thread.currentThread().getName()+" show TimeOfDay");
             showTimeOfDay();
         }
     }

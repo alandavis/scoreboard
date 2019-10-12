@@ -22,50 +22,66 @@
  */
 package uk.org.bwscswim.scoreboard;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 /**
- * A Timer that calls {@link #end()} after {code}runForTime{code} milliseconds and then exits. It also calls
+ * A Thread that calls {@link #end()} after {code}runForTime{code} milliseconds and then exits. It also calls
  * {@link #tick(int)} after starting and then every {code}tickTime{code} milliseconds.
  * Used to remove states that have been queued up waiting for the scoreboard minimum display times.
  *
  * @author adavis
  */
-class StateTimer
+class StateTimer extends Thread
 {
-    private final Timer timer;
+    public static final String THREAD_NAME_PREFIX = "StateTimer"; // "AWT-EventQueue";
+    private final long tickTime;
     private final long end;
     private int count;
     private boolean terminate;
 
-    StateTimer(int tickTime, long runForTime)
+    StateTimer(long tickTime, long runForTime)
     {
+        this.tickTime = tickTime;
         end = runForTime == -1 ? Long.MAX_VALUE : System.currentTimeMillis() + runForTime;
-        timer = new Timer(0, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e)
+        setDaemon(true);
+        setName(THREAD_NAME_PREFIX);
+        start();
+    }
+
+    public static boolean isStateTimerThread()
+    {
+        return Thread.currentThread().getName().startsWith(THREAD_NAME_PREFIX);
+    }
+
+    @Override
+    public void run()
+    {
+        try
+        {
+            for (;;)
             {
+                long now = System.currentTimeMillis();
                 synchronized (this)
                 {
                     if (terminate)
                     {
-                        timer.stop();
-                        return;
+                        break;
                     }
-                    if (System.currentTimeMillis() >= end)
+                    if (now >= end)
                     {
                         end();
-                        timer.stop();
-                        return;
+                        break;
                     }
                 }
+
                 tick(count++);
+
+                long wakeIn = now + tickTime > end ? end - now : tickTime;
+                Thread.sleep(wakeIn);
             }
-        });
-        timer.setDelay(tickTime);
-        timer.start();
+        }
+        catch (InterruptedException ignore)
+        {
+            // Just exit
+        }
     }
 
     public void tick(int count)
