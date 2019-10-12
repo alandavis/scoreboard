@@ -25,24 +25,18 @@ package uk.org.bwscswim.scoreboard;
 import uk.org.bwscswim.scoreboard.event.LineupEvent;
 import uk.org.bwscswim.scoreboard.event.Observer;
 import uk.org.bwscswim.scoreboard.event.PageEvent;
-import uk.org.bwscswim.scoreboard.event.RaceEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
 import uk.org.bwscswim.scoreboard.event.ResultEvent;
+import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
+import uk.org.bwscswim.scoreboard.event.StartEvent;
 import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
-import uk.org.bwscswim.scoreboard.meet.model.RaceTime;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import static uk.org.bwscswim.scoreboard.State.LINEUP;
-import static uk.org.bwscswim.scoreboard.State.LINEUP_COMPLETE;
-import static uk.org.bwscswim.scoreboard.State.RACE;
-import static uk.org.bwscswim.scoreboard.State.RESULTS_COMPLETE;
-import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
 
 /**
  * Abstract class contains fields used to display the scoreboard, but without any layout.
@@ -321,62 +315,38 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         }
     }
 
-    public void clear()
-    {
-        setCombinedTitle("");
-        setClock("");
-        for (Swimmer swimmer : swimmers)
-        {
-            swimmer.lane.setText("");
-            swimmer.name.setText("");
-            swimmer.club.setText("");
-            swimmer.time.setText("");
-            swimmer.improvement.setText("");
-            swimmer.place.setText("");
-            swimmer.combinedClubTimeClock.setText("");
-        }
-    }
-
-    public void setCombinedTitle(String title)
-    {
-        String text = pad(title, singleTitleLength);
-        this.title.setText(text);
-    }
-
-    void setClock(String clock)
+    private void setClock(String clock)
     {
         String clockText = pad(clock, clockLength);
         this.clock.setText(clockText);
         for (int lane=1; lane<=laneCount; lane++)
         {
             Swimmer swimmer = swimmers.get(lane-1);
-            setCombinedClubTimeClock(lane, swimmer, -1, false);
+            setCombinedClubTimeClock(lane, swimmer, null, false);
         }
     }
 
-    private void setCombinedClubTimeClock(int lane, Swimmer swimmer, int eventCount, boolean hasImprovments)
+    private void setCombinedClubTimeClock(int lane, Swimmer swimmer, PageEvent event, boolean hasImprovments)
     {
+        int eventCount = event == null ? -1 : event.getCount();
         String combinedClubTimeClockText = "";
-        if (state != TIME_OF_DAY)
-        {
-            String clubText = swimmer.club.getText().trim();
-            String timeText = swimmer.time.getText().trim();
-            String improvement = swimmer.improvement.getText().trim();
-            String clockText = state == LINEUP || state == LINEUP_COMPLETE ? "" : clock.getText().trim();
-            combinedClubTimeClockText =
-                    !timeText.isEmpty() ? (eventCount > 5 && hasImprovments ? improvement : timeText) :
-                    clockText.isEmpty() ? clubText :
-                    combinedClubTimeClockEnabledabledClock && lane == getLaneOfFirstBlankTime() ? clockText :
-                    "";
-            if (!combinedClubTimeClockText.isEmpty() &&
+        String clubText = swimmer.club.getText().trim();
+        String timeText = swimmer.time.getText().trim();
+        String improvement = swimmer.improvement.getText().trim();
+        String clockText = event instanceof LineupEvent ? "" : clock.getText().trim();
+        combinedClubTimeClockText =
+                !timeText.isEmpty() ? (eventCount > 5 && hasImprovments ? improvement : timeText) :
+                        clockText.isEmpty() ? clubText :
+                                combinedClubTimeClockEnabledabledClock && lane == getLaneOfFirstBlankTime() ? clockText :
+                                        "";
+        if (!combinedClubTimeClockText.isEmpty() &&
                 (!timeText.isEmpty() || !clockText.isEmpty()) &&
                 combinedClubTimeClockText.charAt(combinedClubTimeClockText.length()-2) == '.')
-            {
-                combinedClubTimeClockText = combinedClubTimeClockText+' ';
-            }
-            combinedClubTimeClockText = lpad(combinedClubTimeClockText, combinedClubTimeClockLength);
-            swimmer.combinedClubTimeClock.setText(combinedClubTimeClockText);
+        {
+            combinedClubTimeClockText = combinedClubTimeClockText+' ';
         }
+        combinedClubTimeClockText = lpad(combinedClubTimeClockText, combinedClubTimeClockLength);
+        swimmer.combinedClubTimeClock.setText(combinedClubTimeClockText);
     }
 
     private int getLaneOfFirstBlankTime()
@@ -445,11 +415,127 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     }
 
     @Override
+    public void update(ScoreboardEvent event)
+    {
+        if (event instanceof RaceTimerEvent)
+        {
+            update((RaceTimerEvent)event);
+        }
+        else if (event instanceof TimeOfDayEvent)
+        {
+            update((TimeOfDayEvent)event);
+        }
+        else if (event instanceof RaceSplitTimeEvent)
+        {
+            int from = ((RaceSplitTimeEvent) event).getIndexOfLaneWithSplitTime();
+            update((PageEvent)event, from, from+1);
+        }
+        else if (event instanceof PageEvent)
+        {
+            update((PageEvent)event, 0, ((PageEvent)event).getLaneCount());
+        }
+        else if (event instanceof StartEvent)
+        {
+            updated((StartEvent)event);
+        }
+    }
+
+    private void update(RaceTimerEvent event)
+    {
+        setClock(event.getClock());
+        setVisible(true);
+    }
+
+    private void update(TimeOfDayEvent event)
+    {
+        int eventCount = event.getCount();
+        if (eventCount == 0)
+        {
+            timeOfDayPanel.setBackground(background);
+            timeOfDay.setForeground(timeOfDayForeground);
+        }
+
+        String time = event.getTimeOfDay();
+        this.timeOfDay.setText(time);
+
+        if (!timeOfDayPanel.isVisible())
+        {
+            cardLayout.show(contentPane, TIME_OF_DAY_PANEL);
+        }
+    }
+
+    private void updated(StartEvent event)
+    {
+        if (showTestCardFor > 0)
+        {
+            try
+            {
+                Thread.sleep(showTestCardFor);
+            }
+            catch (InterruptedException ignore)
+            {
+            }
+        }
+    }
+
+    private void update(PageEvent event, int from, int to)
+    {
+        int eventCount = event.getCount();
+        if (eventCount == 0)
+        {
+            scoreboardPanel.setBackground(event instanceof ResultEvent ? resultBackground : background);
+        }
+        setText(event, eventCount, from, to);
+        if (!scoreboardPanel.isVisible())
+        {
+            cardLayout.show(contentPane, SCOREBOARD_PANEL);
+        }
+    }
+
+    private void setText(PageEvent event, int eventCount, int from, int to)
+    {
+        this.title.setText(pad(event.getCombinedTitle(), singleTitleLength));
+
+        boolean hasImprovments = false;
+        ResultEvent resultEvent = null;
+        if (event instanceof ResultEvent)
+        {
+            resultEvent = (ResultEvent)event;
+            for (int laneIndex = from; laneIndex < to; laneIndex++)
+            {
+                Swimmer swimmer = swimmers.get(laneIndex);
+                String improvement = resultEvent.getImprovement(laneIndex);
+                swimmer.improvement.setText(improvement);
+                boolean countyTime = resultEvent.isCountyTime(laneIndex);
+                if (!improvement.isEmpty() || countyTime)
+                {
+                    hasImprovments = true;
+                }
+            }
+        }
+
+        for (int laneIndex = from; laneIndex < to; laneIndex++)
+        {
+            Swimmer swimmer = swimmers.get(laneIndex);
+            int lane = event.getLane(laneIndex);
+            String laneText = lane <= 0 ? "" : Integer.toString(lane);
+            swimmer.lane.setText(laneText);
+            swimmer.name.setText(event.getName(laneIndex));
+            swimmer.club.setText(event.getClub(laneIndex));
+            swimmer.time.setText(event.getTime(laneIndex));
+            swimmer.place.setText(
+                eventCount > 5 && hasImprovments
+                ? (resultEvent.isCountyTime(laneIndex) ? "CT" : "")
+                : getPlace(event.getPlace(laneIndex)));
+            setCombinedClubTimeClock(laneIndex + 1, swimmer, event, hasImprovments);
+        }
+    }
+
+    @Override
     public String toString()
     {
         StringBuilder sb = new StringBuilder("Scoreboard{").
                 append("title='").append(title.getText().trim()).append("', ").
-                append("state=").append(state.name().toLowerCase()).append(", ").
                 append("clock='").append(clock.getText().trim()).append("', ").
                 append("swimmers=[");
         Iterator<Swimmer> iterator = swimmers.iterator();
@@ -475,101 +561,5 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         }
         sb.append("]}");
         return sb.toString();
-    }
-
-    @Override
-    public void update(PageEvent event)
-    {
-        // TODO remove the need for the state in the rest of the code in this class.
-        state =   event instanceof TimeOfDayEvent ? TIME_OF_DAY
-                : event instanceof LineupEvent ? LINEUP_COMPLETE
-                : event instanceof RaceEvent ? RACE
-                : event instanceof RaceSplitTimeEvent ? RACE
-                : RESULTS_COMPLETE;
-
-        int eventCount = event.getCount();
-        if (event instanceof TimeOfDayEvent)
-        {
-            background = config.getColor(state, null, "background", Color.BLACK);
-            timeOfDayForeground = config.getColor(null, "timeOfDay.foreground", Color.WHITE);
-
-            timeOfDayPanel.setBackground(background);
-            timeOfDay.setForeground(timeOfDayForeground);
-
-            String time = ((TimeOfDayEvent) event).getTimeOfDay();
-            this.timeOfDay.setText(time);
-
-            if (!timeOfDayPanel.isVisible())
-            {
-                cardLayout.show(contentPane, TIME_OF_DAY_PANEL);
-            }
-        }
-        else
-        {
-            int from = 0;
-            int to = event.getLaneCount();
-
-            if (event instanceof RaceSplitTimeEvent)
-            {
-                from = ((RaceSplitTimeEvent) event).getIndexOfLaneWithSplitTime();
-                to = from + 1;
-            }
-            else
-            {
-                setCombinedTitle(event.getCombinedTitle());
-            }
-
-            boolean hasImprovments = false;
-            ResultEvent resultEvent = null;
-            if (event instanceof ResultEvent)
-            {
-                resultEvent = (ResultEvent)event;
-                for (int laneIndex = from; laneIndex < to; laneIndex++)
-                {
-                    Swimmer swimmer = swimmers.get(laneIndex);
-                    String improvement = resultEvent.getImprovement(laneIndex);
-                    swimmer.improvement.setText(improvement);
-                    boolean countyTime = resultEvent.isCountyTime(laneIndex);
-                    if (!improvement.isEmpty() || countyTime)
-                    {
-                        hasImprovments = true;
-                    }
-                }
-            }
-
-            for (int laneIndex = from; laneIndex < to; laneIndex++)
-            {
-                Swimmer swimmer = swimmers.get(laneIndex);
-                int lane = event.getLane(laneIndex);
-                String laneText = lane <= 0 ? "" : Integer.toString(lane);
-                swimmer.lane.setText(laneText);
-                swimmer.name.setText(event.getName(laneIndex));
-                swimmer.club.setText(event.getClub(laneIndex));
-                swimmer.time.setText(event.getTime(laneIndex));
-                swimmer.place.setText(
-                    eventCount > 5 && hasImprovments
-                    ? (resultEvent.isCountyTime(laneIndex) ? "CT" : "")
-                    : getPlace(event.getPlace(laneIndex)));
-                setCombinedClubTimeClock(laneIndex + 1, swimmer, eventCount, hasImprovments);
-            }
-            getColors();
-            setColors();
-
-//            if (eventCount == 0 && !(event instanceof RaceSplitTimeEvent))
-            if (!scoreboardPanel.isVisible())
-            {
-                cardLayout.show(contentPane, SCOREBOARD_PANEL);
-            }
-            setVisible(true);
-        }
-    }
-
-    @Override
-    public void update(RaceTimerEvent event)
-    {
-        // TODO remove the need for the state from the rest of the code in this class.
-        state = RACE;
-        setClock(event.getClock());
-        setVisible(true);
     }
 }

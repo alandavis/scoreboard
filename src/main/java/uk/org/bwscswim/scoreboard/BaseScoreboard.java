@@ -28,7 +28,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import static uk.org.bwscswim.scoreboard.State.TEST;
+import static uk.org.bwscswim.scoreboard.State.RESULTS;
 
 /**
  * Abstract class containing methods used to setup the window onto the Scoreboard.
@@ -44,9 +44,8 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
 
     protected Container contentPane;
 
-    protected State state = TEST;
-
     protected Color background;
+    protected Color resultBackground;
     protected Color titleForeground;
     protected Color laneForeground;
 
@@ -184,7 +183,8 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
 
     protected void getColors()
     {
-        background = config.getColor(state, null, "background", Color.BLACK);
+        background = config.getColor(null, "background", Color.BLACK);
+        resultBackground = config.getColor(RESULTS, null, "background", new Color(Integer.parseInt("0033cc", 16)));
         titleForeground = config.getColor(null, "title.foreground", Color.YELLOW);
         laneForeground = config.getColor(null, "lane.foreground", Color.WHITE);
     }
@@ -234,19 +234,5 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
     public void setDataReader(DataReader dataReader)
     {
         this.dataReader = dataReader;
-    }
-
-    public void beforeFirstRead()
-    {
-        if (showTestCardFor > 0)
-        {
-            try
-            {
-                Thread.sleep(showTestCardFor);
-            }
-            catch (InterruptedException ignore)
-            {
-            }
-        }
     }
 }

@@ -3,7 +3,7 @@ package uk.org.bwscswim.scoreboard.event;
 /**
  * @author adavis
  */
-public class RaceTimerEvent
+public class RaceTimerEvent implements ScoreboardEvent
 {
     private final String clock;
 

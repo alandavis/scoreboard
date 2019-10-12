@@ -12,6 +12,7 @@ import uk.org.bwscswim.scoreboard.meet.model.Event;
 import uk.org.bwscswim.scoreboard.meet.service.ModelHelper;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import static uk.org.bwscswim.scoreboard.State.RESULTS;
@@ -24,18 +25,22 @@ public class ScoreboardTest
 {
     private Config config = new Config("config.properties");
     private Text text = new Text(config);
-    private AbstractScoreboard scoreboard = new Scoreboard(config, false);
+    private AbstractScoreboard scoreboard;
     private float speedFactor = 1f;
     private ModelHelper helper;
 
     private List<Event> events;
 
     @Before
-    public void setup() throws IOException
+    public void setup() throws IOException, InvocationTargetException, InterruptedException
     {
         helper = new ModelHelper("AcceptedTest.txt",
                 "Events.txt", "Clubs.txt", "CountyTimes.txt");
         events = helper.getEvents();
+        java.awt.EventQueue.invokeAndWait(() ->
+        {
+            scoreboard = new Scoreboard(config, false);
+        });
     }
 
     private void setText(String linesFrom0, String line11)
@@ -58,7 +63,7 @@ public class ScoreboardTest
     }
 
     @Test
-    public void startupTest() throws Exception
+    public void longerTest() throws Exception
     {
         setText("Girls 50m Backstroke                 \n" +
                         "Ev 17,  Ht 1                         \n",

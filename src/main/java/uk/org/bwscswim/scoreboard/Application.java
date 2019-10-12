@@ -24,6 +24,8 @@ package uk.org.bwscswim.scoreboard;
 
 import uk.org.bwscswim.scoreboard.meet.service.ModelHelper;
 
+import javax.swing.*;
+
 /**
  * Main entry class used to start the scoreboard.
  *
@@ -40,16 +42,17 @@ public class Application
                 Config config = new Config("config.properties");
                 ModelHelper helper = new ModelHelper("Accepted.txt",
                         "Events.txt", "Clubs.txt", "CountyTimes.txt");
-                AbstractScoreboard scoreboard1 = new Scoreboard(config, false);
-//                AbstractScoreboard scoreboard2 = new Scoreboard(config, true);
                 DataReader dataReader = new DataReader(config);
-                dataReader.addObserver(scoreboard1);
-//                dataReader.addObserver(scoreboard2);
                 dataReader.setEvents(helper.getEvents());
-                dataReader.readDataInBackground();
 
+                AbstractScoreboard scoreboard1 = new Scoreboard(config, false);
+                AbstractScoreboard scoreboard2 = new Scoreboard(config, true);
                 scoreboard1.setDataReader(dataReader);
-//                scoreboard2.setDataReader(dataReader);
+                scoreboard2.setDataReader(dataReader);
+                dataReader.addObserver(scoreboard1);
+                dataReader.addObserver(scoreboard2);
+
+                dataReader.readDataInBackground();
             }
             catch (Exception e)
             {

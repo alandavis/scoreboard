@@ -3,7 +3,6 @@ package uk.org.bwscswim.scoreboard.event;
 /**
  * @author adavis
  */
-public interface Observer
+public interface ScoreboardEvent
 {
-    void update(ScoreboardEvent event);
 }

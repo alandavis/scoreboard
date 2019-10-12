@@ -30,9 +30,12 @@ import uk.org.bwscswim.scoreboard.event.RaceEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
 import uk.org.bwscswim.scoreboard.event.ResultEvent;
+import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
+import uk.org.bwscswim.scoreboard.event.StartEvent;
 import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
 
+import javax.swing.*;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -96,53 +99,12 @@ class DataReader
     private StateTimer stateTimer;
     private List<Event> events;
 
-    DataReader(Config config)
+    private class BackgroundReader extends SwingWorker<Void, ScoreboardEvent>
     {
-        this.config = config;
-
-        text = new Text(config);
-        CONTROL_CLOCK = CONTROL_LINE_SUFFIX+text.getClockFromRange();
-
-        displayFinishFor = config.getInt("displayFinishFor", 3000);
-        displayResultsFor = config.getInt("displayResultsFor", 10000);
-        displayLineupFor = config.getInt("displayLineupFor", 6000);
-
-        setTrace(config.getBoolean("trace", true));
-        stateTrace = new StateTrace();
-        rawTrace = new RawTrace(config, stateTrace);
-    }
-
-    public void addObserver(Observer observer)
-    {
-        observers.add(observer);
-    }
-
-    public void setEvents(List<Event> events)
-    {
-        this.events = events;
-    }
-
-    void setInputStream(InputStream inputStream)
-    {
-        this.inputStream = inputStream;
-    }
-
-    void setTrace(boolean trace)
-    {
-        this.trace = trace;
-    }
-
-    void readDataInBackground()
-    {
-        System.out.println("\nAvailable serial ports:");
-        SerialPort[] commPorts = SerialPort.getCommPorts();
-        for (int i = 0; i < commPorts.length; i++)
+        @Override
+        protected Void doInBackground() throws Exception
         {
-            System.out.println((i + 1) + ". " + commPorts[i].getPortDescription());
-        }
-        Thread t = new Thread(() ->
-        {
-            observers.forEach(observer -> observer.beforeFirstRead());
+            publishEvent(new StartEvent());
             showTimeOfDay();
             String testFilename = config.getString("testFilename", null);
             if (testFilename != null && !testFilename.isEmpty())
@@ -208,9 +170,71 @@ class DataReader
                     }
                 }
             }
-        });
-        t.setDaemon(true);
-        t.start();
+            return null;
+        }
+
+        void publishEvent(ScoreboardEvent event)
+        {
+            publish(event);
+        }
+
+        @Override
+        // Runs in Swing's event dispatch thread
+        protected void process(List<ScoreboardEvent> scoreboardEvents)
+        {
+            scoreboardEvents.forEach(event->observers.forEach(observer -> observer.update(event)));
+        }
+
+    };
+
+    private BackgroundReader backgroundReader = new BackgroundReader();
+
+    DataReader(Config config)
+    {
+        this.config = config;
+
+        text = new Text(config);
+        CONTROL_CLOCK = CONTROL_LINE_SUFFIX+text.getClockFromRange();
+
+        displayFinishFor = config.getInt("displayFinishFor", 3000);
+        displayResultsFor = config.getInt("displayResultsFor", 12000);
+        displayLineupFor = config.getInt("displayLineupFor", 6000);
+
+        setTrace(config.getBoolean("trace", true));
+        stateTrace = new StateTrace();
+        rawTrace = new RawTrace(config, stateTrace);
+    }
+
+    public void addObserver(Observer observer)
+    {
+        observers.add(observer);
+    }
+
+    public void setEvents(List<Event> events)
+    {
+        this.events = events;
+    }
+
+    void setInputStream(InputStream inputStream)
+    {
+        this.inputStream = inputStream;
+    }
+
+    void setTrace(boolean trace)
+    {
+        this.trace = trace;
+    }
+
+    void readDataInBackground()
+    {
+        System.out.println("\nAvailable serial ports:");
+        SerialPort[] commPorts = SerialPort.getCommPorts();
+        for (int i = 0; i < commPorts.length; i++)
+        {
+            System.out.println((i + 1) + ". " + commPorts[i].getPortDescription());
+        }
+
+        backgroundReader.execute();
     }
 
     void readInputStream() throws InterruptedException
@@ -420,7 +444,7 @@ class DataReader
                     : new   ResultEvent(text, count, events);
 
             stateTrace.trace(event.toString());
-            observers.forEach(observer -> observer.update(event));
+            backgroundReader.publishEvent(event);
         }
     }
 
@@ -430,7 +454,7 @@ class DataReader
         {
             stateTrace.trace("RaceTimerEvent     "+clock.trim());
             RaceTimerEvent event = new RaceTimerEvent(clock);
-            observers.forEach(observer -> observer.update(event));
+            backgroundReader.publishEvent(event);
         }
     }
 

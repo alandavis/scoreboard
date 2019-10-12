@@ -237,7 +237,7 @@ class Config
             {
                 if (value.startsWith("#") && value.length() == 7)
                 {
-                    int rgb = Integer.parseInt(value.substring(2), 16);
+                    int rgb = Integer.parseInt(value.substring(1), 16);
                     return new Color(rgb);
                 }
                 else

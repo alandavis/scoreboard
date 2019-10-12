@@ -7,7 +7,7 @@ import uk.org.bwscswim.scoreboard.Text;
  *
  * @author adavis
  */
-public class PageEvent
+public class PageEvent implements ScoreboardEvent
 {
     private final Text text;
     protected final int count;
