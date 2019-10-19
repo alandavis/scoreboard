@@ -66,15 +66,6 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
         getColors();
         setColors();
 
-//        try
-//        {
-//            JLabel label = new JLabel(new ImageIcon(ImageIO.read(getClass().getClassLoader().getResourceAsStream(("BWSC.png")))));
-//            setContentPane(label);
-//        }
-//        catch (IOException ignore)
-//        {
-//        }
-
         exitOnEscapeOrEnter();
 
         if (scoreboardVisible)

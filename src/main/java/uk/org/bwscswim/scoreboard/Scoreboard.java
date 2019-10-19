@@ -61,7 +61,6 @@ public class Scoreboard extends AbstractScoreboard
                         .addGroup(layout.createSequentialGroup()
                                 .addGap(leftGap)
                                 .addGroup(col1)
-//                                .addGap(horizontalGap)
                                 .addGroup(col2)
                                 .addGap(horizontalGap)
                                 .addGroup(col3)

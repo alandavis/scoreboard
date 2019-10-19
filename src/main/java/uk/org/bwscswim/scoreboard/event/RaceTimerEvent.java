@@ -16,4 +16,12 @@ public class RaceTimerEvent implements ScoreboardEvent
     {
         return clock;
     }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder sb = new StringBuilder(getClass().getSimpleName()).
+                append(" ").append(clock);
+        return sb.toString();
+    }
 }

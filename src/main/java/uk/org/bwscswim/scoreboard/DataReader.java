@@ -30,12 +30,10 @@ import uk.org.bwscswim.scoreboard.event.RaceEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
 import uk.org.bwscswim.scoreboard.event.ResultEvent;
-import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
 import uk.org.bwscswim.scoreboard.event.StartEvent;
 import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
 
-import javax.swing.*;
 import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -44,6 +42,7 @@ import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static uk.org.bwscswim.scoreboard.RawTrace.format;
 import static uk.org.bwscswim.scoreboard.State.LINEUP;
 import static uk.org.bwscswim.scoreboard.State.LINEUP_COMPLETE;
 import static uk.org.bwscswim.scoreboard.State.RACE;
@@ -52,7 +51,6 @@ import static uk.org.bwscswim.scoreboard.State.RACE_FINISHING;
 import static uk.org.bwscswim.scoreboard.State.RESULTS;
 import static uk.org.bwscswim.scoreboard.State.RESULTS_COMPLETE;
 import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
-import static uk.org.bwscswim.scoreboard.RawTrace.format;
 
 /**
  * Reads data from port or test file and generates events for scoreboards to display their data. Some events are
@@ -78,7 +76,6 @@ class DataReader
     private        final String CONTROL_CLOCK;
     private static final int CONTROL_LINE_SUFFIX_LENGTH = CONTROL_LINE_SUFFIX.length();
 
-    private final List<Observer> observers = new ArrayList<>();
     private final Config config;
 
     private final RawTrace rawTrace;
@@ -98,98 +95,7 @@ class DataReader
     private List<Text> queuedStateData = new ArrayList<>();
     private StateTimer stateTimer;
     private List<Event> events;
-
-    private class BackgroundReader extends SwingWorker<Void, ScoreboardEvent>
-    {
-        @Override
-        protected Void doInBackground() throws Exception
-        {
-            publishEvent(new StartEvent());
-            showTimeOfDay();
-            String testFilename = config.getString("testFilename", null);
-            if (testFilename != null && !testFilename.isEmpty())
-            {
-                do
-                {
-                    try
-                    {
-                        setInputStream(new DummyInputStream(testFilename));
-                        readInputStream();
-                    }
-                    catch (InterruptedException ignore)
-                    {
-                    }
-                    catch (FileNotFoundException e)
-                    {
-                        System.err.println("The test file " + testFilename + " could not be found.");
-                    }
-                    finally
-                    {
-                        try
-                        {
-                            if (inputStream != null)
-                            {
-                                inputStream.close();
-                            }
-                        }
-                        catch (IOException ignore)
-                        {
-                        }
-                    }
-                } while (config.getBoolean("testLoop", true) && trace);
-                System.exit(0);
-            }
-            else
-            {
-                // Keep trying in case the port is temporarily not there.
-                for (; ; )
-                {
-                    try
-                    {
-                        SerialPort port = config.getPort();
-                        if (port.openPort())
-                        {
-                            try
-                            {
-                                setInputStream(port.getInputStream());
-                                readInputStream();
-                            } finally
-                            {
-                                port.closePort();
-                            }
-                        }
-                        else
-                        {
-                            System.err.println("The port " + port.getSystemPortName() + " failed to open for an unknown reason.");
-                        }
-                        Thread.sleep(2000);
-                    }
-                    catch (InterruptedException e)
-                    {
-                        break;
-                    }
-                }
-            }
-            return null;
-        }
-
-        void publishEvent(ScoreboardEvent event)
-        {
-            System.err.println("----------- "+Thread.currentThread().getName()+" publish");
-            publish(event);
-        }
-
-        @Override
-        // Runs in Swing's event dispatch thread
-        protected void process(List<ScoreboardEvent> scoreboardEvents)
-        {
-            System.err.println("----------- "+Thread.currentThread().getName()+" process");
-            scoreboardEvents.forEach(event->observers.forEach(observer -> observer.update(event)));
-        }
-
-    };
-
-    private BackgroundReader backgroundReader = new BackgroundReader();
+    private EventPublisher eventPublisher = new EventPublisher();
 
     DataReader(Config config)
     {
@@ -204,12 +110,13 @@ class DataReader
 
         setTrace(config.getBoolean("trace", true));
         stateTrace = new StateTrace();
+        eventPublisher.setStateTrace(stateTrace);
         rawTrace = new RawTrace(config, stateTrace);
     }
 
     public void addObserver(Observer observer)
     {
-        observers.add(observer);
+        eventPublisher.addObserver(observer);
     }
 
     public void setEvents(List<Event> events)
@@ -236,7 +143,72 @@ class DataReader
             System.out.println((i + 1) + ". " + commPorts[i].getPortDescription());
         }
 
-        backgroundReader.execute();
+        eventPublisher.publishEvent(new StartEvent());
+        showTimeOfDay();
+        String testFilename = config.getString("testFilename", null);
+        if (testFilename != null && !testFilename.isEmpty())
+        {
+            do
+            {
+                try
+                {
+                    setInputStream(new DummyInputStream(testFilename));
+                    readInputStream();
+                }
+                catch (InterruptedException ignore)
+                {
+                }
+                catch (FileNotFoundException e)
+                {
+                    System.err.println("The test file " + testFilename + " could not be found.");
+                }
+                finally
+                {
+                    try
+                    {
+                        if (inputStream != null)
+                        {
+                            inputStream.close();
+                        }
+                    }
+                    catch (IOException ignore)
+                    {
+                    }
+                }
+            } while (config.getBoolean("testLoop", true) && trace);
+            System.exit(0);
+        }
+        else
+        {
+            // Keep trying in case the port is temporarily not there.
+            for (; ; )
+            {
+                try
+                {
+                    SerialPort port = config.getPort();
+                    if (port.openPort())
+                    {
+                        try
+                        {
+                            setInputStream(port.getInputStream());
+                            readInputStream();
+                        } finally
+                        {
+                            port.closePort();
+                        }
+                    }
+                    else
+                    {
+                        System.err.println("The port " + port.getSystemPortName() + " failed to open for an unknown reason.");
+                    }
+                    Thread.sleep(2000);
+                }
+                catch (InterruptedException e)
+                {
+                    break;
+                }
+            }
+        }
     }
 
     void readInputStream() throws InterruptedException
@@ -442,9 +414,7 @@ class DataReader
                                 ? new RaceEvent(text, count)
                                 : new RaceSplitTimeEvent(text, count, lineNumberWithSplitTime)
                     : new   ResultEvent(text, count, events);
-
-            stateTrace.trace(event.toString());
-            backgroundReader.publishEvent(event);
+            eventPublisher.publishEvent(event);
         }
     }
 
@@ -452,9 +422,8 @@ class DataReader
     {
         if (showData())
         {
-            stateTrace.trace("RaceTimerEvent     "+clock.trim());
             RaceTimerEvent event = new RaceTimerEvent(clock);
-            backgroundReader.publishEvent(event);
+            eventPublisher.publishEvent(event);
         }
     }
 
@@ -472,7 +441,6 @@ class DataReader
         boolean emptyQueue = queuedStateData.isEmpty();
         if (stateTimer != null || !emptyQueue)
         {
-            System.err.println("----------- "+Thread.currentThread().getName()+" QueueState");
             State nextState = emptyQueue ? null : queuedStateData.get(queuedStateData.size() - 1).getState().nextQueueableState();
             if (emptyQueue || state == nextState)
             {
@@ -489,7 +457,6 @@ class DataReader
         }
         else
         {
-            System.err.println("----------- "+Thread.currentThread().getName()+" HandleState");
             stateTrace.trace(state+" live state");
             Text text = new Text(this.text, state);
             startStateTimerIfNeeded(state, text);
@@ -504,7 +471,6 @@ class DataReader
             Text queuedText = queuedStateData.remove(0);
 
             State state = queuedText.getState();
-            System.err.println("----------- "+Thread.currentThread().getName()+" Dequeue State");
             stateTrace.trace(state+" removed from queue: ", queuedStateData);
             startStateTimerIfNeeded(state, queuedText);
             if (queuedStateData.isEmpty() && (state == RACE || state == RACE_FINISHING))
@@ -516,7 +482,6 @@ class DataReader
         State state = this.text.getState();
         if (state == RESULTS_COMPLETE && stateTimer == null)
         {
-            System.err.println("----------- "+Thread.currentThread().getName()+" show TimeOfDay");
             showTimeOfDay();
         }
     }
@@ -601,7 +566,12 @@ class DataReader
                     @Override
                     public void tick(int count)
                     {
-                        if (queuedStateData.isEmpty())
+                        boolean emptyQueue;
+                        synchronized(this)
+                        {
+                            emptyQueue = queuedStateData.isEmpty();
+                        }
+                        if (emptyQueue)
                         {
                             updateScoreboard(state, count, text, -1);
                         }

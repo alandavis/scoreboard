@@ -5,4 +5,9 @@ package uk.org.bwscswim.scoreboard.event;
  */
 public class StartEvent implements ScoreboardEvent
 {
+    @Override
+    public String toString()
+    {
+        return getClass().getSimpleName();
+    }
 }

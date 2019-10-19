@@ -47,7 +47,7 @@ class StateTrace
             }
         }
         time = now;
-        System.out.println(prefix+msg);
+        System.err.println(prefix+msg);
     }
 
     public void trace(String prefix, List<Text> queuedStateData)

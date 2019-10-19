@@ -52,7 +52,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 
     private CardLayout cardLayout = new CardLayout();
 
-    private Container timeOfDayPanel = new Panel();
+    private Container timeOfDayPanel = new JPanel();
     protected JLabel logo  = new JLabel(new ImageIcon("Logo600white.jpg"));
     protected JLabel timeOfDay  = new JLabel();
     protected GroupLayout layout2 = new GroupLayout(timeOfDayPanel);
@@ -72,7 +72,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     protected JLabel clock  = new JLabel();
     protected List<Swimmer> swimmers = new ArrayList<>();
 
-    private Container scoreboardPanel = new Panel();
+    private Container scoreboardPanel = new JPanel();
 
     protected GroupLayout layout = new GroupLayout(scoreboardPanel);
     protected int laneCount;

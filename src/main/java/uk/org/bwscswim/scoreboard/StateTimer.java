@@ -73,6 +73,10 @@ class StateTimer extends Thread
                 }
 
                 tick(count++);
+                if (terminate)
+                {
+                    break;
+                }
 
                 long wakeIn = now + tickTime > end ? end - now : tickTime;
                 Thread.sleep(wakeIn);
