@@ -22,7 +22,13 @@
  */
 package uk.org.bwscswim.scoreboard;
 
+import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
+import uk.org.bwscswim.scoreboard.meet.model.Event;
 import uk.org.bwscswim.scoreboard.meet.service.ModelHelper;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 /**
  * Main entry class used to start the scoreboard.
@@ -33,31 +39,29 @@ public class Application
 {
     public static void main(String args[])
     {
-        java.awt.EventQueue.invokeLater(() ->
+        Config config = new Config("config.properties");
+        ModelHelper helper = null;
+        try
         {
-            try
+            helper = new ModelHelper("Accepted.txt",
+                    "Events.txt", "Clubs.txt", "CountyTimes.txt");
+            List<Event> events = helper.getEvents();
+            DataReader dataReader = new DataReader(config);
+            dataReader.setEvents(events);
+
+            java.awt.EventQueue.invokeAndWait(() ->
             {
-                Config config = new Config("config.properties");
-                ModelHelper helper = new ModelHelper("Accepted.txt",
-                        "Events.txt", "Clubs.txt", "CountyTimes.txt");
-                EventPublisher eventPublisher = new EventPublisher();
-                DataReader dataReader = new DataReader(config);
-                dataReader.setEvents(helper.getEvents());
-
                 AbstractScoreboard scoreboard1 = new Scoreboard(config, false);
-                AbstractScoreboard scoreboard2 = new Scoreboard(config, true);
-                scoreboard1.setDataReader(dataReader);
-                scoreboard2.setDataReader(dataReader);
-
+//                AbstractScoreboard scoreboard2 = new Scoreboard(config, true);
                 dataReader.addObserver(scoreboard1);
 //                dataReader.addObserver(scoreboard2);
+            });
 
-                dataReader.readDataInBackground();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        });
+            dataReader.readDataInBackground();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 }

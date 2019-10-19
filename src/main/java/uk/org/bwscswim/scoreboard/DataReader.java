@@ -142,73 +142,77 @@ class DataReader
         {
             System.out.println((i + 1) + ". " + commPorts[i].getPortDescription());
         }
-
-        eventPublisher.publishEvent(new StartEvent());
-        showTimeOfDay();
-        String testFilename = config.getString("testFilename", null);
-        if (testFilename != null && !testFilename.isEmpty())
+        Thread t = new Thread(() ->
         {
-            do
+            eventPublisher.publishEvent(new StartEvent());
+            showTimeOfDay();
+            String testFilename = config.getString("testFilename", null);
+            if (testFilename != null && !testFilename.isEmpty())
             {
-                try
-                {
-                    setInputStream(new DummyInputStream(testFilename));
-                    readInputStream();
-                }
-                catch (InterruptedException ignore)
-                {
-                }
-                catch (FileNotFoundException e)
-                {
-                    System.err.println("The test file " + testFilename + " could not be found.");
-                }
-                finally
+                do
                 {
                     try
                     {
-                        if (inputStream != null)
-                        {
-                            inputStream.close();
-                        }
+                        setInputStream(new DummyInputStream(testFilename));
+                        readInputStream();
                     }
-                    catch (IOException ignore)
+                    catch (InterruptedException ignore)
                     {
                     }
-                }
-            } while (config.getBoolean("testLoop", true) && trace);
-            System.exit(0);
-        }
-        else
-        {
-            // Keep trying in case the port is temporarily not there.
-            for (; ; )
-            {
-                try
-                {
-                    SerialPort port = config.getPort();
-                    if (port.openPort())
+                    catch (FileNotFoundException e)
+                    {
+                        System.err.println("The test file " + testFilename + " could not be found.");
+                    }
+                    finally
                     {
                         try
                         {
-                            setInputStream(port.getInputStream());
-                            readInputStream();
-                        } finally
+                            if (inputStream != null)
+                            {
+                                inputStream.close();
+                            }
+                        }
+                        catch (IOException ignore)
                         {
-                            port.closePort();
                         }
                     }
-                    else
-                    {
-                        System.err.println("The port " + port.getSystemPortName() + " failed to open for an unknown reason.");
-                    }
-                    Thread.sleep(2000);
-                }
-                catch (InterruptedException e)
+                } while (config.getBoolean("testLoop", true) && trace);
+                System.exit(0);
+            }
+            else
+            {
+                // Keep trying in case the port is temporarily not there.
+                for (; ; )
                 {
-                    break;
+                    try
+                    {
+                        SerialPort port = config.getPort();
+                        if (port.openPort())
+                        {
+                            try
+                            {
+                                setInputStream(port.getInputStream());
+                                readInputStream();
+                            } finally
+                            {
+                                port.closePort();
+                            }
+                        }
+                        else
+                        {
+                            System.err.println("The port " + port.getSystemPortName() + " failed to open for an unknown reason.");
+                        }
+                        Thread.sleep(2000);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        break;
+                    }
                 }
             }
-        }
+        });
+        t.setDaemon(true);
+        t.start();
     }
 
     void readInputStream() throws InterruptedException
