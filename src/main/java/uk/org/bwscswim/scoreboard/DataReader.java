@@ -96,10 +96,13 @@ class DataReader
     private StateTimer stateTimer;
     private List<Event> events;
     private EventPublisher eventPublisher = new EventPublisher();
+    private Sleeper sleeper;
 
     DataReader(Config config)
     {
         this.config = config;
+        float speedFactor = config.getFloat("speedFactor", 1);
+        sleeper = new Sleeper(speedFactor);
 
         text = new Text(config);
         CONTROL_CLOCK = CONTROL_LINE_SUFFIX+text.getClockFromRange();
@@ -153,7 +156,7 @@ class DataReader
                 {
                     try
                     {
-                        setInputStream(new DummyInputStream(testFilename));
+                        setInputStream(new DummyInputStream(testFilename, sleeper));
                         readInputStream();
                     }
                     catch (InterruptedException ignore)
@@ -505,7 +508,7 @@ class DataReader
             {
                 if (queuedStateData.isEmpty()) // don't hold the race display if we are backed up.
                 {
-                    stateTimer = new StateTimer(1000, displayFinishFor)
+                    stateTimer = new StateTimer(1000, displayFinishFor, sleeper)
                     {
                         @Override
                         public void tick(int count)
@@ -529,7 +532,7 @@ class DataReader
             }
             else if (state == RESULTS_COMPLETE)
             {
-                stateTimer = new StateTimer(1000, displayResultsFor)
+                stateTimer = new StateTimer(1000, displayResultsFor, sleeper)
                 {
                     @Override
                     public void tick(int count)
@@ -547,7 +550,7 @@ class DataReader
             }
             else if (state == LINEUP_COMPLETE)
             {
-                stateTimer = new StateTimer(1000, displayLineupFor)
+                stateTimer = new StateTimer(1000, displayLineupFor, sleeper)
                 {
                     @Override
                     public void tick(int count)
@@ -565,7 +568,7 @@ class DataReader
             }
             else if (state == TIME_OF_DAY)
             {
-                stateTimer = new StateTimer(1000, -1)
+                stateTimer = new StateTimer(1000, -1, sleeper)
                 {
                     @Override
                     public void tick(int count)

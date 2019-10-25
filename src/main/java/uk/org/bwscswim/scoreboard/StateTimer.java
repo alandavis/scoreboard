@@ -37,10 +37,10 @@ class StateTimer extends Thread
     private int count;
     private boolean terminate;
 
-    StateTimer(long tickTime, long runForTime)
+    StateTimer(long tickTime, long runForTime, Sleeper sleeper)
     {
-        this.tickTime = tickTime;
-        end = runForTime == -1 ? Long.MAX_VALUE : System.currentTimeMillis() + runForTime;
+        this.tickTime = sleeper.convert(tickTime);
+        end = runForTime == -1 ? Long.MAX_VALUE : System.currentTimeMillis() + sleeper.convert(runForTime);
         setDaemon(true);
         setName(THREAD_NAME_PREFIX);
         start();

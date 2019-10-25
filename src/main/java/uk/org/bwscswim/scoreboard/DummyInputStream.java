@@ -45,15 +45,18 @@ class DummyInputStream extends InputStream
     private int i;
     private long time = System.currentTimeMillis();
     private boolean ignoreFirstDelay = true;
+    private Sleeper sleeper;
 
     DummyInputStream(String string, boolean includeDelay)
     {
+        sleeper = new Sleeper(1.0f);
         this.includeDelay = includeDelay;
         reader = new BufferedReader(new StringReader(string));
     }
 
-    DummyInputStream(String filename) throws FileNotFoundException
+    DummyInputStream(String filename, Sleeper sleeper) throws FileNotFoundException
     {
+        this.sleeper = sleeper;
         // TODO do we want to remove ignoreFirstDelay now that there is a time of day clock?
         ignoreFirstDelay = false;
         try
@@ -107,7 +110,7 @@ class DummyInputStream extends InputStream
                             {
                                 try
                                 {
-                                    Thread.sleep(t);
+                                    sleeper.sleep(t);
                                 }
                                 catch (InterruptedException e)
                                 {

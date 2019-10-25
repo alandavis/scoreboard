@@ -28,7 +28,7 @@ public class ScoreboardTest
     private Text text = new Text(config);
     private EventPublisher eventPublisher = new EventPublisher();
     private AbstractScoreboard scoreboard;
-    private float speedFactor = 1f;
+    private Sleeper sleeper;
     private ModelHelper helper;
 
     private List<Event> events;
@@ -61,23 +61,18 @@ public class ScoreboardTest
         }
     }
 
-    private void sleep(long ms) throws InterruptedException
-    {
-        Thread.sleep((long)((double)(ms*speedFactor)));
-    }
-
     private void publish(long ms, ScoreboardEvent event) throws InterruptedException
     {
         if (ms > 0)
         {
-            sleep(ms);
+            sleeper.sleep(ms);
         }
         eventPublisher.publishEvent(event);
     }
 
     private void race(float speedFactor, boolean skip, int loops) throws Exception
     {
-        this.speedFactor = speedFactor;
+        this.sleeper = new Sleeper(speedFactor);
         for (int i=loops; i>0; i--)
         {
             publish(0, new TimeOfDayEvent(0));

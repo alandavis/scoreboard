@@ -192,6 +192,26 @@ class Config
         return defaultValue;
     }
 
+    public float getFloat(String attributeName, float defaultValue)
+    {
+        for (String key : getKeys(null, null, attributeName))
+        {
+            String value = properties.getProperty(key);
+            if (value != null)
+            {
+                try
+                {
+                    return Float.parseFloat(value.trim());
+                }
+                catch (NumberFormatException e)
+                {
+                    System.err.println("Invalid float " + value + " from property " + key);
+                }
+            }
+        }
+        return defaultValue;
+    }
+
     Boolean getBoolean(String attributeName, Boolean defaultValue)
     {
         return getBoolean(null, null, attributeName, defaultValue);
