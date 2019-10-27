@@ -72,7 +72,8 @@ public class ScoreboardTest
 
     private void race(float speedFactor, boolean skip, int loops) throws Exception
     {
-        this.sleeper = new Sleeper(speedFactor);
+        this.sleeper = new Sleeper();
+        sleeper.setSpeedFactor(speedFactor);
         for (int i=loops; i>0; i--)
         {
             publish(0, new TimeOfDayEvent(0));

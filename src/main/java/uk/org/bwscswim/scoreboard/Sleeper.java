@@ -7,9 +7,8 @@ public class Sleeper
 {
     private float speedFactor = 1f;
 
-    public Sleeper(float speedFactor)
+    public void setSpeedFactor(float speedFactor)
     {
-        System.out.println("SpeedFactor="+speedFactor);
         this.speedFactor = speedFactor;
     }
 

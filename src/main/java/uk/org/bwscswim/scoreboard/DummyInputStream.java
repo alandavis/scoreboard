@@ -50,7 +50,7 @@ class DummyInputStream extends InputStream
 
     DummyInputStream(String string, boolean includeDelay)
     {
-        sleeper = new Sleeper(1.0f);
+        sleeper = new Sleeper();
         this.includeDelay = includeDelay;
         reader = new BufferedReader(new StringReader(string));
     }

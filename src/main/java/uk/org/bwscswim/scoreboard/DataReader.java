@@ -96,13 +96,11 @@ class DataReader
     private StateTimer stateTimer;
     private List<Event> events;
     private EventPublisher eventPublisher = new EventPublisher();
-    private Sleeper sleeper;
+    private Sleeper sleeper= new Sleeper();
 
     DataReader(Config config)
     {
         this.config = config;
-        float speedFactor = config.getFloat("speedFactor", 1);
-        sleeper = new Sleeper(speedFactor);
 
         text = new Text(config);
         CONTROL_CLOCK = CONTROL_LINE_SUFFIX+text.getClockFromRange();
@@ -156,6 +154,8 @@ class DataReader
                 {
                     try
                     {
+                        float speedFactor = config.getFloat("speedFactor", 1);
+                        sleeper.setSpeedFactor(speedFactor);
                         setInputStream(new DummyInputStream(testFilename, sleeper));
                         readInputStream();
                     }
