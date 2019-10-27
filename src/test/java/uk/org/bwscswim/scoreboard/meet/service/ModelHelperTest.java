@@ -216,10 +216,10 @@ public class ModelHelperTest
         assertEquals(   "-1.00",  event.getImprovement("Emma",  "1:31.00")); // faster
         assertEquals(        "",  event.getImprovement("Tess",  "1:32.00")); // new time
 
-        TreeMap<Integer, RaceTime> countryTimes = new TreeMap<>();
-        countryTimes.put(2005, RaceTime.create("1:31.0"));
-        countryTimes.put(2006, RaceTime.create("1:31.5"));
-        event.setCountyTimes(countryTimes);
+        TreeMap<Integer, RaceTime> countyTimes = new TreeMap<>();
+        countyTimes.put(2005, RaceTime.create("1:31.0"));
+        countyTimes.put(2006, RaceTime.create("1:31.5"));
+        event.setCountyTimes(countyTimes);
         assertEquals(        "",  event.getImprovement("Alice", "33.45"));   // duplicate name
         assertEquals(        "",  event.getImprovement("Jane",  ""));        // did not finish
         assertEquals(   "-1.00",  event.getImprovement("Jane",  "1:32.00")); // faster

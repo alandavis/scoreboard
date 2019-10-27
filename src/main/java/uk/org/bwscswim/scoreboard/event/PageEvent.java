@@ -35,7 +35,7 @@ public class PageEvent implements ScoreboardEvent
         if (subTitle.startsWith("Ev "))
         {
             int i = subTitle.indexOf(",  Ht ");
-            title = subTitle.substring(3, i)+"/"+subTitle.substring(i+6).trim()+" "+title;
+            title = subTitle.substring(3, i)+"."+subTitle.substring(i+6).trim()+" "+title;
         }
         return title;
     }

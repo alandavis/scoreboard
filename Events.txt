@@ -1,24 +1,35 @@
-Girls Open 200m Butterfly       ,Girls 200 Fly
-Girls Open 200m Freestyle       ,Girls 200 Free
-Girls Open 100m Backstroke      ,Girls 100 Back
-Girls Open 400m IM              ,Girls 400 IM
-Girls Open 100m Breaststroke    ,Girls 100 Breast
-Girls Open 100m IM              ,Girls 100 IM
-Girls Open 400m Freestyle       ,Girls 400 Free
-Girls Open 200m Backstroke      ,Girls 200 Back
-Girls Open 100m Butterfly       ,Girls 100 Fly
-Girls Open 200m IM              ,Girls 200 IM
-Girls Open 200m Breaststroke    ,Girls 200 Breast
-Girls Open 100m Freestyle       ,Girls 100 Free
-Boys Open 200m Butterfly        ,Boys 200 Fly
-Boys Open 200m Freestyle        ,Boys 200 Free
-Boys Open 100m Backstroke       ,Boys 100 Back
-Boys Open 400m IM               ,Boys 400 IM
-Boys Open 100m Breaststroke     ,Boys 100 Breast
-Boys Open 100m IM               ,Boys 100 IM
-Boys Open 400m Freestyle        ,Boys 400 Free
-Boys Open 200m Backstroke       ,Boys 200 Back
-Boys Open 100m Butterfly        ,Boys 100 Fly
-Boys Open 200m IM               ,Boys 200 IM
-Boys Open 200m Breaststroke     ,Boys 200 Breast
-Boys Open 100m Freestyle        ,Boys 100 Free
+Girls 50m Freestyle       ,Girls 50 Free
+Girls 100m Freestyle      ,Girls 100 Free
+Girls 200m Freestyle      ,Girls 200 Free
+Girls 400m Freestyle      ,Girls 400 Free
+Girls 800m Freestyle      ,Girls 800 Free
+Girls 1500m Freestyle     ,Girls 1500 Free
+Girls 50m Backstroke      ,Girls 50 Back
+Girls 100m Backstroke     ,Girls 100 Back
+Girls 200m Backstroke     ,Girls 200 Back
+Girls 50m Breaststroke    ,Girls 50 Breast
+Girls 100m Breaststroke   ,Girls 100 Breast
+Girls 200m Breaststroke   ,Girls 200 Breast
+Girls 50m Butterfly       ,Girls 50 Fly
+Girls 100m Butterfly      ,Girls 100 Fly
+Girls 200m Butterfly      ,Girls 200 Fly
+Girls 200m IM             ,Girls 200 IM
+Girls 400m IM             ,Girls 400 IM
+Boys 50m Freestyle       ,Boys 50 Free
+Boys 100m Freestyle      ,Boys 100 Free
+Boys 200m Freestyle      ,Boys 200 Free
+Boys 400m Freestyle      ,Boys 400 Free
+Boys 800m Freestyle      ,Boys 800 Free
+Boys 1500m Freestyle     ,Boys 1500 Free
+Boys 50m Backstroke      ,Boys 50 Back
+Boys 100m Backstroke     ,Boys 100 Back
+Boys 200m Backstroke     ,Boys 200 Back
+Boys 50m Breaststroke    ,Boys 50 Breast
+Boys 100m Breaststroke   ,Boys 100 Breast
+Boys 200m Breaststroke   ,Boys 200 Breast
+Boys 50m Butterfly       ,Boys 50 Fly
+Boys 100m Butterfly      ,Boys 100 Fly
+Boys 200m Butterfly      ,Boys 200 Fly
+Boys 200m IM             ,Boys 200 IM
+Boys 400m IM             ,Boys 400 IM
+

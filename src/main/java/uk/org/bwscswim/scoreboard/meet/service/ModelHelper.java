@@ -33,6 +33,7 @@ public class ModelHelper
     private final Map<String, Swimmer> swimmers = new HashMap<>();
 
     private int lineNumber;
+    private String previousAbbreviation;
 
     public ModelHelper(String acceptedSwimFilename, String eventsFilename, String clubsFilename,
                        String countyTimesFilename) throws IOException
@@ -70,7 +71,7 @@ public class ModelHelper
                 String yearOfBirth = col[2];
                 String clubName = col[3];
                 String eventNumber = col[5];
-                String eventName = col[6];
+                String eventName = col[6].replaceAll("Open ", ""); // just strip "Open " if it exists
                 String entryTime = col[4];
 
                 assertNotNull(swimmerName, "swimmerName");
@@ -170,11 +171,12 @@ public class ModelHelper
             reader.lines().forEach(line -> loadCountyTime(line, events));
         }
 
+        previousAbbreviation = null;
         for (Event event: events)
         {
             if (event.getCountyTimes() == null)
             {
-                System.err.println("No county times found for "+event.getShortName()+" ("+event.getName()+")");
+                System.err.println("No county times found for "+event.getName()+" ("+event.getShortName()+")");
             }
         }
     }
@@ -201,6 +203,11 @@ public class ModelHelper
                 }
             }
         }
+        else if (!abbreviation.equals(previousAbbreviation))
+        {
+            System.err.println("County times file event ("+abbreviation+") not found in accepted swims");
+        }
+        previousAbbreviation = abbreviation;
     }
 
     private int getYearOfBirthIf11()

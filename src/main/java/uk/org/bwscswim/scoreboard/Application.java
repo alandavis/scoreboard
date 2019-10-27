@@ -43,8 +43,11 @@ public class Application
         ModelHelper helper = null;
         try
         {
-            helper = new ModelHelper("Accepted.txt",
-                    "Events.txt", "Clubs.txt", "CountyTimes.txt");
+            String acceptedSwimFilename = config.getString("acceptedSwimFilename", "Accepted.txt");
+            String countyTimesFilename = config.getString("countyTimesFilename", "CountyTimes.txt");
+            String eventsFilename = config.getString("eventsFilename", "Events.txt");
+            String clubsFilename = config.getString("clubsFilename", "Clubs.txt");
+            helper = new ModelHelper(acceptedSwimFilename, eventsFilename, clubsFilename, countyTimesFilename);
             List<Event> events = helper.getEvents();
             DataReader dataReader = new DataReader(config);
             dataReader.setEvents(events);
