@@ -165,6 +165,7 @@ class DataReader
                     catch (FileNotFoundException e)
                     {
                         System.err.println("The test file " + testFilename + " could not be found.");
+                        System.exit(-1);
                     }
                     finally
                     {

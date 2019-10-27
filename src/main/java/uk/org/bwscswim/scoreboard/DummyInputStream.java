@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.URL;
 
 /**
  * Turns a String into an InputStream that may only contain ASCII characters. Control characters are supplied
@@ -61,9 +62,24 @@ class DummyInputStream extends InputStream
         ignoreFirstDelay = false;
         try
         {
-            InputStreamReader inputStreamReader = filename.startsWith(":")
-                    ? new InputStreamReader(getClass().getClassLoader().getResource(filename.substring(1)).openStream())
-                    : new FileReader(filename);
+            InputStreamReader inputStreamReader;
+            if (filename.startsWith(":"))
+            {
+                String resourceName = filename.substring(1);
+                URL resource = getClass().getClassLoader().getResource(resourceName);
+                if (resource == null)
+                {
+                    throw new FileNotFoundException("Resource "+resourceName+" does not exit.");
+                }
+                inputStreamReader = new InputStreamReader(resource.openStream());
+            }
+            else
+            {
+                inputStreamReader = new FileReader(filename);
+            }
+//            InputStreamReader inputStreamReader = filename.startsWith(":")
+//                    ? new InputStreamReader(getClass().getClassLoader().getResource(filename.substring(1)).openStream())
+//                    : new FileReader(filename);
             reader = new BufferedReader(inputStreamReader);
         }
         catch (IOException e)
