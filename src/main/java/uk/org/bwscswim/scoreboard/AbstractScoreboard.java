@@ -43,13 +43,12 @@ import static java.awt.Color.WHITE;
 import static java.awt.Color.YELLOW;
 
 /**
- * Abstract class contains fields used to display the scoreboard, but without any layout.
+ * Contains fields used to display the scoreboard, but without any layout.
  *
  * @author adavis
  */
 abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 {
-    private static Color RESULT_BLUE = new Color(Integer.parseInt("0033cc", 16));
 
     class Swimmer
     {
@@ -288,7 +287,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         int eventCount = event.getCount();
         if (eventCount == 0)
         {
-            scoreboardPanel.setBackground(event instanceof ResultEvent ? RESULT_BLUE : BLACK);
+            scoreboardPanel.setBackground(event instanceof ResultEvent ? new Color(Integer.parseInt("0033cc", 16)) : BLACK);
         }
         setText(event, eventCount, from, to);
         if (!scoreboardPanel.isVisible())
@@ -356,7 +355,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
                         append("lane='").append(lane).append("', ").
                         append("place='").append(swimmer.place.getText().trim()).append("', ").
                         append("time='").append(swimmer.time.trim()).append("'}").
-                        append("improvment='").append(swimmer.improvement.trim()).append("'}").
+                        append("improvement='").append(swimmer.improvement.trim()).append("'}").
                         append("clubTime='").append(swimmer.clubTime.getText().trim()).append("', ");
                 if (iterator.hasNext())
                 {
