@@ -62,6 +62,7 @@ public class Scoreboard extends AbstractScoreboard
         GroupLayout.ParallelGroup col1 = layout.createParallelGroup();
         GroupLayout.ParallelGroup col2 = layout.createParallelGroup();
         GroupLayout.ParallelGroup col3 = layout.createParallelGroup();
+        GroupLayout.ParallelGroup col4 = layout.createParallelGroup();
 
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
@@ -73,6 +74,7 @@ public class Scoreboard extends AbstractScoreboard
                                 .addGroup(col1)
                                 .addGroup(col2)
                                 .addGroup(col3)
+                                .addGroup(col4)
                                 .addGap(rightGap)));
 
         GroupLayout.SequentialGroup rows = layout.createSequentialGroup();
@@ -91,16 +93,16 @@ public class Scoreboard extends AbstractScoreboard
             rows.addGroup(row);
 
             row.addComponent(swimmer.lane);
-            col1.addGroup(layout.createSequentialGroup()
-                    .addComponent(swimmer.lane, PREFERRED_SIZE, laneWidth, PREFERRED_SIZE)
-                    .addComponent(swimmer.name, PREFERRED_SIZE, nameWidth, PREFERRED_SIZE));
+            col1.addComponent(swimmer.lane, PREFERRED_SIZE, laneWidth, PREFERRED_SIZE);
+
             row.addComponent(swimmer.name);
+            col2.addComponent(swimmer.name, PREFERRED_SIZE, nameWidth, PREFERRED_SIZE);
 
             row.addComponent(swimmer.clubTime);
-            col2.addComponent(swimmer.clubTime, PREFERRED_SIZE, clubTimeWidth, PREFERRED_SIZE);
+            col3.addComponent(swimmer.clubTime, PREFERRED_SIZE, clubTimeWidth, PREFERRED_SIZE);
 
             row.addComponent(swimmer.place);
-            col3.addComponent(swimmer.place, PREFERRED_SIZE, placeWidth, PREFERRED_SIZE);
+            col4.addComponent(swimmer.place, PREFERRED_SIZE, placeWidth, PREFERRED_SIZE);
         }
     }
 
