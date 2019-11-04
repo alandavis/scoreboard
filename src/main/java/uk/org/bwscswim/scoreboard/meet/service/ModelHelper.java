@@ -25,7 +25,6 @@ import java.util.TreeMap;
  */
 public class ModelHelper
 {
-    private final Abbreviations eventAbbreviations;
     private final Abbreviations clubAbbreviations;
 
     private final Map<String, Club> clubs = new HashMap<>();
@@ -33,12 +32,11 @@ public class ModelHelper
     private final Map<String, Swimmer> swimmers = new HashMap<>();
 
     private int lineNumber;
-    private String previousAbbreviation;
+    private String prevStdEventName;
 
-    public ModelHelper(String acceptedSwimFilename, String eventsFilename, String clubsFilename,
+    public ModelHelper(String acceptedSwimFilename, String clubsFilename,
                        String countyTimesFilename) throws IOException
     {
-        eventAbbreviations = new Abbreviations(eventsFilename);
         clubAbbreviations = new Abbreviations(clubsFilename);
 
         loadAcceptedSwimmers(acceptedSwimFilename);
@@ -121,7 +119,7 @@ public class ModelHelper
         Event event = events.get(eventNumber);
         if (event == null)
         {
-            event = new Event(eventNumber, eventName, eventAbbreviations);
+            event = new Event(eventNumber, eventName);
             events.put(eventNumber, event);
         }
         return event;
@@ -171,12 +169,12 @@ public class ModelHelper
             reader.lines().forEach(line -> loadCountyTime(line, events));
         }
 
-        previousAbbreviation = null;
+        prevStdEventName = null;
         for (Event event: events)
         {
             if (event.getCountyTimes() == null)
             {
-                System.err.println("No county times found for "+event.getName()+" ("+event.getShortName()+")");
+                System.err.println("No county times found for "+event.getName());
             }
         }
     }
@@ -184,9 +182,8 @@ public class ModelHelper
     private void loadCountyTime(String line, List<Event> events)
     {
         String[] split = line.split(",");
-        String eventName = split[0];
-        String abbreviation = eventAbbreviations.lookupAbbreviation(eventName);
-        Event event = lookupEvent(events, abbreviation);
+        String eventName = Event.getStdName(split[0]);
+        Event event = lookupEvent(events, eventName);
         if (event != null)
         {
             TreeMap<Integer, RaceTime> countyTimes = new TreeMap<>();
@@ -203,11 +200,11 @@ public class ModelHelper
                 }
             }
         }
-        else if (!abbreviation.equals(previousAbbreviation))
+        else if (!eventName.equals(prevStdEventName))
         {
-            System.err.println("County times file event ("+abbreviation+") not found in accepted swims");
+            System.err.println("County times file event ("+ eventName +") not found in accepted swims");
         }
-        previousAbbreviation = abbreviation;
+        prevStdEventName = eventName;
     }
 
     private int getYearOfBirthIf11()
@@ -217,12 +214,12 @@ public class ModelHelper
         return year - 11;
     }
 
-    private Event lookupEvent(List<Event> events, String abbreviation)
+    private Event lookupEvent(List<Event> events, String name)
     {
         for (Event event : events)
         {
-            String name = event.getShortName();
-            if (abbreviation.equals(name))
+            String eventName = event.getName();
+            if (name.equals(eventName))
             {
                 return event;
             }

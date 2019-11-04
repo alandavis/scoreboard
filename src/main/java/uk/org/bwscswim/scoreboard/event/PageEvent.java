@@ -1,6 +1,7 @@
 package uk.org.bwscswim.scoreboard.event;
 
 import uk.org.bwscswim.scoreboard.Text;
+import uk.org.bwscswim.scoreboard.meet.model.Event;
 
 /**
  * Base event for display of a screen full of information.
@@ -30,7 +31,7 @@ public class PageEvent implements ScoreboardEvent
 
     public String getCombinedTitle()
     {
-        String title = text.getTitle();
+        String title = Event.getStdName(text.getTitle());
         String subTitle = text.getSubtitle();
         if (subTitle.startsWith("Ev "))
         {

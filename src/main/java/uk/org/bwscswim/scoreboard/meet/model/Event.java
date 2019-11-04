@@ -12,16 +12,33 @@ public class Event implements Comparable<Event>
 {
     private final int number;
     private final String name;
-    private final Abbreviations abbreviations;
 
     private List<EventEntry> entries = new ArrayList<>();
     private TreeMap<Integer, RaceTime> countyTimes;
 
-    public Event(int number, String name, Abbreviations abbreviations)
+    public Event(int number, String name)
     {
         this.number = number;
-        this.name = name;
-        this.abbreviations = abbreviations;
+        this.name = getStdName(name);
+    }
+
+    public static String getStdName(String name)
+    {
+        for (String[] pair: new String[][]{
+                {" Open",          ""},
+                {" Free$",         " Freestyle"},
+                {" Back$",         " Backstroke"},
+                {" Fly",           " Butterfly"},
+                {" Breast$",       " Breaststroke"},
+                {"m Freestyle",    " Freestyle"},
+                {"m Backstroke",   " Backstroke"},
+                {"m Butterfly",    " Butterfly"},
+                {"m Breaststroke", " Breaststroke"},
+                {"m IM",           " IM"}})
+        {
+            name =name.replaceFirst(pair[0], pair[1]);
+        }
+        return name;
     }
 
     public int getNumber()
@@ -33,17 +50,6 @@ public class Event implements Comparable<Event>
     {
         return name;
     }
-
-    public String getHeading(int heatNumber)
-    {
-        return String.format("Ev%d/%d %s", number, heatNumber, abbreviations.lookupAbbreviation(name));
-    }
-
-    public String getShortName()
-    {
-        return abbreviations.lookupAbbreviation(name);
-    }
-
 
     public List<EventEntry> getEntries()
     {

@@ -22,19 +22,18 @@ public class ModelHelperTest
     public void fullTest() throws IOException
     {
         ModelHelper helper = new ModelHelper("AcceptedTest.txt",
-                "Events.txt", "Clubs.txt", "CountyTimes.txt");
+                "Clubs.txt", "CountyTimes.txt");
 
         List<Event> events = helper.getEvents();
         assertEquals(24, events.size());
 
         Event event = events.get(0);
         assertEquals(1, event.getNumber());
-        assertEquals("Girls Open 200m Butterfly", event.getName());
+        assertEquals("Girls 200 Butterfly", event.getName());
 
         event = events.get(4);
         assertEquals(5, event.getNumber());
-        assertEquals("Girls Open 100m Backstroke", event.getName());
-        assertEquals("Ev5/4 Girls 100 Back", event.getHeading(4));
+        assertEquals("Girls 100 Backstroke", event.getName());
 
         List<EventEntry> entries = events.get(4).getEntries();
         assertEquals(66, entries.size());
@@ -55,7 +54,7 @@ public class ModelHelperTest
         assertEquals(          "CT", event.getImprovement("Amber Wildey", "1:29.95")); // better than the county time
         assertEquals(            "", event.getImprovement("Amber Wildey", "1.29.95")); // invalid time
 
-        assertEquals("Girls 100 Back", event.getShortName());
+        assertEquals("Girls 100 Backstroke", event.getName());
         assertEquals(RaceTime.create("1:30.00"), event.getCountyTime(2010)); // 9
         assertEquals(RaceTime.create("1:30.00"), event.getCountyTime(2009));
         assertEquals(RaceTime.create("1:30.00"), event.getCountyTime(2008)); // 11 youngest CT
@@ -70,7 +69,7 @@ public class ModelHelperTest
         // No county times for 100 IM
         event = events.get(11);
         assertEquals(12, event.getNumber());
-        assertEquals("Boys Open 100m IM", event.getName());
+        assertEquals("Boys 100 IM", event.getName());
         assertNull(event.getCountyTime(2009));
     }
 
@@ -148,14 +147,20 @@ public class ModelHelperTest
     }
 
     @Test
-    public void eventAbbreviationsTest() throws IOException
+    public void eventStdNameTest() throws IOException
     {
-        Abbreviations eventAbbreviations = new Abbreviations("Events.txt");
-
-        assertEquals("does not exist", eventAbbreviations.lookupAbbreviation("does not exist"));
-        assertEquals("Girls 200 IM", eventAbbreviations.lookupAbbreviation("Girls Open 200m IM"));
-        assertEquals("Girls 200 Breast", eventAbbreviations.lookupAbbreviation("Girls Open 200m Breaststroke"));
-        assertEquals("Boys 200 Breast", eventAbbreviations.lookupAbbreviation("Boys Open 200m Breaststroke"));
+        for (String[] pair: new String[][]{
+                {"Girls 50 Free",                "Girls 50 Freestyle"},
+                {"Girls Open 100m Free",         "Girls 100 Freestyle"},
+                {"Girls Open 100m Freestyle",    "Girls 100 Freestyle"},
+                {"Girls 100m Free",              "Girls 100 Freestyle"},
+                {"Boys 100m Open Fly",           "Boys 100 Butterfly"},
+                {"Boys 100m Breast",             "Boys 100 Breaststroke"},
+                {"Boys 50m Back",                "Boys 50 Backstroke"},
+                {"Boys 400m IM",                 "Boys 400 IM"}})
+        {
+            assertEquals(pair[1], Event.getStdName(pair[0]));
+        }
     }
 
     @Test
@@ -182,20 +187,16 @@ public class ModelHelperTest
     @Test
     public void eventTest() throws IOException
     {
-        Abbreviations eventAbbreviations = new Abbreviations("Events.txt");
-        Event event = new Event(3,"Girls Open 200m IM", eventAbbreviations);
+        Event event = new Event(3,"Girls Open 200m IM");
 
         assertEquals(3, event.getNumber());
-        assertEquals("Girls Open 200m IM", event.getName());
-        assertEquals("Girls 200 IM", event.getShortName());
-        assertEquals("Ev3/23 Girls 200 IM", event.getHeading(23));
+        assertEquals("Girls 200 IM", event.getName());
     }
 
     @Test
     public void improvementTest() throws IOException
     {
-        Abbreviations eventAbbreviations = new Abbreviations("Events.txt");
-        Event event = new Event(3,"Girls Open 200m IM", eventAbbreviations);
+        Event event = new Event(3,"Girls Open 200m IM");
 
         Swimmer alice1 = new Swimmer("Alice", 2005, null);
         Swimmer alice2 = new Swimmer("Alice", 2005, null);
