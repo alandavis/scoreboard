@@ -55,9 +55,11 @@ public class Application
             java.awt.EventQueue.invokeAndWait(() ->
             {
                 AbstractScoreboard scoreboard1 = new Scoreboard(config, false);
-//                AbstractScoreboard scoreboard2 = new Scoreboard(config, true);
+                scoreboard1.setDataReader(dataReader);
                 dataReader.addObserver(scoreboard1);
+//                AbstractScoreboard scoreboard2 = new Scoreboard(config, true);
 //                dataReader.addObserver(scoreboard2);
+//                scoreboard2.setDataReader(dataReader);
             });
 
             dataReader.readDataInBackground();

@@ -25,9 +25,9 @@ package uk.org.bwscswim.scoreboard;
 import javax.swing.*;
 
 import static javax.swing.GroupLayout.Alignment.CENTER;
-import static javax.swing.GroupLayout.Alignment.TRAILING;
+import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
-/**
+/*
  * The scoreboard. Class provides the layout of components from super classes.
  *
  * @author adavis
@@ -45,12 +45,22 @@ public class Scoreboard extends AbstractScoreboard
 
     private void layoutScoreboard()
     {
-        //    T1111111111111111111111111
-        //    2 NNNNNNNNNNNNNN CLUBBBB P
-        //                     TIMEEEE
+        int leftGap = config.getInt(null, null, "leftGap", 30);
+        int laneWidth = config.getInt(null, null, "laneWidth", 53);
+        int nameWidth = config.getInt(null, null, "nameWidth", 676);
+        int clubTimeWidth = config.getInt(null, null, "clubTimeWidth", 287);
+        int placeWidth = config.getInt(null, null, "placeWidth", 113);
+        int rightGap = config.getInt(null, null, "rightGap", 0);
+
+        int topGap = config.getInt(null, null, "topGap", 10);
+        int preLaneGap = config.getInt(null, null, "preLaneGap", 10);
+        int bottomGap = config.getInt(null, null, "bottomGap", 0);
+
+        GroupLayout layout = new GroupLayout(scoreboardPanel);
+        scoreboardPanel.setLayout(layout);
 
         GroupLayout.ParallelGroup col1 = layout.createParallelGroup();
-        GroupLayout.ParallelGroup col2 = layout.createParallelGroup(TRAILING);
+        GroupLayout.ParallelGroup col2 = layout.createParallelGroup();
         GroupLayout.ParallelGroup col3 = layout.createParallelGroup();
 
         layout.setHorizontalGroup(
@@ -62,7 +72,6 @@ public class Scoreboard extends AbstractScoreboard
                                 .addGap(leftGap)
                                 .addGroup(col1)
                                 .addGroup(col2)
-                                .addGap(horizontalGap)
                                 .addGroup(col3)
                                 .addGap(rightGap)));
 
@@ -81,47 +90,44 @@ public class Scoreboard extends AbstractScoreboard
             GroupLayout.ParallelGroup row = layout.createParallelGroup();
             rows.addGroup(row);
 
-            if (laneVisible)
-            {
-                row.addComponent(swimmer.lane);
-                col1.addGroup(layout.createSequentialGroup()
-                        .addComponent(swimmer.lane)
-                        .addGap(horizontalGap)
-                        .addComponent(swimmer.name));
-            }
-            else
-            {
-                col1.addComponent(swimmer.name);
-            }
-
+            row.addComponent(swimmer.lane);
+            col1.addGroup(layout.createSequentialGroup()
+                    .addComponent(swimmer.lane, PREFERRED_SIZE, laneWidth, PREFERRED_SIZE)
+                    .addComponent(swimmer.name, PREFERRED_SIZE, nameWidth, PREFERRED_SIZE));
             row.addComponent(swimmer.name);
-            row.addComponent(swimmer.combinedClubTimeClock);
-            col2.addComponent(swimmer.combinedClubTimeClock);
 
-            if (placeVisible)
-            {
-                row.addComponent(swimmer.place);
-                col3.addComponent(swimmer.place);
-            }
+            row.addComponent(swimmer.clubTime);
+            col2.addComponent(swimmer.clubTime, PREFERRED_SIZE, clubTimeWidth, PREFERRED_SIZE);
+
+            row.addComponent(swimmer.place);
+            col3.addComponent(swimmer.place, PREFERRED_SIZE, placeWidth, PREFERRED_SIZE);
         }
     }
 
     private void layoutTimeOfDay()
     {
-        layout2.setHorizontalGroup(
-                layout2.createParallelGroup(CENTER)
-                        .addGroup(layout2.createSequentialGroup()
+        int timeOfDayTopGap = config.getInt(null, null, "timeOfDayTopGap", 50);
+        int timeOfDayLeftGap = config.getInt(null, null, "timeOfDayLeftGap", 50);
+        int timeOfDayMiddleGap = config.getInt(null, null, "timeOfDayMiddleGap", 70);
+        int timeOfDayBottomGap = config.getInt(null, null, "timeOfDayBottomGap", 0);
+
+        GroupLayout layout = new GroupLayout(timeOfDayPanel);
+        timeOfDayPanel.setLayout(layout);
+
+        layout.setHorizontalGroup(
+                layout.createParallelGroup(CENTER)
+                        .addGroup(layout.createSequentialGroup()
                                 .addGap(timeOfDayLeftGap)
                                 .addComponent(logo)
                                 .addGap(timeOfDayMiddleGap)
                                 .addComponent(timeOfDay)));
 
-        layout2.setVerticalGroup(
-                layout2.createSequentialGroup()
+        layout.setVerticalGroup(
+                layout.createSequentialGroup()
                         .addGap(timeOfDayTopGap)
-                        .addGroup(layout2.createParallelGroup(CENTER)
+                        .addGroup(layout.createParallelGroup(CENTER)
                             .addComponent(logo)
                             .addComponent(timeOfDay))
-                        .addGap(bottomGap));
+                        .addGap(timeOfDayBottomGap));
     }
 }

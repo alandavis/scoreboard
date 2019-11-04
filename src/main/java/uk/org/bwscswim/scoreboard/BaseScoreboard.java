@@ -42,13 +42,6 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
     protected final long showTestCardFor;
     private final boolean scoreboardVisible;
 
-    protected Container contentPane;
-
-    protected Color background;
-    protected Color resultBackground;
-    protected Color titleForeground;
-    protected Color laneForeground;
-
     private DataReader dataReader;
 
     public BaseScoreboard(Config config, boolean secondScreen)
@@ -57,15 +50,10 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
         this.secondScreen = secondScreen;
         showTestCardFor = config.getInt("showTestCardFor", 30);
         scoreboardVisible = !secondScreen || config.getBoolean("secondScoreboardVisible", false);
-
-        contentPane = getContentPane();
     }
 
     protected void postConstructor()
     {
-        getColors();
-        setColors();
-
         exitOnEscapeOrEnter();
 
         if (scoreboardVisible)
@@ -92,9 +80,8 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
                 Boolean fullScreen = config.getBoolean(null, null, "fullScreen", true);
                 if (config.getBoolean(null, null, "originalScreenSetup", false))
                 {
-                    System.out.println("Using original screen setup");
                     pack();
-                    System.out.println("ScoreboardSize=" + getSize());
+                    System.out.println("Original ScoreboardSize=" + getSize());
                     if (fullScreen)
                     {
                         GraphicsDevice graphicsDevice = getGraphicsDevice("graphicsDevice1");
@@ -120,6 +107,14 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
                     }
 
                     pack();
+                    int width = config.getInt("width", -1);
+                    int height = config.getInt("height", -1);
+                    width = 1159;
+                    height = 728;
+                    if (width != -1 && height != -1)
+                    {
+                        setMinimumSize(new Dimension(width, height)); // Now use fixed size, nnow we know it.
+                    }
                     System.out.println("ScoreboardSize=" + getSize());
 
                     GraphicsDevice graphicsDevice = getGraphicsDevice("graphicsDevice1");
@@ -170,29 +165,6 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
                 System.exit(0);
             }
         });
-    }
-
-    protected void getColors()
-    {
-        background = config.getColor(null, "background", Color.BLACK);
-        resultBackground = config.getColor(RESULTS, null, "background", new Color(Integer.parseInt("0033cc", 16)));
-        titleForeground = config.getColor(null, "title.foreground", Color.YELLOW);
-        laneForeground = config.getColor(null, "lane.foreground", Color.WHITE);
-    }
-
-    protected void setColors()
-    {
-        contentPane.setBackground(background);
-    }
-
-    protected String getTest(String componentName)
-    {
-        String string = config.getString(null, null, componentName + "Test", "");
-        if (showTestCardFor <= 0)
-        {
-            string = string.replaceAll(".", " ");
-        }
-        return string;
     }
 
     @Override
