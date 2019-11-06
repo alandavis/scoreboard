@@ -40,14 +40,15 @@ public class Scoreboard extends AbstractScoreboard
 
         layoutScoreboard();
         layoutTimeOfDay();
-        postConstructor();
+
+        makeScoreboardVisible();
     }
 
     private void layoutScoreboard()
     {
         int leftGap = config.getInt(null, null, "leftGap", 30);
-        int laneWidth = config.getInt(null, null, "laneWidth", 53);
-        int nameWidth = config.getInt(null, null, "nameWidth", 676);
+        int laneWidth = config.getInt(null, null, "laneWidth", 60);
+        int nameWidth = config.getInt(null, null, "nameWidth", 669);
         int clubTimeWidth = config.getInt(null, null, "clubTimeWidth", 287);
         int placeWidth = config.getInt(null, null, "placeWidth", 113);
         int rightGap = config.getInt(null, null, "rightGap", 0);

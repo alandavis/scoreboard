@@ -30,7 +30,7 @@ import uk.org.bwscswim.scoreboard.event.RaceEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
 import uk.org.bwscswim.scoreboard.event.ResultEvent;
-import uk.org.bwscswim.scoreboard.event.StartEvent;
+import uk.org.bwscswim.scoreboard.event.TestcardEvent;
 import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
 
@@ -145,7 +145,7 @@ class DataReader
         }
         Thread t = new Thread(() ->
         {
-            eventPublisher.publishEvent(new StartEvent());
+            showTestCard();
             showTimeOfDay();
             String testFilename = config.getString("testFilename", null);
             if (testFilename != null && !testFilename.isEmpty())
@@ -217,6 +217,22 @@ class DataReader
         });
         t.setDaemon(true);
         t.start();
+    }
+
+    private void showTestCard()
+    {
+        long showTestCardFor = config.getInt("showTestCardFor", 0);
+        if (showTestCardFor > 0)
+        {
+            eventPublisher.publishEvent(new TestcardEvent());
+            try
+            {
+                Thread.sleep(showTestCardFor);
+            }
+            catch (InterruptedException ignore)
+            {
+            }
+        }
     }
 
     void readInputStream() throws InterruptedException

@@ -29,7 +29,7 @@ import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
 import uk.org.bwscswim.scoreboard.event.ResultEvent;
 import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
-import uk.org.bwscswim.scoreboard.event.StartEvent;
+import uk.org.bwscswim.scoreboard.event.TestcardEvent;
 import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
 
 import javax.swing.*;
@@ -49,11 +49,10 @@ import static java.awt.Color.YELLOW;
  */
 abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 {
-
     class Swimmer
     {
         protected JLabel lane = new JLabel();
-        protected JTextArea name = new JTextArea();
+        protected JLabel name = new JLabel();
         protected String club;
         protected String time;
         protected String improvement;
@@ -98,7 +97,6 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 
         createSwimmers();
         setColors();
-        setTestText();
         setFonts();
     }
 
@@ -108,20 +106,6 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         {
             Swimmer swimmer = new Swimmer();
             swimmers.add(swimmer);
-        }
-    }
-
-    private void setTestText()
-    {
-        title.setText("3.6 Girls 100 Breaststroke");
-        int lane=0;
-        for (Swimmer swimmer : swimmers)
-        {
-            lane++;
-            swimmer.lane.setText(showTestCardFor > 0 ? Integer.toString(lane) : " ");
-            swimmer.name.setText("Emma Atanasova");
-            swimmer.place.setText("CT");
-            swimmer.clubTime.setText("2:38.23");
         }
     }
 
@@ -245,9 +229,9 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         {
             update((PageEvent)event, 0, ((PageEvent)event).getLaneCount());
         }
-        else if (event instanceof StartEvent)
+        else if (event instanceof TestcardEvent)
         {
-            updated((StartEvent)event);
+            updated((TestcardEvent)event);
         }
     }
 
@@ -268,17 +252,17 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         }
     }
 
-    private void updated(StartEvent event)
+    private void updated(TestcardEvent event)
     {
-        if (showTestCardFor > 0)
+        title.setText("23.16 Girls 400 Breaststroke");
+        int lane=0;
+        for (Swimmer swimmer : swimmers)
         {
-            try
-            {
-                Thread.sleep(showTestCardFor);
-            }
-            catch (InterruptedException ignore)
-            {
-            }
+            lane++;
+            swimmer.lane.setText(Integer.toString(lane));
+            setTrimmedText(swimmer.name, "Emma Atanasova");
+            swimmer.place.setText("CT");
+            swimmer.clubTime.setText("2:38.23");
         }
     }
 
@@ -323,7 +307,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             int lane = event.getLane(laneIndex);
             String laneText = lane <= 0 ? "" : Integer.toString(lane);
             swimmer.lane.setText(laneText);
-            swimmer.name.setText(event.getName(laneIndex));
+            setTrimmedText(swimmer.name, event.getName(laneIndex));
             swimmer.club = event.getClub(laneIndex);
             swimmer.time = event.getTime(laneIndex);
             int place = event.getPlace(laneIndex);
@@ -333,6 +317,25 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
                 : place <= 0 ? " " : Integer.toString(place));
             setclubTime(laneIndex + 1, swimmer, event, hasImprovments);
         }
+    }
+
+    // Sets the label's text truncating it so that it fits. Avoids the ... display.
+    private void setTrimmedText(JLabel label, String text)
+    {
+        int width = label.getWidth();
+        Font font = label.getFont();
+        FontMetrics fontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(font);
+        int length = text.length();
+        while (true)
+        {
+            int textWidth = fontMetrics.stringWidth(text);
+            if (textWidth < width || length == 0)
+            {
+                break;
+            }
+            text = text.substring(0, --length);
+        }
+        label.setText(text);
     }
 
     @Override

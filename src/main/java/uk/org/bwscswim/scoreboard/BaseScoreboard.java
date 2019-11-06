@@ -39,7 +39,6 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
 {
     protected final Config config;
     private final boolean secondScreen;
-    protected final long showTestCardFor;
     private final boolean scoreboardVisible;
 
     private DataReader dataReader;
@@ -48,11 +47,10 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
     {
         this.config = config;
         this.secondScreen = secondScreen;
-        showTestCardFor = config.getInt("showTestCardFor", 30);
         scoreboardVisible = !secondScreen || config.getBoolean("secondScoreboardVisible", false);
     }
 
-    protected void postConstructor()
+    protected void makeScoreboardVisible()
     {
         exitOnEscapeOrEnter();
 
