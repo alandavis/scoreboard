@@ -25,18 +25,19 @@ public class Event implements Comparable<Event>
     public static String getStdName(String name)
     {
         for (String[] pair: new String[][]{
-                {" Open",          ""},
-                {" Free$",         " Freestyle"},
-                {" Back$",         " Backstroke"},
-                {" Fly",           " Butterfly"},
-                {" Breast$",       " Breaststroke"},
-                {"m Freestyle",    " Freestyle"},
-                {"m Backstroke",   " Backstroke"},
-                {"m Butterfly",    " Butterfly"},
-                {"m Breaststroke", " Breaststroke"},
-                {"m IM",           " IM"}})
+                {" Open",             ""},
+                {"Individual Medley", "IM"},
+                {" Free$",            " Freestyle"},
+                {" Back$",            " Backstroke"},
+                {" Fly",              " Butterfly"},
+                {" Breast$",          " Breaststroke"},
+                {"m Freestyle",       " Freestyle"},
+                {"m Backstroke",      " Backstroke"},
+                {"m Butterfly",       " Butterfly"},
+                {"m Breaststroke",    " Breaststroke"},
+                {"m IM",              " IM"}})
         {
-            name =name.replaceFirst(pair[0], pair[1]);
+            name = name.replaceFirst(pair[0], pair[1]);
         }
         return name;
     }
@@ -117,6 +118,11 @@ public class Event implements Comparable<Event>
         return raceTime;
     }
 
+
+    public boolean isTeamEvent()
+    {
+        return name.toLowerCase().contains("team");
+    }
     @Override
     public boolean equals(Object o)
     {

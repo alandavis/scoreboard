@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.TreeMap;
 
 /**
@@ -40,7 +41,7 @@ public class ModelHelper
         clubAbbreviations = new Abbreviations(clubsFilename);
 
         loadAcceptedSwimmers(acceptedSwimFilename);
-        loadCountyTimes(countyTimesFilename);
+        loadCountyTimes(countyTimesFilename, acceptedSwimFilename);
     }
 
     public List<Event> getEvents()
@@ -54,14 +55,15 @@ public class ModelHelper
     {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename)))
         {
-            reader.lines().forEach(line -> loadAcceptedSwimmer(line));
+            reader.lines().forEach(line -> loadAcceptedSwimmer(line, filename));
         }
     }
 
-    private void loadAcceptedSwimmer(String line)
+    private void loadAcceptedSwimmer(String line, String filename)
     {
         if (lineNumber++ > 0)
         {
+            String eventName = null;
             try
             {
                 String[] col = line.split("\t");
@@ -69,7 +71,7 @@ public class ModelHelper
                 String yearOfBirth = col[2];
                 String clubName = col[3];
                 String eventNumber = col[5];
-                String eventName = col[6].replaceAll("Open ", ""); // just strip "Open " if it exists
+                       eventName = col[6];
                 String entryTime = col[4];
 
                 assertNotNull(swimmerName, "swimmerName");
@@ -78,14 +80,15 @@ public class ModelHelper
 
                 Club club = lookupOrCreateClub(clubName);
                 Event event = lookupOrCreateEvent(eventNumber, eventName);
-                Swimmer swimmer = lookupOrCreateSwimmer(swimmerName, yearOfBirth, club);
+                boolean teamEvent = event.isTeamEvent();
+                Swimmer swimmer = lookupOrCreateSwimmer(swimmerName, yearOfBirth, club, teamEvent);
                 RaceTime time = RaceTime.create(entryTime);
                 EventEntry eventEntry = new EventEntry(swimmer, time);
                 event.add(eventEntry);
             }
             catch (IllegalArgumentException e)
             {
-                System.err.println(e.getMessage());
+                System.err.println(filename+' '+e.getMessage()+eventName);
             }
         }
     }
@@ -94,7 +97,7 @@ public class ModelHelper
     {
         if (field == null)
         {
-            throw new IllegalArgumentException("The "+fieldName+" must not be null");
+            throw new IllegalArgumentException(fieldName+" the "+fieldName+" must not be null");
         }
     }
 
@@ -125,13 +128,24 @@ public class ModelHelper
         return event;
     }
 
-    private Swimmer lookupOrCreateSwimmer(String swimmerName, String yearOfBirth, Club club)
+    private Swimmer lookupOrCreateSwimmer(String swimmerName, String yearOfBirth, Club club, boolean teamEvent)
     {
         Swimmer swimmer = swimmers.get(swimmerName);
         if (swimmer == null)
         {
-            Integer longYearOfBirth = toYear(yearOfBirth, lineNumber, "yearOfBirth");
-            swimmer = new Swimmer(swimmerName, longYearOfBirth, club);
+            Integer intYearOfBirth = null;
+            try
+            {
+                intYearOfBirth = toYear(yearOfBirth, lineNumber, "yearOfBirth");
+            }
+            catch (NumberFormatException e)
+            {
+                if (!teamEvent) // yearOfBirth may not be set if the team event has mixed ages.
+                {
+                    throw e;
+                }
+            }
+            swimmer = new Swimmer(swimmerName, intYearOfBirth, club);
             swimmers.put(swimmerName, swimmer);
         }
         return swimmer;
@@ -145,7 +159,7 @@ public class ModelHelper
         }
         catch (NumberFormatException e)
         {
-            throw new NumberFormatException("Line "+line+" invalid "+fieldName+": "+i);
+            throw new NumberFormatException("line " + line + " invalid " + fieldName + ": " + i);
         }
     }
 
@@ -157,29 +171,44 @@ public class ModelHelper
         }
         catch (NumberFormatException e)
         {
-            throw new NumberFormatException("Line "+line+" invalid "+fieldName+": "+year);
+            throw new NumberFormatException("line " + line + " invalid " + fieldName + ": "+year);
         }
     }
 
-    private void loadCountyTimes(String filename) throws IOException
+    private void loadCountyTimes(String filename, String acceptedSwimFilename) throws IOException
     {
         List<Event> events = getEvents();
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename)))
-        {
-            reader.lines().forEach(line -> loadCountyTime(line, events));
-        }
+        StringJoiner missingCountyEvents = new StringJoiner("\n    ",
+                "There are no events in "+acceptedSwimFilename+
+                        " that match the following county events from "+filename+":\n    ", "\n");
 
         prevStdEventName = null;
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename)))
+        {
+            reader.lines().forEach(line -> loadCountyTime(line, events, missingCountyEvents));
+        }
+
+        if (missingCountyEvents.length() > 0)
+        {
+            System.err.println(missingCountyEvents);
+        }
+        StringJoiner noCountyTimeEvents = new StringJoiner("\n    ",
+                "The following events from "+acceptedSwimFilename+
+                        " don't have county times in "+filename+":\n    ", "\n");
         for (Event event: events)
         {
             if (event.getCountyTimes() == null)
             {
-                System.err.println("No county times found for "+event.getName());
+                noCountyTimeEvents.add(event.getName());
             }
+        }
+        if (noCountyTimeEvents.length() > 0)
+        {
+            System.err.println(noCountyTimeEvents);
         }
     }
 
-    private void loadCountyTime(String line, List<Event> events)
+    private void loadCountyTime(String line, List<Event> events, StringJoiner missingCountyEvents)
     {
         String[] split = line.split(",");
         String eventName = Event.getStdName(split[0]);
@@ -202,7 +231,7 @@ public class ModelHelper
         }
         else if (!eventName.equals(prevStdEventName))
         {
-            System.err.println("County times file event ("+ eventName +") not found in accepted swims");
+            missingCountyEvents.add(eventName);
         }
         prevStdEventName = eventName;
     }

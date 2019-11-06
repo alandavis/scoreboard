@@ -27,31 +27,35 @@ public class EventEntry
     public String calculateImprovement(String time, Event event)
     {
         String improvement = "";
-
-        RaceTime newTime = RaceTime.create(time);
-        if (newTime != null)
+        if (entryTime != null)
         {
+            RaceTime newTime = RaceTime.create(time);
             Integer yearOfBirth = swimmer.getYearOfBirth();
-            RaceTime countyTime = event.getCountyTime(yearOfBirth);
-
-            RaceTime entryTime = getEntryTime();
-            boolean isCountyTime = countyTime != null && newTime.compareTo(countyTime) <= 0;
-
-            if (isCountyTime && (entryTime == null || entryTime.compareTo(countyTime) > 0))
+            if (newTime != null && yearOfBirth != null)
             {
-                improvement = "CT"; // New county time
-            }
-            else if (entryTime != null)
-            {
-                String timeDifference = newTime.minus(entryTime);
-                improvement = timeDifference.startsWith("-")
-                    ? timeDifference +
-                      (isCountyTime && entryTime != null
-                      ? "ct" // improved country time
-                      : "")
-                    : isCountyTime && entryTime != null
-                      ? "ct" // county time but <=
-                      : "";
+                RaceTime countyTime = event.getCountyTime(yearOfBirth);
+                if (countyTime != null)
+                {
+                    RaceTime entryTime = getEntryTime();
+                    boolean isCountyTime = countyTime != null && newTime.compareTo(countyTime) <= 0;
+
+                    if (isCountyTime && (entryTime == null || entryTime.compareTo(countyTime) > 0))
+                    {
+                        improvement = "CT"; // New county time
+                    }
+                    else if (entryTime != null)
+                    {
+                        String timeDifference = newTime.minus(entryTime);
+                        improvement = timeDifference.startsWith("-")
+                                ? timeDifference +
+                                (isCountyTime
+                                        ? "ct" // improved country time
+                                        : "")
+                                : isCountyTime
+                                ? "ct" // county time but <=
+                                : "";
+                    }
+                }
             }
         }
         return improvement;
