@@ -40,6 +40,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static uk.org.bwscswim.scoreboard.RawTrace.format;
@@ -98,6 +100,12 @@ class DataReader
     private EventPublisher eventPublisher = new EventPublisher();
     private Sleeper sleeper= new Sleeper();
 
+    private final List<SerialPort> commPorts;
+    private int nextPortIndex;
+    private int readTimeout = 0;
+    private final boolean tryNextPortOnZero;
+    private final boolean waitBetweenConnects;
+
     DataReader(Config config)
     {
         this.config = config;
@@ -110,9 +118,42 @@ class DataReader
         displayLineupFor = config.getInt("displayLineupFor", 6000);
 
         setTrace(config.getBoolean("trace", true));
+
+        tryNextPortOnZero = config.getBoolean("tryNextPortOnZero", true);
+        waitBetweenConnects = config.getBoolean("waitBetweenConnects", false);
+
         stateTrace = new StateTrace();
         eventPublisher.setStateTrace(stateTrace);
         rawTrace = new RawTrace(config, stateTrace);
+        commPorts = obtainSerialPorts();
+    }
+
+    /**
+     * @return a list of all ports to be tried. If the port has been specified as a config value, only that one is
+     * returned. Also lists the ports known to the system.
+     */
+    private List<SerialPort> obtainSerialPorts()
+    {
+        List<SerialPort> commPorts = Arrays.asList(SerialPort.getCommPorts());
+        System.out.println("Available serial ports:");
+        for (SerialPort commPort : commPorts)
+        {
+            String systemPortName = commPort.getSystemPortName();
+            System.out.println("    " + systemPortName);
+        }
+
+        String port = config.getString("port", null);
+        if (port != null)
+        {
+            SerialPort commPort = SerialPort.getCommPort(port);
+            commPorts = new ArrayList<>();
+            commPorts.add(commPort);
+        }
+        else if (tryNextPortOnZero)
+        {
+            readTimeout = 100; // 1/10 of a second
+        }
+        return commPorts;
     }
 
     public void addObserver(Observer observer)
@@ -137,12 +178,6 @@ class DataReader
 
     void readDataInBackground()
     {
-        System.out.println("\nAvailable serial ports:");
-        SerialPort[] commPorts = SerialPort.getCommPorts();
-        for (int i = 0; i < commPorts.length; i++)
-        {
-            System.out.println((i + 1) + ". " + commPorts[i].getPortDescription());
-        }
         Thread t = new Thread(() ->
         {
             showTestCard();
@@ -190,23 +225,24 @@ class DataReader
                 {
                     try
                     {
-                        SerialPort port = config.getPort();
+                        SerialPort port = getPort();
                         if (port.openPort())
                         {
+                            System.out.println("Using " + toString(port));
                             try
                             {
                                 setInputStream(port.getInputStream());
                                 readInputStream();
-                            } finally
+                            }
+                            finally
                             {
                                 port.closePort();
                             }
                         }
-                        else
+                        if (waitBetweenConnects)
                         {
-                            System.err.println("The port " + port.getSystemPortName() + " failed to open for an unknown reason.");
+                            Thread.sleep(500);
                         }
-                        Thread.sleep(2000);
                     }
                     catch (InterruptedException e)
                     {
@@ -217,6 +253,38 @@ class DataReader
         });
         t.setDaemon(true);
         t.start();
+    }
+
+    SerialPort getPort()
+    {
+        SerialPort commPort = commPorts.get(nextPortIndex);
+        if (++nextPortIndex >= commPorts.size())
+        {
+            nextPortIndex = 0;
+        }
+
+        commPort.setBaudRate(config.getInt("baudRate", 19200));
+        commPort.setNumDataBits(config.getInt("numDataBits", 8));
+        commPort.setNumStopBits(config.getInt("numStopBits", 1));
+        commPort.setParity(config.getInt("parity", SerialPort.NO_PARITY)); // 0
+        commPort.setFlowControl(config.getInt("flowControl", SerialPort.FLOW_CONTROL_DISABLED)); // 0
+        commPort.setComPortTimeouts(
+                config.getInt("timeoutMode", SerialPort.TIMEOUT_READ_BLOCKING), // 2
+                config.getInt("readTimeout", readTimeout),
+                config.getInt("writeTimeout", 0));
+        return commPort;
+    }
+
+    private String toString(SerialPort commPort)
+    {
+        return "port="+commPort.getSystemPortName()+
+                " baudRate="+commPort.getBaudRate()+
+                " numDataBits="+commPort.getNumDataBits()+
+                " numStopBits="+commPort.getNumStopBits()+
+                " parity="+commPort.getParity()+
+                " flowControl="+commPort.getFlowControlSettings()+
+                " readTimeout="+commPort.getReadTimeout()+
+                " writeTimeout="+commPort.getWriteTimeout();
     }
 
     private void showTestCard()
@@ -301,6 +369,11 @@ class DataReader
         {
             rawTrace.reset();
             throw new EOFException("Unexpected end of data from timing equipment");
+        }
+        if (b == 0 && tryNextPortOnZero) // Port appears not to be connected
+        {
+            rawTrace.reset();
+            throw new EOFException("Port appears not to be connected");
         }
 
         if (trace)
