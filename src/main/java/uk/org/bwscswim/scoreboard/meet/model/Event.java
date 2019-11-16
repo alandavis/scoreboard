@@ -27,6 +27,7 @@ public class Event implements Comparable<Event>
         for (String[] pair: new String[][]{
                 {" Open",             ""},
                 {"Individual Medley", "IM"},
+                {"Ind Medley",        "IM"},
                 {" Free$",            " Freestyle"},
                 {" Back$",            " Backstroke"},
                 {" Fly",              " Butterfly"},

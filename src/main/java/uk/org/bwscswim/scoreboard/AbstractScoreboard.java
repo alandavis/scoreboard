@@ -62,12 +62,15 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 
     private CardLayout cardLayout = new CardLayout();
     protected Container timeOfDayPanel = new JPanel();
+    protected Container splashPanel = new JPanel();
     protected Container scoreboardPanel = new JPanel();
+
     public static final String TIME_OF_DAY_PANEL = "timeOfDay";
+    public static final String SPLASH = "splash";
     public static final String SCOREBOARD_PANEL = "scoreboard";
 
     protected JLabel title = new JLabel();
-    protected String clock;
+    protected String clock = "";
     protected List<Swimmer> swimmers = new ArrayList<>();
 
     protected int laneCount;
@@ -82,6 +85,10 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     protected JLabel logo  = new JLabel(new ImageIcon("Logo600white.jpg"));
     protected JLabel timeOfDay  = new JLabel();
 
+    private int timeOfDayMod;
+    private int splashAt;
+    private int splashFor;
+
     AbstractScoreboard(Config config, boolean secondScreen)
     {
         super(config, secondScreen);
@@ -94,7 +101,9 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         contentPane.setLayout(cardLayout);
         contentPane.add(scoreboardPanel, SCOREBOARD_PANEL);
         contentPane.add(timeOfDayPanel, TIME_OF_DAY_PANEL);
+        contentPane.add(splashPanel, SPLASH);
 
+        setSplash();
         createSwimmers();
         setColors();
         setFonts();
@@ -107,6 +116,14 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             Swimmer swimmer = new Swimmer();
             swimmers.add(swimmer);
         }
+    }
+
+    protected void setSplash()
+    {
+        timeOfDayMod = config.getInt("timeOfDayMod", 60);
+        splashAt = config.getInt("splashAt", 45);
+        splashFor = config.getInt("splashFor", 15);
+        splashPanel.add(new JLabel(new ImageIcon("Splash.jpg")));
     }
 
     private void getFonts()
@@ -139,6 +156,8 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     protected void setColors()
     {
         timeOfDayPanel.setBackground(BLACK);
+        Color splashBackground = config.getColor("splash", "background", WHITE);
+        splashPanel.setBackground(splashBackground);
         scoreboardPanel.setBackground(BLACK);
 
         timeOfDay.setForeground(WHITE);
@@ -246,9 +265,20 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         String time = event.getTimeOfDay();
         this.timeOfDay.setText(time);
 
-        if (!timeOfDayPanel.isVisible())
+         int count = event.getCount() % timeOfDayMod;
+        if (count >= splashAt && count < (splashAt + splashFor))
         {
-            cardLayout.show(getContentPane(), TIME_OF_DAY_PANEL);
+            if (!splashPanel.isVisible())
+            {
+                cardLayout.show(getContentPane(), SPLASH);
+            }
+        }
+        else
+        {
+            if (!timeOfDayPanel.isVisible())
+            {
+                cardLayout.show(getContentPane(), TIME_OF_DAY_PANEL);
+            }
         }
     }
 
