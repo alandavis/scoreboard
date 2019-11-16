@@ -73,15 +73,10 @@ public class Event implements Comparable<Event>
         entries.add(eventEntry);
     }
 
-    public String getImprovement(String name, String time)
+    public Improvement getImprovement(String name, String time)
     {
-        String improvement = "";
         EventEntry eventEntry = lookupEventEntry(name);
-        if (eventEntry != null)
-        {
-            improvement = eventEntry.calculateImprovement(time, this);
-        }
-        return improvement;
+        return eventEntry == null ? new Improvement() : new Improvement(eventEntry, time, this);
     }
 
     private EventEntry lookupEventEntry(String name)
@@ -149,5 +144,20 @@ public class Event implements Comparable<Event>
     public int compareTo(Event event)
     {
         return number - event.number;
+    }
+
+    public RaceTime getPb(Swimmer swimmer)
+    {
+        return null; // TODO
+    }
+
+    public RaceTime getRegionalBaseTime(Integer yearOfBirth)
+    {
+        return null; // TODO
+    }
+
+    public RaceTime getRegionalAutoTime(Integer yearOfBirth)
+    {
+        return null; // TODO
     }
 }

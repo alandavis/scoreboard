@@ -2,8 +2,7 @@ package uk.org.bwscswim.scoreboard.event;
 
 import uk.org.bwscswim.scoreboard.Text;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
-import uk.org.bwscswim.scoreboard.meet.model.EventEntry;
-import uk.org.bwscswim.scoreboard.meet.model.Swimmer;
+import uk.org.bwscswim.scoreboard.meet.model.Improvement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
  */
 public class ResultEvent extends PageEvent
 {
-    private List<String> improvements = new ArrayList<>();
+    private List<Improvement> improvements = new ArrayList<>();
 
     public ResultEvent(Text text, int count, List<Event> events)
     {
@@ -25,7 +24,7 @@ public class ResultEvent extends PageEvent
             String name = text.getName(i);
             String time = text.getTime(i);
 
-            String improvement = event == null ? "" : event.getImprovement(name, time);
+            Improvement improvement = event == null ? new Improvement() : event.getImprovement(name, time);
             improvements.add(improvement);
         }
     }
@@ -46,16 +45,9 @@ public class ResultEvent extends PageEvent
         return null;
     }
 
-    public String getImprovement(int laneIndex)
+    public Improvement getImprovement(int laneIndex)
     {
-        String improvement = improvements.get(laneIndex);
-        return isCountyTime(laneIndex) ? improvement.substring(0, improvement.length()-2) : improvement;
-    }
-
-    public boolean isCountyTime(int laneIndex)
-    {
-        String improvement = improvements.get(laneIndex);
-        return improvement.endsWith("CT") || improvement.endsWith("ct");
+        return improvements.get(laneIndex);
     }
 
     @Override
@@ -75,8 +67,8 @@ public class ResultEvent extends PageEvent
             sb.append(lines[i]);
             if (i-3 >= 0 && i-3 < laneCount)
             {
-                String improvement = getImprovement(i - 3);
-                if (!improvement.isEmpty())
+                Improvement improvement = getImprovement(i - 3);
+                if (!improvement.isBlank())
                 {
                     sb.append("| ").append(improvement);
                 }

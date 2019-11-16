@@ -48,11 +48,11 @@ public class ModelHelperTest
         assertEquals("1:50.00",      entryTime.toString());
 
         assertEquals("1:31.05", RaceTime.create("1:31.05").toString());
-        assertEquals(      "-18.95", event.getImprovement("Amber Wildey", "1:31.05"));
-        assertEquals(      "-19.95", event.getImprovement("Amber Wildey", "1:30.05")); // 1:50.00 vs 1:30.05
-        assertEquals(          "CT", event.getImprovement("Amber Wildey", "1:30.00")); // the county time
-        assertEquals(          "CT", event.getImprovement("Amber Wildey", "1:29.95")); // better than the county time
-        assertEquals(            "", event.getImprovement("Amber Wildey", "1.29.95")); // invalid time
+        assertEquals(      "-18.95",  event.getImprovement("Amber Wildey", "1:31.05").toString());
+        assertEquals(      "-19.95",  event.getImprovement("Amber Wildey", "1:30.05").toString()); // 1:50.00 vs 1:30.05
+        assertEquals(    "-20.00CT*", event.getImprovement("Amber Wildey", "1:30.00").toString()); // the county time
+        assertEquals(    "-20.05CT*", event.getImprovement("Amber Wildey", "1:29.95").toString()); // better than the county time
+        assertEquals(            "",  event.getImprovement("Amber Wildey", "1.29.95").toString()); // invalid time
 
         assertEquals("Girls 100 Backstroke", event.getName());
         assertEquals(RaceTime.create("1:30.00"), event.getCountyTime(2010)); // 9
@@ -210,28 +210,28 @@ public class ModelHelperTest
         event.add(new EventEntry(clare,  RaceTime.create("1:30.00")));
         event.add(new EventEntry(emma,   RaceTime.create("1:32.00")));
         event.add(new EventEntry(tess,   RaceTime.create("")));
-        assertEquals(        "",  event.getImprovement("Alice", "33.45"));   // duplicate name
-        assertEquals(        "",  event.getImprovement("Jane",  ""));        // did not finish
-        assertEquals(   "-1.00",  event.getImprovement("Jane",  "1:32.00")); // faster
-        assertEquals(        "",  event.getImprovement("Clare", "1:32.00")); // slower
-        assertEquals(   "-1.00",  event.getImprovement("Emma",  "1:31.00")); // faster
-        assertEquals(        "",  event.getImprovement("Tess",  "1:32.00")); // new time
+        assertEquals(        "",  event.getImprovement("Alice", "33.45").toString());   // duplicate name
+        assertEquals(        "",  event.getImprovement("Jane",  "").toString());        // did not finish
+        assertEquals(   "-1.00",  event.getImprovement("Jane",  "1:32.00").toString()); // faster
+        assertEquals(        "",  event.getImprovement("Clare", "1:32.00").toString()); // slower
+        assertEquals(   "-1.00",  event.getImprovement("Emma",  "1:31.00").toString()); // faster
+        assertEquals(        "",  event.getImprovement("Tess",  "1:32.00").toString()); // new time
 
         TreeMap<Integer, RaceTime> countyTimes = new TreeMap<>();
         countyTimes.put(2005, RaceTime.create("1:31.0"));
         countyTimes.put(2006, RaceTime.create("1:31.5"));
         event.setCountyTimes(countyTimes);
-        assertEquals(        "",  event.getImprovement("Alice", "33.45"));   // duplicate name
-        assertEquals(        "",  event.getImprovement("Jane",  ""));        // did not finish
-        assertEquals(   "-1.00",  event.getImprovement("Jane",  "1:32.00")); // faster
-        assertEquals(        "",  event.getImprovement("Clare", "1:32.00")); // slower
-        assertEquals(        "",  event.getImprovement("Clare", "1:31.05")); // slower than county and previous county time
-        assertEquals(      "ct",  event.getImprovement("Clare", "1:30.05")); // slower but county
-        assertEquals(      "ct",  event.getImprovement("Clare", "1:30.00")); // equal but county
-        assertEquals( "-0.05ct",  event.getImprovement("Clare", "1:29.95")); // faster county
-        assertEquals(      "CT",  event.getImprovement("Emma",  "1:31.00")); // new county
-        assertEquals(        "",  event.getImprovement("Tess",  "1:32.00")); // new time, but not county
-        assertEquals(      "CT",  event.getImprovement("Tess",  "1:30.00")); // new time and county
+        assertEquals(        "",  event.getImprovement("Alice", "33.45").toString());   // duplicate name
+        assertEquals(        "",  event.getImprovement("Jane",  "").toString());        // did not finish
+        assertEquals(   "-1.00",  event.getImprovement("Jane",  "1:32.00").toString()); // faster
+        assertEquals(        "",  event.getImprovement("Clare", "1:32.00").toString()); // slower
+        assertEquals(        "",  event.getImprovement("Clare", "1:31.05").toString()); // slower than county and previous county time
+        assertEquals(      "CT",  event.getImprovement("Clare", "1:30.05").toString()); // slower but county
+        assertEquals(      "CT",  event.getImprovement("Clare", "1:30.00").toString()); // equal but county
+        assertEquals( "-0.05CT",  event.getImprovement("Clare", "1:29.95").toString()); // faster county
+        assertEquals( "-1.00CT*", event.getImprovement("Emma",  "1:31.00").toString()); // new county
+        assertEquals(        "",  event.getImprovement("Tess",  "1:32.00").toString()); // new time, but not county
+        assertEquals(      "CT*", event.getImprovement("Tess",  "1:30.00").toString()); // new time and county
     }
 
     @Test

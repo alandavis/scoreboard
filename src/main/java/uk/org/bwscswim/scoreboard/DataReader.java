@@ -462,9 +462,13 @@ class DataReader
 
                 if (state == RACE_FINISHING && text.countLanesWithNames() == text.countLanesWithTimes())
                 {
+                    // TODO don't call setState(RACE_COMPLETE); here. Allow the raceTimer to do it
                     setState(RACE_COMPLETE);
-                    raceTimerThread.terminate();
-                    raceTimerThread = null;
+                    if (raceTimerThread != null)
+                    {
+                        raceTimerThread.terminate();
+                        raceTimerThread = null;
+                    }
                 }
             }
         }
@@ -479,6 +483,11 @@ class DataReader
         }
         else if (CONTROL_RESULTS.equals(control))
         {
+            if (raceTimerThread != null)
+            {
+                raceTimerThread.terminate();
+                raceTimerThread = null;
+            }
             setState(RESULTS);
         }
         else if (CONTROL_TIME_OF_DAY.equals(control))

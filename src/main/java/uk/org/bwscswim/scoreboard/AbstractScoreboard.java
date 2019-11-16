@@ -31,6 +31,7 @@ import uk.org.bwscswim.scoreboard.event.ResultEvent;
 import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
 import uk.org.bwscswim.scoreboard.event.TestcardEvent;
 import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
+import uk.org.bwscswim.scoreboard.meet.model.Improvement;
 
 import javax.swing.*;
 import java.awt.*;
@@ -49,13 +50,16 @@ import static java.awt.Color.YELLOW;
  */
 abstract class AbstractScoreboard extends BaseScoreboard implements Observer
 {
+
+    public static final Color GREENISH  = new Color(0, 220, 60);
+
     class Swimmer
     {
         protected JLabel lane = new JLabel();
         protected JLabel name = new JLabel();
         protected String club;
         protected String time;
-        protected String improvement;
+        protected Improvement improvement;
         protected JLabel clubTime = new JLabel("", SwingConstants.RIGHT);
         protected JLabel place = new JLabel("", SwingConstants.CENTER);
     }
@@ -193,9 +197,11 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         String clubText = swimmer.club.trim();
         String timeText = swimmer.time.trim();
         String clockText = event instanceof LineupEvent ? "" : clock.trim();
+        boolean normalFormat = eventCount <= 5 || !hasImprovments;
         clubTimeText =
-                !timeText.isEmpty() ? (eventCount > 5 && hasImprovments ? swimmer.improvement.trim() : timeText) :
+                !timeText.isEmpty() ? (normalFormat ? timeText : swimmer.improvement.getReduction()) :
                         clockText.isEmpty() ? clubText : lane == getLaneOfFirstBlankTime() ? clockText : "";
+        // Add a space if displaying a time
         if (!clubTimeText.isEmpty() &&
                 (!timeText.isEmpty() || !clockText.isEmpty()) &&
                 clubTimeText.charAt(clubTimeText.length()-2) == '.')
@@ -203,6 +209,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             clubTimeText = clubTimeText+' ';
         }
         swimmer.clubTime.setText(clubTimeText);
+        swimmer.clubTime.setForeground(normalFormat || !swimmer.improvement.isNewBand() ? WHITE : GREENISH);
     }
 
     private int getLaneOfFirstBlankTime()
@@ -323,8 +330,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             {
                 Swimmer swimmer = swimmers.get(laneIndex);
                 swimmer.improvement = resultEvent.getImprovement(laneIndex);
-                boolean countyTime = resultEvent.isCountyTime(laneIndex);
-                if (!swimmer.improvement.isEmpty() || countyTime)
+                if (!swimmer.improvement.isBlank())
                 {
                     hasImprovments = true;
                 }
@@ -341,10 +347,11 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
             swimmer.club = event.getClub(laneIndex);
             swimmer.time = event.getTime(laneIndex);
             int place = event.getPlace(laneIndex);
-            swimmer.place.setText(
-                eventCount > 5 && hasImprovments
-                ? (resultEvent.isCountyTime(laneIndex) ? "CT" : "")
-                : place <= 0 ? " " : Integer.toString(place));
+            boolean normalFormat = eventCount <= 5 || !hasImprovments;
+            swimmer.place.setText(normalFormat
+                ? place <= 0 ? " " : Integer.toString(place)
+                : swimmer.improvement.getLevel());
+            swimmer.place.setForeground(normalFormat || !swimmer.improvement.isNewBand() ? YELLOW : GREENISH);
             setclubTime(laneIndex + 1, swimmer, event, hasImprovments);
         }
     }
@@ -388,7 +395,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
                         append("lane='").append(lane).append("', ").
                         append("place='").append(swimmer.place.getText().trim()).append("', ").
                         append("time='").append(swimmer.time.trim()).append("'}").
-                        append("improvement='").append(swimmer.improvement.trim()).append("'}").
+                        append("improvement='").append(swimmer.improvement).append("'}").
                         append("clubTime='").append(swimmer.clubTime.getText().trim()).append("', ");
                 if (iterator.hasNext())
                 {
