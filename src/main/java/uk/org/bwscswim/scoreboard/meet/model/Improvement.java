@@ -39,7 +39,7 @@ public class Improvement
 
             boolean isNewCountyTime = isCountyTime && (pb == null || pb.compareTo(countyTime) > 0);
             boolean isNewRegionalBaseTime = isRegionalBaseTime && (pb == null || pb.compareTo(regionalBaseTime) > 0);
-            boolean isNewRegionalAutoTime = isRegionalBaseTime && (pb == null || pb.compareTo(regionalAutoTime) > 0);
+            boolean isNewRegionalAutoTime = isRegionalAutoTime && (pb == null || pb.compareTo(regionalAutoTime) > 0);
             boolean isNewBand = isNewCountyTime || isNewRegionalBaseTime || isNewRegionalAutoTime;
 
             reduction = isPb ? raceTime.minus(pb) : "";

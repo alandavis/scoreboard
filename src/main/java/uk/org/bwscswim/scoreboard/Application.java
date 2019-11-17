@@ -44,9 +44,11 @@ public class Application
         try
         {
             String acceptedSwimFilename = config.getString("acceptedSwimFilename", "Accepted.txt");
-            String countyTimesFilename = config.getString("countyTimesFilename", "CountyTimes.txt");
             String clubsFilename = config.getString("clubsFilename", "Clubs.txt");
-            helper = new ModelHelper(acceptedSwimFilename, clubsFilename, countyTimesFilename);
+            String countyTimesFilename = config.getString("countyTimesFilename", "CountyTimes.txt");
+            String regionalFilename = config.getString("regionalFilename", "RegionalTimes.txt");
+            String pbFilename = config.getString("pbFilename", "PB.txt");
+            helper = new ModelHelper(acceptedSwimFilename, clubsFilename, countyTimesFilename, regionalFilename, pbFilename);
             List<Event> events = helper.getEvents();
             DataReader dataReader = new DataReader(config);
             dataReader.setEvents(events);

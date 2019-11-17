@@ -32,16 +32,25 @@ public class ModelHelper
     private final Map<Integer, Event> events = new HashMap<>();
     private final Map<String, Swimmer> swimmers = new HashMap<>();
 
+    private int year = LocalDate.now().getYear();
+
     private int lineNumber;
     private String prevStdEventName;
 
     public ModelHelper(String acceptedSwimFilename, String clubsFilename,
-                       String countyTimesFilename) throws IOException
+                       String countyTimesFilename, String regionalTimesFilename, String pbFilename) throws IOException
     {
         clubAbbreviations = new Abbreviations(clubsFilename);
 
         loadAcceptedSwimmers(acceptedSwimFilename);
         loadCountyTimes(countyTimesFilename, acceptedSwimFilename);
+        loadRegionalTimes(regionalTimesFilename, acceptedSwimFilename);
+        loadPBTimes(pbFilename);
+    }
+
+    void setYear(int year)
+    {
+        this.year = year;
     }
 
     public List<Event> getEvents()
@@ -178,26 +187,26 @@ public class ModelHelper
     private void loadCountyTimes(String filename, String acceptedSwimFilename) throws IOException
     {
         List<Event> events = getEvents();
-        StringJoiner missingCountyEvents = new StringJoiner("\n    ",
+        StringJoiner missingEvents = new StringJoiner("\n    ",
                 "There are no events in "+acceptedSwimFilename+
                         " that match the following county events from "+filename+":\n    ", "\n");
 
         prevStdEventName = null;
         try (BufferedReader reader = new BufferedReader(new FileReader(filename)))
         {
-            reader.lines().forEach(line -> loadCountyTime(line, events, missingCountyEvents));
+            reader.lines().forEach(line -> loadCountyTime(line, events, missingEvents));
         }
 
-        if (missingCountyEvents.length() > 0)
+        if (missingEvents.length() > 0)
         {
-            System.err.println(missingCountyEvents);
+            System.err.println(missingEvents);
         }
         StringJoiner noCountyTimeEvents = new StringJoiner("\n    ",
                 "The following events from "+acceptedSwimFilename+
                         " don't have county times in "+filename+":\n    ", "\n");
         for (Event event: events)
         {
-            if (event.getCountyTimes() == null)
+            if (!event.hasCountyTimes())
             {
                 noCountyTimeEvents.add(event.getName());
             }
@@ -208,16 +217,16 @@ public class ModelHelper
         }
     }
 
-    private void loadCountyTime(String line, List<Event> events, StringJoiner missingCountyEvents)
+    private void loadCountyTime(String line, List<Event> events, StringJoiner missingEvents)
     {
         String[] split = line.split(",");
         String eventName = Event.getStdName(split[0]);
         Event event = lookupEvent(events, eventName);
         if (event != null)
         {
-            TreeMap<Integer, RaceTime> countyTimes = new TreeMap<>();
-            int baseYear = getYearOfBirthIf11();
-            event.setCountyTimes(countyTimes);
+            TreeMap<Integer, RaceTime> times = new TreeMap<>();
+            int baseYear = getYearOfBirth(11);
+            event.setCountyTimes(times);
             for (int i=1; i<split.length; i++)
             {
                 String timeStr = split[i].trim();
@@ -225,22 +234,93 @@ public class ModelHelper
                 {
                     RaceTime time = RaceTime.create(timeStr);
                     int age = baseYear-i+1;
-                    countyTimes.put(age, time);
+                    times.put(age, time);
                 }
             }
         }
         else if (!eventName.equals(prevStdEventName))
         {
-            missingCountyEvents.add(eventName);
+            missingEvents.add(eventName);
         }
         prevStdEventName = eventName;
     }
 
-    private int getYearOfBirthIf11()
+    private void loadRegionalTimes(String filename, String acceptedSwimFilename) throws IOException
     {
-        LocalDate currentDate = LocalDate.now();
-        int year = currentDate.getYear();
-        return year - 11;
+        List<Event> events = getEvents();
+        StringJoiner missingEvents = new StringJoiner("\n    ",
+                "There are no events in "+acceptedSwimFilename+
+                        " that match the following regional events from "+filename+":\n    ", "\n");
+
+        prevStdEventName = null;
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename)))
+        {
+            reader.lines().forEach(line -> loadRegionalTimes(line, events, missingEvents));
+        }
+
+        if (missingEvents.length() > 0)
+        {
+            System.err.println(missingEvents);
+        }
+        StringJoiner noCountyTimeEvents = new StringJoiner("\n    ",
+                "The following events from "+acceptedSwimFilename+
+                        " don't have regional times in "+filename+":\n    ", "\n");
+        for (Event event: events)
+        {
+            if (!event.hasRegionalAutoTimes())
+            {
+                noCountyTimeEvents.add(event.getName());
+            }
+        }
+        if (noCountyTimeEvents.length() > 0)
+        {
+            System.err.println(noCountyTimeEvents);
+        }
+    }
+
+    private void loadRegionalTimes(String line, List<Event> events, StringJoiner missingEvents)
+    {
+        String[] split = line.split(",");
+        String eventName = Event.getStdName(split[0]);
+        Event event = lookupEvent(events, eventName);
+        if (event != null)
+        {
+            TreeMap<Integer, RaceTime> baseTimes = new TreeMap<>();
+            TreeMap<Integer, RaceTime> autoTimes = new TreeMap<>();
+            int baseYear = getYearOfBirth(12);
+            event.setRegionalBaseTimes(baseTimes);
+            event.setRegionalAutoTimes(autoTimes);
+            for (int i=1, j=1; j<split.length; i++, j+=2)
+            {
+                int age = baseYear-i+1;
+                String timeStr = split[j].trim();
+                if (!timeStr.isEmpty())
+                {
+                    RaceTime time = RaceTime.create(timeStr);
+                    baseTimes.put(age, time);
+                }
+                timeStr = split[j+1].trim();
+                if (!timeStr.isEmpty())
+                {
+                    RaceTime time = RaceTime.create(timeStr);
+                    autoTimes.put(age, time);
+                }
+            }
+        }
+        else if (!eventName.equals(prevStdEventName))
+        {
+            missingEvents.add(eventName);
+        }
+        prevStdEventName = eventName;
+    }
+
+    private void loadPBTimes(String pbFilename)
+    {
+    }
+
+    private int getYearOfBirth(int age)
+    {
+        return year - age;
     }
 
     private Event lookupEvent(List<Event> events, String name)

@@ -36,8 +36,8 @@ public class ScoreboardTest
     @Before
     public void setup() throws IOException, InvocationTargetException, InterruptedException
     {
-        helper = new ModelHelper("AcceptedTest.txt",
-                "Clubs.txt", "CountyTimes.txt");
+        helper = new ModelHelper("AcceptedTest.txt","Clubs.txt",
+                "CountyTimes.txt", "RegionalTimes.txt", "PB.txt");
         events = helper.getEvents();
         java.awt.EventQueue.invokeAndWait(() ->
         {

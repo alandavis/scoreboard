@@ -15,6 +15,8 @@ public class Event implements Comparable<Event>
 
     private List<EventEntry> entries = new ArrayList<>();
     private TreeMap<Integer, RaceTime> countyTimes;
+    private TreeMap<Integer, RaceTime> regionalBaseTimes;
+    private TreeMap<Integer, RaceTime> regionalAutoTimes;
 
     public Event(int number, String name)
     {
@@ -58,14 +60,29 @@ public class Event implements Comparable<Event>
         return entries;
     }
 
-    public TreeMap<Integer, RaceTime> getCountyTimes()
-    {
-        return countyTimes;
-    }
-
     public void setCountyTimes(TreeMap<Integer, RaceTime> countyTimes)
     {
         this.countyTimes = countyTimes;
+    }
+
+    public void setRegionalBaseTimes(TreeMap<Integer, RaceTime> regionalBaseTimes)
+    {
+        this.regionalBaseTimes = regionalBaseTimes;
+    }
+
+    public boolean hasCountyTimes()
+    {
+        return countyTimes != null;
+    }
+
+    public boolean hasRegionalAutoTimes()
+    {
+        return regionalAutoTimes != null;
+    }
+
+    public void setRegionalAutoTimes(TreeMap<Integer, RaceTime> regionalAutoTimes)
+    {
+        this.regionalAutoTimes = regionalAutoTimes;
     }
 
     public void add(EventEntry eventEntry)
@@ -101,24 +118,44 @@ public class Event implements Comparable<Event>
 
     public RaceTime getCountyTime(Integer yearOfBirth)
     {
+        return getTime(countyTimes, yearOfBirth);
+    }
+
+    public RaceTime getRegionalBaseTime(Integer yearOfBirth)
+    {
+        return getTime(regionalBaseTimes, yearOfBirth);
+    }
+
+    public RaceTime getRegionalAutoTime(Integer yearOfBirth)
+    {
+        return getTime(regionalAutoTimes, yearOfBirth);
+    }
+
+    public RaceTime getPb(Swimmer swimmer)
+    {
+        return null; // TODO
+    }
+
+    private RaceTime getTime(TreeMap<Integer, RaceTime> times, Integer yearOfBirth)
+    {
         RaceTime raceTime = null;
-        if (yearOfBirth != null && countyTimes != null)
+        if (yearOfBirth != null && times != null)
         {
-            raceTime = countyTimes.get(yearOfBirth);
+            raceTime = times.get(yearOfBirth);
             if (raceTime == null)
             {
-                Integer lowestYearOfBirth = countyTimes.firstKey();
-                raceTime = yearOfBirth < lowestYearOfBirth ? countyTimes.get(lowestYearOfBirth) : countyTimes.get(countyTimes.lastKey());
+                Integer lowestYearOfBirth = times.firstKey();
+                raceTime = yearOfBirth < lowestYearOfBirth ? times.get(lowestYearOfBirth) : times.get(times.lastKey());
             }
         }
         return raceTime;
     }
 
-
     public boolean isTeamEvent()
     {
         return name.toLowerCase().contains("team");
     }
+
     @Override
     public boolean equals(Object o)
     {
@@ -144,20 +181,5 @@ public class Event implements Comparable<Event>
     public int compareTo(Event event)
     {
         return number - event.number;
-    }
-
-    public RaceTime getPb(Swimmer swimmer)
-    {
-        return null; // TODO
-    }
-
-    public RaceTime getRegionalBaseTime(Integer yearOfBirth)
-    {
-        return null; // TODO
-    }
-
-    public RaceTime getRegionalAutoTime(Integer yearOfBirth)
-    {
-        return null; // TODO
     }
 }

@@ -21,8 +21,9 @@ public class ModelHelperTest
     @Test
     public void fullTest() throws IOException
     {
-        ModelHelper helper = new ModelHelper("AcceptedTest.txt",
-                "Clubs.txt", "CountyTimes.txt");
+        ModelHelper helper = new ModelHelper("AcceptedTest.txt","Clubs.txt",
+                "CountyTimes.txt", "RegionalTimes.txt", "PB.txt");
+        helper.setYear(2019);
 
         List<Event> events = helper.getEvents();
         assertEquals(24, events.size());
@@ -53,6 +54,8 @@ public class ModelHelperTest
         assertEquals(    "-20.00CT*", event.getImprovement("Amber Wildey", "1:30.00").toString()); // the county time
         assertEquals(    "-20.05CT*", event.getImprovement("Amber Wildey", "1:29.95").toString()); // better than the county time
         assertEquals(            "",  event.getImprovement("Amber Wildey", "1.29.95").toString()); // invalid time
+        assertEquals(    "-33.00rt*", event.getImprovement("Amber Wildey", "1:17.00").toString()); // better than the regional base time
+        assertEquals(    "-36.00RT*", event.getImprovement("Amber Wildey", "1:14.00").toString()); // better than the regional auto time
 
         assertEquals("Girls 100 Backstroke", event.getName());
         assertEquals(RaceTime.create("1:30.00"), event.getCountyTime(2010)); // 9
@@ -196,6 +199,9 @@ public class ModelHelperTest
     @Test
     public void improvementTest() throws IOException
     {
+        // Tests written with 2019 as the current year.
+        //   11 years is the lowest county year: 2008
+        //   12 years is the lowest regional year: 2007
         Event event = new Event(3,"Girls Open 200m IM");
 
         Swimmer alice1 = new Swimmer("Alice", 2005, null);
@@ -207,7 +213,7 @@ public class ModelHelperTest
         event.add(new EventEntry(alice1, RaceTime.create("1:33.00")));
         event.add(new EventEntry(alice2, RaceTime.create("1:34.00")));
         event.add(new EventEntry(jane,   RaceTime.create("1:33.00")));
-        event.add(new EventEntry(clare,  RaceTime.create("1:30.00")));
+        event.add(new EventEntry(clare,  RaceTime.create("1:30.00"))); // 1 sec under county
         event.add(new EventEntry(emma,   RaceTime.create("1:32.00")));
         event.add(new EventEntry(tess,   RaceTime.create("")));
         assertEquals(        "",  event.getImprovement("Alice", "33.45").toString());   // duplicate name
@@ -221,6 +227,7 @@ public class ModelHelperTest
         countyTimes.put(2005, RaceTime.create("1:31.0"));
         countyTimes.put(2006, RaceTime.create("1:31.5"));
         event.setCountyTimes(countyTimes);
+
         assertEquals(        "",  event.getImprovement("Alice", "33.45").toString());   // duplicate name
         assertEquals(        "",  event.getImprovement("Jane",  "").toString());        // did not finish
         assertEquals(   "-1.00",  event.getImprovement("Jane",  "1:32.00").toString()); // faster
@@ -232,6 +239,56 @@ public class ModelHelperTest
         assertEquals( "-1.00CT*", event.getImprovement("Emma",  "1:31.00").toString()); // new county
         assertEquals(        "",  event.getImprovement("Tess",  "1:32.00").toString()); // new time, but not county
         assertEquals(      "CT*", event.getImprovement("Tess",  "1:30.00").toString()); // new time and county
+
+        Swimmer clare2 = new Swimmer("Clare2",2005, null);
+        Swimmer emma2  = new Swimmer("Emma2",2005, null);
+        Swimmer clare3 = new Swimmer("Clare3",2005, null);
+        Swimmer emma3  = new Swimmer("Emma3",2005, null);
+        event.add(new EventEntry(clare2, RaceTime.create("1:28.00"))); // 1 sec user regional base and 3 secs under county
+        event.add(new EventEntry(emma2,  RaceTime.create("1:30.00")));
+        event.add(new EventEntry(clare3, RaceTime.create("1:26.00"))); // 1 sec user regional auto and 3 secs under base
+        event.add(new EventEntry(emma3,  RaceTime.create("1:28.00")));
+
+        TreeMap<Integer, RaceTime> regionalBaseTimes = new TreeMap<>();
+        regionalBaseTimes.put(2005, RaceTime.create("1:29.0")); // 2 secs faster than county
+        regionalBaseTimes.put(2006, RaceTime.create("1:29.5"));
+        event.setRegionalBaseTimes(regionalBaseTimes);
+
+        TreeMap<Integer, RaceTime> regionalAutoTimes = new TreeMap<>();
+        regionalAutoTimes.put(2005, RaceTime.create("1:27.0")); // 2 sec faster than base
+        regionalAutoTimes.put(2006, RaceTime.create("1:27.5"));
+        event.setRegionalAutoTimes(regionalAutoTimes);
+
+        // repeat above to ensure we still get CTs
+        assertEquals(        "",  event.getImprovement("Alice", "33.45").toString());   // duplicate name
+        assertEquals(        "",  event.getImprovement("Jane",  "").toString());        // did not finish
+        assertEquals(   "-1.00",  event.getImprovement("Jane",  "1:32.00").toString()); // faster
+
+        assertEquals(        "",  event.getImprovement("Clare", "1:32.00").toString()); // slower
+        assertEquals(        "",  event.getImprovement("Clare", "1:31.05").toString()); // slower than county and previous county time
+        assertEquals(      "CT",  event.getImprovement("Clare", "1:30.05").toString()); // slower but county
+        assertEquals(      "CT",  event.getImprovement("Clare", "1:30.00").toString()); // equal but county
+        assertEquals( "-0.05CT",  event.getImprovement("Clare", "1:29.95").toString()); // faster county
+        assertEquals( "-1.00CT*", event.getImprovement("Emma",  "1:31.00").toString()); // new county
+        assertEquals(        "",  event.getImprovement("Tess",  "1:32.00").toString()); // new time, but not county
+        assertEquals(      "CT*", event.getImprovement("Tess",  "1:30.00").toString()); // new time and county
+
+        // 1:31 CT, 1:29 rt, 1:28 RT
+        assertEquals(        "",  event.getImprovement("Clare2", "1:32.00").toString()); // slower than even county
+        assertEquals(      "CT",  event.getImprovement("Clare2","1:29.05").toString()); // slower than regional base and previous regional base time
+        assertEquals(      "rt",  event.getImprovement("Clare2","1:28.05").toString()); // slower but regional base
+        assertEquals(      "rt",  event.getImprovement("Clare2","1:28.00").toString()); // equal but regional base
+        assertEquals( "-0.05rt",  event.getImprovement("Clare2","1:27.95").toString()); // faster regional base
+        assertEquals( "-1.00rt*", event.getImprovement("Emma2", "1:29.00").toString()); // new regional base
+        assertEquals(      "CT*", event.getImprovement("Tess",  "1:30.00").toString()); // new time, but not regional base
+        assertEquals(      "rt*", event.getImprovement("Tess",  "1:28.00").toString()); // new time and regional base
+
+        assertEquals(      "RT",  event.getImprovement("Clare3","1:26.05").toString()); // slower but regional base
+        assertEquals(      "RT",  event.getImprovement("Clare3","1:26.00").toString()); // equal but regional base
+        assertEquals( "-0.05RT",  event.getImprovement("Clare3","1:25.95").toString()); // faster regional base
+        assertEquals( "-1.00RT*", event.getImprovement("Emma3", "1:27.00").toString()); // new regional base
+        assertEquals(      "rt*", event.getImprovement("Tess",  "1:28.00").toString()); // new time, but not regional base
+        assertEquals(      "RT*", event.getImprovement("Tess",  "1:26.00").toString()); // new time and regional base
     }
 
     @Test
