@@ -41,7 +41,6 @@ import java.io.InputStream;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static uk.org.bwscswim.scoreboard.RawTrace.format;
@@ -191,7 +190,7 @@ class DataReader
                     {
                         float speedFactor = config.getFloat("speedFactor", 1);
                         sleeper.setSpeedFactor(speedFactor);
-                        setInputStream(new DummyInputStream(testFilename, sleeper));
+                        setInputStream(new DummyInputStream(testFilename, sleeper, config));
                         readInputStream();
                     }
                     catch (InterruptedException ignore)

@@ -1,5 +1,7 @@
 package uk.org.bwscswim.scoreboard.meet.service;
 
+import uk.org.bwscswim.scoreboard.Config;
+import uk.org.bwscswim.scoreboard.FileLoader;
 import uk.org.bwscswim.scoreboard.meet.model.Abbreviations;
 import uk.org.bwscswim.scoreboard.meet.model.Club;
 import uk.org.bwscswim.scoreboard.meet.model.RaceTime;
@@ -8,7 +10,6 @@ import uk.org.bwscswim.scoreboard.meet.model.EventEntry;
 import uk.org.bwscswim.scoreboard.meet.model.Swimmer;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -37,15 +38,15 @@ public class ModelHelper
     private int lineNumber;
     private String prevStdEventName;
 
-    public ModelHelper(String acceptedSwimFilename, String clubsFilename,
-                       String countyTimesFilename, String regionalTimesFilename, String pbFilename) throws IOException
+    public ModelHelper(String clubsFilename, String countyTimesFilename, String regionalTimesFilename,
+                       String acceptedSwimFilename, String pbFilename, Config config) throws IOException
     {
-        clubAbbreviations = new Abbreviations(clubsFilename);
+        clubAbbreviations = new Abbreviations(clubsFilename, config);
 
-        loadAcceptedSwimmers(acceptedSwimFilename);
-        loadCountyTimes(countyTimesFilename, acceptedSwimFilename);
-        loadRegionalTimes(regionalTimesFilename, acceptedSwimFilename);
-        loadPBTimes(pbFilename);
+        loadAcceptedSwimmers(acceptedSwimFilename, config);
+        loadCountyTimes(countyTimesFilename, acceptedSwimFilename, config);
+        loadRegionalTimes(regionalTimesFilename, acceptedSwimFilename, config);
+        loadPBTimes(pbFilename, config);
     }
 
     void setYear(int year)
@@ -60,9 +61,9 @@ public class ModelHelper
         return events;
     }
 
-    private void loadAcceptedSwimmers(String filename) throws IOException
+    private void loadAcceptedSwimmers(String filename, Config config) throws IOException
     {
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename)))
+        try (BufferedReader reader = FileLoader.getBufferedReader(filename, config))
         {
             reader.lines().forEach(line -> loadAcceptedSwimmer(line, filename));
         }
@@ -184,7 +185,7 @@ public class ModelHelper
         }
     }
 
-    private void loadCountyTimes(String filename, String acceptedSwimFilename) throws IOException
+    private void loadCountyTimes(String filename, String acceptedSwimFilename, Config config) throws IOException
     {
         List<Event> events = getEvents();
         StringJoiner missingEvents = new StringJoiner("\n    ",
@@ -192,7 +193,7 @@ public class ModelHelper
                         " that match the following county events from "+filename+":\n    ", "\n");
 
         prevStdEventName = null;
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename)))
+        try (BufferedReader reader = FileLoader.getBufferedReader(filename, config))
         {
             reader.lines().forEach(line -> loadCountyTime(line, events, missingEvents));
         }
@@ -245,7 +246,7 @@ public class ModelHelper
         prevStdEventName = eventName;
     }
 
-    private void loadRegionalTimes(String filename, String acceptedSwimFilename) throws IOException
+    private void loadRegionalTimes(String filename, String acceptedSwimFilename, Config config) throws IOException
     {
         List<Event> events = getEvents();
         StringJoiner missingEvents = new StringJoiner("\n    ",
@@ -253,7 +254,7 @@ public class ModelHelper
                         " that match the following regional events from "+filename+":\n    ", "\n");
 
         prevStdEventName = null;
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename)))
+        try (BufferedReader reader = FileLoader.getBufferedReader(filename, config))
         {
             reader.lines().forEach(line -> loadRegionalTimes(line, events, missingEvents));
         }
@@ -314,7 +315,7 @@ public class ModelHelper
         prevStdEventName = eventName;
     }
 
-    private void loadPBTimes(String pbFilename)
+    private void loadPBTimes(String pbFilename, Config config)
     {
     }
 

@@ -24,12 +24,9 @@ package uk.org.bwscswim.scoreboard;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.net.URL;
 
 /**
  * Turns a String into an InputStream that may only contain ASCII characters. Control characters are supplied
@@ -55,37 +52,12 @@ class DummyInputStream extends InputStream
         reader = new BufferedReader(new StringReader(string));
     }
 
-    DummyInputStream(String filename, Sleeper sleeper) throws FileNotFoundException
+    DummyInputStream(String filename, Sleeper sleeper, Config config) throws FileNotFoundException
     {
         this.sleeper = sleeper;
         // TODO do we want to remove ignoreFirstDelay now that there is a time of day clock?
         ignoreFirstDelay = false;
-        try
-        {
-            InputStreamReader inputStreamReader;
-            if (filename.startsWith(":"))
-            {
-                String resourceName = filename.substring(1);
-                URL resource = getClass().getClassLoader().getResource(resourceName);
-                if (resource == null)
-                {
-                    throw new FileNotFoundException("Resource "+resourceName+" does not exit.");
-                }
-                inputStreamReader = new InputStreamReader(resource.openStream());
-            }
-            else
-            {
-                inputStreamReader = new FileReader(filename);
-            }
-//            InputStreamReader inputStreamReader = filename.startsWith(":")
-//                    ? new InputStreamReader(getClass().getClassLoader().getResource(filename.substring(1)).openStream())
-//                    : new FileReader(filename);
-            reader = new BufferedReader(inputStreamReader);
-        }
-        catch (IOException e)
-        {
-            throw new FileNotFoundException(e.getMessage());
-        }
+        reader = FileLoader.getBufferedReader(filename, config);
     }
 
     @Override

@@ -24,6 +24,8 @@ package uk.org.bwscswim.scoreboard;
 
 import javax.swing.*;
 
+import java.io.FileNotFoundException;
+
 import static javax.swing.GroupLayout.Alignment.CENTER;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 

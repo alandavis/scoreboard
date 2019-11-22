@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<!--[if IE 7]><html lang="en" class="no-js ie7 lte-ie9 lte-ie8 lte-ie7 ie"><![endif]-->
+<!--[if IE 8]><html lang="en" class="no-js ie8 lte-ie9 lte-ie8 ie"><![endif]-->
+<!--[if IE 9]><html lang="en" class="no-js ie9 lte-ie9 ie"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html lang="en" class="no-js">
+<!--<![endif]-->
+<head>
+<script src="./sorttable.js"></script>
+<meta charset="utf-8">
+<title>Biographical Data - Antoni Kepa (Bracknell & Wokingham SC) | Swim England</title><meta name="robots" content="noindex, nofollow"><meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="format-detection" content="telephone=no" />
+<meta id="viewport" name="viewport" content="width=1024">
+<link rel="stylesheet" type="text/css" media="all" href="/css/british_swimming_rb.css?version=2018.10.30.12" />
+<link rel="stylesheet" type="text/css" media="all" href="/css/custom/rankings.css?version=2018.10.30.12" />
+
+<!--[if gt IE 6]>
+  <link rel="stylesheet" media="all" href="/css/ie7.css?version=2018.10.30.12" />
+<![endif]-->
+
+<link rel="stylesheet" type="text/css" media="screen" href="/css/custom/add2home.css?version=2018.10.30.12" />
+<link rel="stylesheet" type="text/css" media="screen" href="/css/custom/msgBoxLight.css?version=2018.10.30.12" />
+<link rel="stylesheet" type="text/css" media="screen" href="/css/custom/jquery-ui-1.9.2.custom.css?version=2018.10.30.12" />
+
+<!--
+<link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/apple-touch-icon-72x72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/apple-touch-icon-114x114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144x144-precomposed.png">
+
+<link rel="apple-touch-startup-image" href="/apple-touch-startup-image-320x460.png" media="(device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 1)" />
+<link rel="apple-touch-startup-image" href="/apple-touch-startup-image-640x920.png" media="(device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 2)" />
+<link rel="apple-touch-startup-image" href="/apple-touch-startup-image-640x1096.png" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)" />
+<link rel="apple-touch-startup-image" href="/apple-touch-startup-image-768x1004.png" media="(device-width: 768px) and (device-height: 1024px) and (orientation: portrait) and (-webkit-device-pixel-ratio: 1)" />
+<link rel="apple-touch-startup-image" href="/apple-touch-startup-image-748x1024.png" media="(device-width: 768px) and (device-height: 1024px) and (orientation: landscape) and (-webkit-device-pixel-ratio: 1)" />
+<link rel="apple-touch-startup-image" href="/apple-touch-startup-image-1536x2008.png" media="(device-width: 768px) and (device-height: 1024px) and (orientation: portrait) and (-webkit-device-pixel-ratio: 2)" />
+<link rel="apple-touch-startup-image" href="/apple-touch-startup-image-1496x2048.png" media="(device-width: 768px) and (device-height: 1024px) and (orientation: landscape) and (-webkit-device-pixel-ratio: 2)" />
+-->
+
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?version=2018.10.30.12">
+
+<!--[if lt IE 9]>
+  <script type="text/javascript" src="/javascripts/html5shiv.js?version=2018.10.30.12"></script>
+<![endif]--> 
+
+<script type="text/javascript" src="/javascripts/jquery-1.10.2.js?version=2018.10.30.12"></script> 
+<script type="text/javascript" src="/javascripts/jquery.fancybox.js?version=2018.10.30.12"></script> 
+<script type="text/javascript" src="/javascripts/jquery.ketchup.js?version=2018.10.30.12"></script> 
+<script type="text/javascript" src="/javascripts/jquery-ui-1.10.3.custom.js?version=2018.10.30.12"></script> 
+<script type="text/javascript" src="/javascripts/jquery.iframe-transport.js?version=2018.10.30.12"></script> 
+<script type="text/javascript" src="/javascripts/jquery.select2.js?version=2018.10.30.12"></script> 
+<script type="text/javascript" src="/javascripts/common.js?version=2018.10.30.12"></script> 
+<script type="text/javascript" src="/javascripts/common_rb.js?version=2018.10.30.12"></script> 
+<script src="//use.typekit.net/fmk8ztf.js"></script> 
+<script>try{Typekit.load();}catch(e){}</script>
+
+<!--[if lte IE 8 ]>
+  <script type="text/javascript" src="/javascripts/ie8.js?version=2018.10.30.12"></script>
+<![endif]--> 
+
+<script type="text/javascript" src="/javascripts/custom/jquery.validate.js?version=2018.10.30.12"></script> 
+<script type="text/javascript" src="/javascripts/custom/jquery.validate-additional-methods.js?version=2018.10.30.12"></script> 
+<script type="text/javascript" src="/javascripts/custom/jquery.ui.datepicker.validation.js?version=2018.10.30.12"></script> 
+<script type="text/javascript" src="/javascripts/custom/jquery.msgBox.js?version=2018.10.30.12"></script> 
+<script type="text/javascript" src='/javascripts/custom/jquery.TableCSVExport.js?version=2018.10.30.12'></script> 
+<script type="text/javascript" src="/javascripts/custom/rankings.js?version=2018.10.30.12"></script> 
+<script type="text/javascript" src="/javascripts/custom/ios.js?version=2018.10.30.12"></script> 
+
+<!-- Global site tag (gtag.js) - Google Analytics --> 
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-38391804-1"></script> 
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-38391804-1');
+  gtag('set', 'anonymizeIp', true);
+  gtag('set', 'forceSSL', true);
+  gtag('send', 'pageview');
+</script>
+<script>
+  var MTIProjectId='9d5408bc-7ac4-4ff0-a210-0fe37a77e240';
+  (function(){
+    var m=document.createElement('script');
+        m.type='text/javascript';
+        m.async='true';
+        m.src=('https:'==document.location.protocol?'https:':'http:')+'//fast.fonts.com/t/trackingCode.js';
+    (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(m);
+  })();
+</script>
+<style type="text/css"></style>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script><script type="text/javascript">var onReturnreCAPTCHACallback = function(response) { document.getElementById("recaptcha").submit();}</script></head><body id="channel_biogs" class="british_swimming_rankings">
+<div class="cookie-bar">
+  <div class="container_12 cookie-bar-inner">
+    <p class="cookie-bar-copy"><strong>Our website uses cookies</strong> to improve your browsing experience. If you’d like to learn more about the cookies we set or how to manage what cookies your browser accepts, you can find out on our <a href="http://www.swimming.org/information/cookies">cookie information page</a>.</p>
+  </div>
+</div>
+<div id="tabBar">
+  <div class="container_12"> <a href="/"><img src="/images/global/swimmingresults.org-logo.png" id="superLogo" alt="swimmingresults.org"></a>
+    <ul id="usefulLinks">
+      <li><a href="http://www.britishswimming.org">British Swimming</a></li>
+      <li><a href="http://www.swimming.org/swimengland/">Swim England</a></li>
+      <li><a href="http://www.swimwales.org/">Swim Wales</a></li>
+      <li><a href="http://www.scottishswimming.com/">Scottish Swimming</a></li>
+      <li><script type="text/javascript" language="javascript">
+<!--
+// Email obfuscator script 2.1 by Tim Williams, University of Arizona
+// Random encryption key feature by Andrew Moulden, Site Engineering Ltd
+// PHP version coded by Ross Killen, Celtic Productions Ltd
+// This code is freeware provided these six comment lines remain intact
+// A wizard to generate this code is at http://www.jottings.com/obfuscator/
+// The PHP code may be obtained from http://www.celticproductions.net/
+
+
+coded = "Vx4M7x-lU-85995XTdx-W4O-yqdT"
+  key = "hM469.oazP7kcSxJX8urT3UNv-1iVIB0ZyqRtYpljmHFCEWdDKLeGnw5fgb@2QsAO"
+  shift=coded.length
+  link=""
+  for (i=0; i<coded.length; i++) {
+    if (key.indexOf(coded.charAt(i))==-1) {
+      ltr = coded.charAt(i)
+      link += (ltr)
+    }
+    else {     
+      ltr = (key.indexOf(coded.charAt(i))-
+shift+key.length) % key.length
+      link += (key.charAt(ltr))
+    }
+  }
+document.write("<a href='mailto:"+link+"'>Contact</a>")
+
+//-->
+</script><noscript>N/A</noscript></li>
+    </ul>
+  </div>
+  <div class="container_12">
+    <ul id="superTabs" style="height: 0px;">
+    </ul>
+  </div>
+</div>
+<div class="container">
+  <nav class="minor-nav top">
+    <ul class="minor-nav-ul">
+  
+  
+
+      <li class="minor-nav-li"><a href="/">Home</a></li>
+  
+  
+
+      <li class="minor-nav-li"><a class="noclickmenu" href="#">Rankings</a>
+  
+  
+        <ul class="sub-nav">
+          <li><a href="/12months/">Event Rankings (12 Months)</a></li>
+          <li><a href="/eventrankings/">Event Rankings (All Time)</a></li>
+          <li><a href="/individualbest/">Individual Best Times</a></li>
+          <li><a href="/individualrankings/">Individual Rankings</a></li>
+          <li><a href="/progressive/">Progressive Rankings</a></li>
+          <li><a href="http://www.swimrankings.net/index.php?page=rankingDetail&club=EU" target="_blank">European Rankings</a></li>
+          <li><a href="http://www.fina.org/content/swimming-world-ranking" target="_blank">FINA World Rankings</a></li>
+        </ul>
+  
+      </li>
+  
+  
+
+      <li class="minor-nav-li"><a class="noclickmenu" href="#">Results</a>
+  
+
+        <ul class="sub-nav">
+          <li><a href="/showmeetsbyclub/">Meet Results By Club</a></li>
+          <li><a href="/showmeetsbyevent/">Meet Results By Event</a></li>
+          <li><a href="/showmeets/">Meet Results By Swimmer</a></li>
+          <li><a href="http://www.britishswimming.org/rankings-records-results/results/swimming-results/" target="_blank">British Swimming Results</a></li>
+          <li><a href="http://www.swimming.org/sport/major-events/" target="_blank">Swim England Results</a></li>
+          <li><a href="http://www.swimwales.org/events" target="_blank">Swim Wales Results</a></li>
+          <li><a href="http://www.scottishswimming.com/compete/swimming/results.aspx" target="_blank">Scottish Swimming Results</a></li>
+        </ul>
+  
+      </li>
+  
+  
+
+      <li class="minor-nav-li"><a class="noclickmenu" href="#">Records</a>
+  
+
+        <ul class="sub-nav">
+          <li><a href="http://www.britishswimming.org/rankings-records-results/records/" target="_blank">British Swimming</a></li>
+          <li><a href="/records/english.php">Swim England</a></li>
+          <li><a href="http://www.swimwales.org/swimming/swimming-records" target="_blank">Swim Wales</a></li>
+          <li><a href="http://www.scottishswimming.com/compete/swimming/records.aspx" target="_blank">Scottish Swimming</a></li>  
+          <li><a href="https://records.swimmingresults.org" target="_blank">Regional & County Records Officer<br>Aide-memoire</a></li>
+        </ul>
+  
+      </li>
+  
+  
+
+      <li class="minor-nav-li"><a class="noclickmenu" href="#">Para-Swimming</a>
+  
+
+        <ul class="sub-nav">
+          <li><a href="/disabilityrankings/">Event Rankings</a></li>
+          <li><a href="http://www.britishswimming.org/rankings-records-results/records/" target="_blank">British Records</a></li>
+          <li><a href="http://www.swimming.org/sport/english-swimming-records/" target="_blank">Swim England Records</a></li>
+          <li><a href="https://www.paralympic.org/swimming/rankings" target="_blank">World Para Swimming Rankings</a></li>
+        </ul>
+  
+      </li>
+
+  
+
+      <li class="minor-nav-li"><a class="noclickmenu" href="#">Masters</a>
+  
+
+        <ul class="sub-nav">		
+          <li><a href="http://www.swimming.org/masters/" target="_blank">Masters Swimming Hub</a></li>
+          <li><a href="http://www.swimming.org/asa/calendar/filter/masters/" target="_blank">Masters Calendar</a></li>
+          <li><a href="/mastersdata/decathlon/">Decathlon Competition</a></li>
+          <li><a href="/masterseventrankings/">Event Rankings</a></li>
+          <li><a href="/mastersindividualbest/">Individual Best Times</a></li>
+          <li><a href="/mastersindividualrankings/">Individual Rankings</a></li>
+          <li><a href="/mastersdata/results/">Results</a></li>
+          <li><a href="/mastersdata/results/openwater.php">Results - Open Water</a></li>
+          <li><a href="/mastersdata/records/">British Records</a></li>
+          <li><a href="http://www.len.eu/?p=4577" target="_blank">European Records</a></li>
+          <li><a href="http://www.fina.org/content/masters-records" target="_blank">FINA World Records</a></li>
+        </ul>
+  
+      </li>
+  
+  
+
+      <li class="minor-nav-li"><a class="noclickmenu" href="#">Members</a>
+  
+
+        <ul class="sub-nav">
+          <li><a href="/clubofficers/">English/Welsh Club Member Roles</a></li>
+          <li><a href="/member_options/">English/Welsh Member Options</a></li>
+          <li><a href="/membershipcheck/">English/Welsh Membership Check</a></li>
+          <li><a href="https://www.swimmingmembers.org/" target="_blank">English/Welsh Online Membership</a></li>
+          <li><a href="https://www.scottishswimming.com/membership/membership-check.aspx" target="_blank">Scottish Membership Check</a></li>
+          <li><a href="https://scottishswimming.azolve.com/Account.mvc/Login?ReturnUrl=%2f" target="_blank">Scottish Online Membership</a></li>
+        </ul>
+  
+      </li>
+
+
+      <li class="minor-nav-li"><a class="active" href="/biogs/">Biogs</a></li>
+  
+<li class="minor-nav-li"><a href="#">Entry Tools</a>      
+        <ul class="sub-nav">
+      
+<li><a href="/competitionentrycheck/">Entry Membership Check (SPORTSYS)</a></li><li><a href="/competitionentrycheck/indexht.php">Entry Membership Check (New faster Hy-Tek version)</a></li><li><a href="/competitionentrycheck/">Entry Membership Check (Old Hy-Tek)</a></li><li><a href="/competitiontimescheck/">Entry Time Check (Hy-Tek)</a></li><li><a href="/mrfresultscheck/">MRF Results Data Validation</a></li><li><a href="/teammanagercheck/">Hy-Tek Team Manager Data Validation</a></li><li><a href="/personalkey/">Personal Key</a></li><li><a href="/qt/">Qualifying Times Generator</a></li>        
+        </ul>
+  
+      </li>
+  
+  
+
+      <li class="minor-nav-li"><a class="noclickmenu" href="#">Downloads</a>
+  
+
+        <ul class="sub-nav">
+    
+
+          <li><a href="http://www.swimming.org/library/46" target="_blank">Swim England Download Library</a></li>
+	      <li><a href="http://www.swimming.org/assets/uploads/events/BS_CP_Handbook.pdf">Competition Pathway Handbook</a></li>
+          <li><a href="/downloads/equivalent-time/">Equivalent Time Converter</a></li>
+          <li><a href="/downloads/equivalent-time-share/">Equivalent Time Algorithm/DLL</a></li>
+          <li><a href="http://www.fina.org/content/fina-points" target="_blank">FINA Points Calculator</a></li>
+          <li><a href="/downloads/Lenex3.0.pdf" target="_blank">Lenex 3.0 Specification</a></li>            
+          <li><a href="http://www.swimming.org/library/documents/1214/download" target="_blank">International Permit Form</a></li>   
+          <li><a href="http://www.swimming.org/library/documents/1349/download" target="_blank">Neutral Data Format</a></li>
+          <li><a href="/clubcodes/">Official Club Codes</a></li>
+          <li><a href="/downloads/para-points/">Para-Swimming Points Calculator</a></li>
+          <li><a href="/downloads/DWSREFT19.csv">2019 Para-Swimming Reference Times</a></li>
+          <li><a href="http://www.swimming.org/library/documents/544/download" target="_blank">Rankings Policy</a></li>
+
+
+        </ul>
+  
+      </li>
+  
+
+     <li class="minor-nav-li"><a href="/licensed_meets/">Licensed Meets</a></li>
+      
+
+    </ul>
+  </nav> <div id="outerWrapper">
+<div class="global-header nosidenav">
+  <h2>Biographical Data</h2>
+</div>
+<div class="grid_12 content-wpr no-sidebar">
+<div class="boxTop"></div>
+<div class="boxRepeat rankingsContent">
+<h1>Biographical Data</h1>
+<div style="display: table; width:100%;"><div style="display: table-row;"><div style="display: table-cell; vertical-align:top; width:100%"><table width="100%"><tr><td width="20%" style="background-color:#ECECEC; padding:4px"><b>Name</b></td><td width="30%" style="background-color:#ECECEC; padding:4px">Antoni Kepa</td><td width="20%" style="background-color:#ECECEC; padding:4px"><b>Member</b></td><td width="30%" style="background-color:#ECECEC; padding:4px">1281918</td></tr><tr><td width="20%" style="background-color:#F8F8F8; padding:4px"><b>Year of Birth</b></td><td width="30%" style="background-color:#F8F8F8; padding:4px">06</td><td width="20%" style="background-color:#F8F8F8; padding:4px"><b>Gender</b></td><td width="30%" style="background-color:#F8F8F8; padding:4px">Male</td></tr><tr><td width="20%" style="background-color:#ECECEC; padding:4px"><b>CoIR</b></td><td width="30%" style="background-color:#ECECEC; padding:4px">England</td><td width="20%" style="background-color:#ECECEC; padding:4px"></td><td width="30%" style="background-color:#ECECEC; padding:4px"></td></tr><tr><td width="20%" style="background-color:#F8F8F8; padding:4px"><b>Club 1</b></td><td width="30%" style="background-color:#F8F8F8; padding:4px">Bracknell & Wokingham SC</td><td width="20%" style="background-color:#F8F8F8; padding:4px"><b>Ranked Club</b></td><td width="30%" style="background-color:#F8F8F8; padding:4px">Bracknell & Wokingham SC</td></tr><tr><td width="20%" style="background-color:#ECECEC; padding:4px"><b>Coach</b></td><td width="30%" colspan="3" style="background-color:#ECECEC; padding:4px">David Brazil</td></tr></table></div><div style="display: table-cell; vertical-align:top; padding:4px; text-align:center"><img src="biogs_image.php?id=1281918&v=1574319558" height="150px"></div></div></div><br><table width="100%" style="page-break-before:auto"><tr><td style="background-color:#FFFFBB; text-align:center; padding:4px"><b>Regional Achievements</b></td></tr><tr><td style="background-color:#ECECEC; padding:4px">REGAG18<br />
+50FL, 100BK &amp; 200BK 1st<br />
+50BK 2nd<br />
+50FR 3rd<br />
+REGAG19<br />
+50FL 2nd<br />
+100FR 3rd</td></tr></table><br><table width="100%" style="page-break-before:auto"><tr><td style="background-color:#FFFFBB; text-align:center; padding:4px"><b>Ambition</b></td></tr><tr><td style="background-color:#ECECEC; padding:4px">Get to Nationals in 2020 and to Olympics in the future. </td></tr></table><br><table width="100%" style="page-break-before:always"><tr><td width="20%" style="background-color:#FFFFBB; padding:4px; text-align:center"><b><a href=/individualbest/personal_best.php?tiref=1281918&mode=A&back=biogs>Click For Personal Best</a></b></td><td width="20%" style="background-color:#FFFFBB; padding:4px; text-align:center"><b>2019 Short Course</b></td><td width="20%" style="background-color:#FFFFBB; padding:4px; text-align:center"><b>Short Course PB</b></td><td width="20%" style="background-color:#FFFFBB; padding:4px; text-align:center"><b>2019 Long Course</b></td><td width="20%" style="background-color:#FFFFBB; padding:4px; text-align:center"><b>Long Course PB</b></td></tr><tr><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"><b>50m Freestyle</b></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right">   28.91</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right">   28.48</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right">   28.48</td></tr><tr><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"><b>100m Freestyle</b></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right">   58.11</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right">   58.11</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 1:00.72</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 1:00.72</td></tr><tr><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"><b>200m Freestyle</b></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 2:13.16</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 2:14.92</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 2:14.92</td></tr><tr><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"><b>400m Freestyle</b></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 4:39.92</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 4:39.92</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 4:49.50</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 4:49.50</td></tr><tr><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"><b>800m Freestyle</b></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 9:49.30</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"></td></tr><tr><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"><b>1500m Freestyle</b></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right">17:56.70</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right">17:56.70</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right">19:59.13</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right">19:59.13</td></tr><tr><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"><b>50m Breaststroke</b></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right">   40.34</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right">   40.00</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right">   40.00</td></tr><tr><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"><b>100m Breaststroke</b></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 1:31.84</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 1:28.64</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 1:28.64</td></tr><tr><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"><b>200m Breaststroke</b></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 3:11.62</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 3:11.62</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 3:13.82</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 3:13.82</td></tr><tr><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"><b>50m Butterfly</b></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right">   31.66</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right">   29.04</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right">   29.04</td></tr><tr><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"><b>100m Butterfly</b></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 1:08.91</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 1:08.91</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 1:09.17</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 1:09.17</td></tr><tr><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"><b>200m Butterfly</b></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 2:50.22</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 2:42.78</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 2:42.78</td></tr><tr><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"><b>50m Backstroke</b></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right">   32.29</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right">   32.60</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right">   32.60</td></tr><tr><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"><b>100m Backstroke</b></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 1:04.35</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 1:04.35</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 1:08.21</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 1:08.21</td></tr><tr><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"><b>200m Backstroke</b></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 2:28.39</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 2:28.39</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 2:29.01</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 2:29.01</td></tr><tr><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"><b>200m Individual Medley</b></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 2:35.42</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 2:35.04</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 2:33.68</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 2:33.68</td></tr><tr><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"><b>400m Individual Medley</b></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"></td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 5:46.03</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 5:24.87</td><td width="20%" style="background-color:#ECECEC; padding:4px; text-align:right"> 5:24.87</td></tr><tr><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"><b>100m Individual Medley</b></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"> 1:18.78</td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"></td><td width="20%" style="background-color:#F8F8F8; padding:4px; text-align:right"></td></tr></table><br>
+    <div align="center" style="padding-bottom:5px">
+      <table width="100%" border="0">
+        <tr>
+          <td width="25%" style="background-color:transparent">
+            <div align="center">
+              <form method="POST" action="biogs_logon.php">
+                <div id="submit_div" style="display: block;">
+                  <input type="image" src="/images/custom/form_buttons/change_details.png" name="Submit">
+                </div>
+	            <input type="hidden" name="ref" value="1281918">
+              </form>
+            </div>
+          </td>
+                    <td width="25%" style="background-color:transparent">
+            <div align="center">
+              <a href="./biogs_details.php?print=1&tiref=1281918" target="_blank" onclick="javascript:void window.open('./biogs_details.php?print=1&tiref=1281918','1362058522742','width=1024,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=1,left=0,top=0');return false;"><img src="/images/custom/form_buttons/print.png" width="112" height="22" /></a>
+            </div>
+          </td>
+          <td width="25%" style="background-color:transparent">
+            <div align="center">
+              <a href="./biogs_details.php?print=2&tiref=1281918" target="_blank" onclick="javascript:void window.open('./biogs_details.php?print=2&tiref=1281918','1362058522742','width=1024,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=1,left=0,top=0');return false;"><img src="/images/custom/form_buttons/pdf.png" width="112" height="22" /></a>
+            </div>
+          </td>          
+                  </tr>
+      </table>
+    </div>
+  
+<p>Profile Last Updated 20-09-2019</p>
+        <p class="rnk_j">Disclosure of your information. Please click 
+<a href="http://www.swimming.org/library/documents/2479/download" target="_blank">here</a> 
+for the Swim England Privacy Policy, 
+<a href="https://www.britishswimming.org/about-us/policy-documents/british-swimming-privacy-policy/" target="_blank">here</a> for the British Swimming Privacy Policy and 
+<a href="https://www.scottishswimming.com/membership/data-protection.aspx" target="_blank">here</a>
+for the Scottish Swimming Privacy Policy.
+If you are a member of a Swim England or Swim Wales club and have a membership query please contact  <script type="text/javascript" language="javascript">
+<!--
+// Email obfuscator script 2.1 by Tim Williams, University of Arizona
+// Random encryption key feature by Andrew Moulden, Site Engineering Ltd
+// PHP version coded by Ross Killen, Celtic Productions Ltd
+// This code is freeware provided these six comment lines remain intact
+// A wizard to generate this code is at http://www.jottings.com/obfuscator/
+// The PHP code may be obtained from http://www.celticproductions.net/
+
+
+coded = "WK0KMLcfefMRZZR0GxmWG"
+  key = "pSDd-xMT9QbWvhg64kcnZ@J72CasP1O8HVYGIqiE0zeoU5jLf.wy3AtrBNXRFulKm"
+  shift=coded.length
+  link=""
+  for (i=0; i<coded.length; i++) {
+    if (key.indexOf(coded.charAt(i))==-1) {
+      ltr = coded.charAt(i)
+      link += (ltr)
+    }
+    else {     
+      ltr = (key.indexOf(coded.charAt(i))-
+shift+key.length) % key.length
+      link += (key.charAt(ltr))
+    }
+  }
+document.write("<a href='mailto:"+link+"'>renewals@swimming.org</a>")
+
+//-->
+</script><noscript>N/A</noscript>.
+To update your contact details, website visibility or data protection choices log on to the <a href="https://www.swimmingmembers.org/" target="_blank">Swim England & Swim Wales Online Membership System</a>. 
+Scottish members need to use the <a href="https://scottishswimming.azolve.com/Account.mvc/LogIn">Scottish Membership System</a>. 
+If you believe times are wrong or missing from a meet then please contact the MEET PROMOTER with the details as we are unable to help with these queries. 
+Questions concerning Masters results or the Decathlon competition should be sent <script type="text/javascript" language="javascript">
+<!--
+// Email obfuscator script 2.1 by Tim Williams, University of Arizona
+// Random encryption key feature by Andrew Moulden, Site Engineering Ltd
+// PHP version coded by Ross Killen, Celtic Productions Ltd
+// This code is freeware provided these six comment lines remain intact
+// A wizard to generate this code is at http://www.jottings.com/obfuscator/
+// The PHP code may be obtained from http://www.celticproductions.net/
+
+
+coded = "Ij0yI3Hj.TEBqhQCT.vQLgI@3QU"
+  key = "hZY.fP162JyWaQUNITSAKgXx0krH47@bRcOwpEtjMn5uzF9-iG8omLdesBql3VvCD"
+  shift=coded.length
+  link=""
+  for (i=0; i<coded.length; i++) {
+    if (key.indexOf(coded.charAt(i))==-1) {
+      ltr = coded.charAt(i)
+      link += (ltr)
+    }
+    else {     
+      ltr = (key.indexOf(coded.charAt(i))-
+shift+key.length) % key.length
+      link += (key.charAt(ltr))
+    }
+  }
+document.write("<a href='mailto:"+link+"'>here</a>")
+
+//-->
+</script><noscript>N/A</noscript>. 
+
+<!--       Only technical problems with this website should be sent <script type="text/javascript" language="javascript">
+<!--
+// Email obfuscator script 2.1 by Tim Williams, University of Arizona
+// Random encryption key feature by Andrew Moulden, Site Engineering Ltd
+// PHP version coded by Ross Killen, Celtic Productions Ltd
+// This code is freeware provided these six comment lines remain intact
+// A wizard to generate this code is at http://www.jottings.com/obfuscator/
+// The PHP code may be obtained from http://www.celticproductions.net/
+
+
+coded = "HUjSCU34s3DtYYtiLqU39jV30xqL"
+  key = "@fQr9iKyO87J4aY1EBIgd0jDZeoSshXq-tR6McvWbunPFANLCkzmTUx23H.lwVG5p"
+  shift=coded.length
+  link=""
+  for (i=0; i<coded.length; i++) {
+    if (key.indexOf(coded.charAt(i))==-1) {
+      ltr = coded.charAt(i)
+      link += (ltr)
+    }
+    else {     
+      ltr = (key.indexOf(coded.charAt(i))-
+shift+key.length) % key.length
+      link += (key.charAt(ltr))
+    }
+  }
+document.write("<a href='mailto:"+link+"'>here</a>")
+
+//-->
+</script><noscript>N/A</noscript>        </p>
+      </div>
+      <div class="boxBottom"></div>
+      
+
+
+      <div class="boxBottom"></div>	  
+    </div>
+	
+
+	
+  </div>
+  <div class="footer-wpr">
+  
+	
+    <footer><img class="recognition-bar" src="/images/recog/swimmingresults-transparent.png" alt="Sponsors"></footer>  
+	
+ 
+    <div class="colophon-wpr">
+      <div class="colophon">
+        <p>© Copyright 2019</p>
+        <p style="float: right;">Powered By. <a href="http://www.sportsys.co.uk/" target="_blank">SPORTSYS LLP</a></p>
+        <a href="//www.swimmingresults.org/project_honey_pot/rewarding.php"><span style="display: none;">fact-groovy</span></a>
+      </div>
+    </div>
+  </div>  
+</div>
+
+</body>
+</html>

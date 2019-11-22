@@ -35,6 +35,7 @@ import uk.org.bwscswim.scoreboard.meet.model.Improvement;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -86,7 +87,7 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     private Font clubTimeFont;
     private Font placeFont;
 
-    protected JLabel logo  = new JLabel(new ImageIcon("Logo600white.jpg"));
+    protected JLabel logo  = new JLabel();
     protected JLabel timeOfDay  = new JLabel();
 
     private int timeOfDayMod;
@@ -127,7 +128,15 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
         timeOfDayMod = config.getInt("timeOfDayMod", 60);
         splashAt = config.getInt("splashAt", 45);
         splashFor = config.getInt("splashFor", 15);
-        splashPanel.add(new JLabel(new ImageIcon("Splash.jpg")));
+        try
+        {
+            splashPanel.add(new JLabel(new ImageIcon(FileLoader.getBytes(":Splash.jpg", config))));
+            logo.setIcon(new ImageIcon(FileLoader.getBytes(":Logo.jpg", config)));
+        }
+        catch (FileNotFoundException e)
+        {
+            System.err.println("Filed to read image "+e.getMessage());
+        }
     }
 
     private void getFonts()

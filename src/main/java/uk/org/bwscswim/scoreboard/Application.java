@@ -22,12 +22,9 @@
  */
 package uk.org.bwscswim.scoreboard;
 
-import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
 import uk.org.bwscswim.scoreboard.meet.service.ModelHelper;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -44,11 +41,11 @@ public class Application
         try
         {
             String acceptedSwimFilename = config.getString("acceptedSwimFilename", "Accepted.txt");
-            String clubsFilename = config.getString("clubsFilename", "Clubs.txt");
-            String countyTimesFilename = config.getString("countyTimesFilename", "CountyTimes.txt");
-            String regionalFilename = config.getString("regionalFilename", "RegionalTimes.txt");
+            String clubsFilename = config.getString("clubsFilename", ":Clubs.txt");
+            String countyTimesFilename = config.getString("countyTimesFilename", ":CountyTimes.txt");
+            String regionalFilename = config.getString("regionalFilename", ":RegionalTimes.txt");
             String pbFilename = config.getString("pbFilename", "PB.txt");
-            helper = new ModelHelper(acceptedSwimFilename, clubsFilename, countyTimesFilename, regionalFilename, pbFilename);
+            helper = new ModelHelper(clubsFilename, countyTimesFilename, regionalFilename, acceptedSwimFilename, pbFilename, config);
             List<Event> events = helper.getEvents();
             DataReader dataReader = new DataReader(config);
             dataReader.setEvents(events);

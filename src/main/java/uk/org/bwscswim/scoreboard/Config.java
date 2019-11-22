@@ -43,7 +43,7 @@ import java.util.Properties;
  *
  * @author adavis
  */
-class Config
+public class Config
 {
     private static final String FONT_NAME = "fontName";
     private static final String FONT_STYLE = "fontStyle";

@@ -21,8 +21,10 @@ public class ModelHelperTest
     @Test
     public void fullTest() throws IOException
     {
-        ModelHelper helper = new ModelHelper("AcceptedTest.txt","Clubs.txt",
-                "CountyTimes.txt", "RegionalTimes.txt", "PB.txt");
+        ModelHelper helper = new ModelHelper(":Clubs.txt", ":CountyTimes.txt",
+                ":RegionalTimes.txt", ":AcceptedTest.txt",
+                ":PBTest.txt", null
+        );
         helper.setYear(2019);
 
         List<Event> events = helper.getEvents();
@@ -79,7 +81,7 @@ public class ModelHelperTest
     @Test
     public void swimmerTest() throws IOException
     {
-        Abbreviations clubAbbreviations = new Abbreviations("Clubs.txt");
+        Abbreviations clubAbbreviations = new Abbreviations(":Clubs.txt", null);
         Club club = new Club("Bracknell", clubAbbreviations);
 
         assertEquals("Mia Richardson", new Swimmer("Mia Richardson",  2001, club).getName());
@@ -169,7 +171,7 @@ public class ModelHelperTest
     @Test
     public void clubAbbreviationsTest() throws IOException
     {
-        Abbreviations clubAbbreviations = new Abbreviations("Clubs.txt");
+        Abbreviations clubAbbreviations = new Abbreviations(":Clubs.txt", null);
 
         assertEquals("does not exist", clubAbbreviations.lookupAbbreviation("does not exist"));
 
@@ -294,7 +296,7 @@ public class ModelHelperTest
     @Test
     public void clubTest() throws IOException
     {
-        Abbreviations clubAbbreviations = new Abbreviations("Clubs.txt");
+        Abbreviations clubAbbreviations = new Abbreviations(":Clubs.txt", null);
         Club club = new Club("Bracknell", clubAbbreviations);
 
         assertEquals("BRKS", club.getAbbreviation());

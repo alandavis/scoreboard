@@ -1,11 +1,11 @@
 package uk.org.bwscswim.scoreboard.meet.model;
 
+import uk.org.bwscswim.scoreboard.Config;
+import uk.org.bwscswim.scoreboard.FileLoader;
+
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,9 +17,9 @@ public class Abbreviations
     Map<String, String> shortNameMap = new HashMap<>();
     Map<String, String> reverseMap = new HashMap<>();
 
-    public Abbreviations(String filename) throws IOException
+    public Abbreviations(String filename, Config config) throws IOException
     {
-        try (BufferedReader reader = new BufferedReader(new FileReader(filename)))
+        try (BufferedReader reader = FileLoader.getBufferedReader(filename, config))
         {
             reader.lines().forEach(line ->
             {
