@@ -212,7 +212,7 @@ public class Config
         return defaultValue;
     }
 
-    Boolean getBoolean(String attributeName, Boolean defaultValue)
+    public Boolean getBoolean(String attributeName, Boolean defaultValue)
     {
         return getBoolean(null, null, attributeName, defaultValue);
     }

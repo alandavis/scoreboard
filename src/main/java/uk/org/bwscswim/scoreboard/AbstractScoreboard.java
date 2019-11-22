@@ -273,7 +273,6 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     private void update(RaceTimerEvent event)
     {
         setClock(event.getClock());
-        setVisible(true);
     }
 
     private void update(TimeOfDayEvent event)

@@ -177,7 +177,7 @@ public class ModelHelper
     {
         try
         {
-            return Integer.parseInt(year);
+            return Integer.parseInt(year.trim());
         }
         catch (NumberFormatException e)
         {

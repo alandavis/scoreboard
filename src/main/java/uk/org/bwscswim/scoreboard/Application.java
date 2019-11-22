@@ -55,9 +55,14 @@ public class Application
                 AbstractScoreboard scoreboard1 = new Scoreboard(config, false);
                 scoreboard1.setDataReader(dataReader);
                 dataReader.addObserver(scoreboard1);
-//                AbstractScoreboard scoreboard2 = new Scoreboard(config, true);
-//                dataReader.addObserver(scoreboard2);
-//                scoreboard2.setDataReader(dataReader);
+
+                Boolean secondScoreboardVisible = config.getBoolean("secondScoreboardVisible", false);
+                if (secondScoreboardVisible)
+                {
+                    AbstractScoreboard scoreboard2 = new Scoreboard(config, true);
+                    scoreboard2.setDataReader(dataReader);
+                    dataReader.addObserver(scoreboard2);
+                }
             });
 
             dataReader.readDataInBackground();
