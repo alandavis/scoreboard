@@ -58,20 +58,34 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
         {
             if (secondScreen)
             {
+                Boolean fullScreen = config.getBoolean(null, null, "fullScreen2", true);
+                if (fullScreen)
+                {
+                    setUndecorated(true);
+                }
+
                 packAndSetSize();
                 System.out.println("Second ScoreboardSize=" + getSize());
-                // Trick to move this Frame to the required device
+
                 GraphicsDevice graphicsDevice = getGraphicsDevice("graphicsDevice2");
                 DisplayMode displayMode = graphicsDevice.getDisplayMode();
                 System.out.println("Second GraphicsDevice \"" + graphicsDevice.getIDstring() + "\" " + displayMode.getWidth() + "x" + displayMode.getHeight());
-                javax.swing.JFrame dualview = new javax.swing.JFrame(graphicsDevice.getDefaultConfiguration());
-                setLocationRelativeTo(dualview);
-                dualview.dispose();
-                setVisible(true);
+
+                if (fullScreen)
+                {
+                    graphicsDevice.setFullScreenWindow(this);
+                }
+                else
+                {
+                    javax.swing.JFrame dualview = new javax.swing.JFrame(graphicsDevice.getDefaultConfiguration());
+                    setLocationRelativeTo(dualview);
+                    dualview.dispose();
+                    setVisible(true);
+                }
             }
             else
             {
-                Boolean fullScreen = config.getBoolean(null, null, "fullScreen", true);
+                Boolean fullScreen = config.getBoolean(null, null, "fullScreen1", true);
                 if (fullScreen)
                 {
                     setUndecorated(true);
