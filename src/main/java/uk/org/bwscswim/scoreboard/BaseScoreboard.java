@@ -58,7 +58,7 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
         {
             if (secondScreen)
             {
-                packAndSetSize();
+                pack();
                 System.out.println("Second ScoreboardSize=" + getSize());
                 // Trick to move this Frame to the required device
                 GraphicsDevice graphicsDevice = getGraphicsDevice("graphicsDevice2");
@@ -68,47 +68,71 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
                 setLocationRelativeTo(dualview);
                 dualview.dispose();
                 setVisible(true);
+
+//                pack();
+//                System.out.println("Second ScoreboardSize=" + getSize());
+//                setVisible(true);
             }
             else
             {
                 Boolean fullScreen = config.getBoolean(null, null, "fullScreen", true);
-                if (fullScreen)
+                if (config.getBoolean(null, null, "originalScreenSetup", false))
                 {
-                    setUndecorated(true);
-                }
+                    pack();
+                    System.out.println("Original ScoreboardSize=" + getSize());
+                    if (fullScreen)
+                    {
+                        GraphicsDevice graphicsDevice = getGraphicsDevice("graphicsDevice1");
+                        DisplayMode displayMode = graphicsDevice.getDisplayMode();
+                        System.out.println("Using GraphicsDevice \"" + graphicsDevice.getIDstring() + "\" " + displayMode.getWidth() + "x" + displayMode.getHeight());
 
-                packAndSetSize();
-                System.out.println("ScoreboardSize=" + getSize());
-
-                GraphicsDevice graphicsDevice = getGraphicsDevice("graphicsDevice1");
-                DisplayMode displayMode = graphicsDevice.getDisplayMode();
-                System.out.println("Using GraphicsDevice \"" + graphicsDevice.getIDstring() + "\" " + displayMode.getWidth() + "x" + displayMode.getHeight());
-
-                if (fullScreen)
-                {
-                    graphicsDevice.setFullScreenWindow(this);
+                        if (graphicsDevice.isFullScreenSupported())
+                        {
+                            graphicsDevice.setFullScreenWindow(this);
+                        }
+                        else
+                        {
+                            System.err.println("Full screen not supported by " + graphicsDevice.getIDstring());
+                        }
+                    }
+                    setVisible(true);
                 }
                 else
                 {
-                    javax.swing.JFrame dualview = new javax.swing.JFrame(graphicsDevice.getDefaultConfiguration());
-                    setLocationRelativeTo(dualview);
-                    dualview.dispose();
-                    setVisible(true);
+                    if (fullScreen)
+                    {
+                        setUndecorated(true);
+                    }
+
+                    pack();
+                    int width = config.getInt("width", -1);
+                    int height = config.getInt("height", -1);
+                    width = 1159;
+                    height = 728;
+                    if (width != -1 && height != -1)
+                    {
+                        setMinimumSize(new Dimension(width, height)); // Now use fixed size, nnow we know it.
+                    }
+                    System.out.println("ScoreboardSize=" + getSize());
+
+                    GraphicsDevice graphicsDevice = getGraphicsDevice("graphicsDevice1");
+                    DisplayMode displayMode = graphicsDevice.getDisplayMode();
+                    System.out.println("Using GraphicsDevice \"" + graphicsDevice.getIDstring() + "\" " + displayMode.getWidth() + "x" + displayMode.getHeight());
+
+                    if (fullScreen)
+                    {
+                        graphicsDevice.setFullScreenWindow(this);
+                    }
+                    else
+                    {
+                        // Trick to move this Frame to the required device
+                        javax.swing.JFrame dualview = new javax.swing.JFrame(graphicsDevice.getDefaultConfiguration());
+                        setLocationRelativeTo(dualview);
+                        dualview.dispose();
+                        setVisible(true);
+                    }
                 }
             }
-        }
-    }
-
-    private void packAndSetSize()
-    {
-        pack();
-        int width = config.getInt("width", -1);
-        int height = config.getInt("height", -1);
-        width = 1159;
-        height = 728;
-        if (width != -1 && height != -1)
-        {
-            setMinimumSize(new Dimension(width, height));
         }
     }
 
