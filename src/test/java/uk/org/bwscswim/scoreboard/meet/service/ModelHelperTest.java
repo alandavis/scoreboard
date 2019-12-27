@@ -60,16 +60,16 @@ public class ModelHelperTest
         assertEquals(    "-36.00RT*", event.getImprovement("Amber Wildey", "1:14.00").toString()); // better than the regional auto time
 
         assertEquals("Girls 100 Backstroke", event.getName());
-        assertEquals(RaceTime.create("1:30.00"), event.getCountyTime(2010)); // 9
-        assertEquals(RaceTime.create("1:30.00"), event.getCountyTime(2009));
-        assertEquals(RaceTime.create("1:30.00"), event.getCountyTime(2008)); // 11 youngest CT
-        assertEquals(RaceTime.create("1:25.00"), event.getCountyTime(2007)); // 12
-        assertEquals(RaceTime.create("1:19.50"), event.getCountyTime(2006)); // 13
-        assertEquals(RaceTime.create("1:17.00"), event.getCountyTime(2005));
-        assertEquals(RaceTime.create("1:15.00"), event.getCountyTime(2004));
-        assertEquals(RaceTime.create("1:13.50"), event.getCountyTime(2003));
-        assertEquals(RaceTime.create("1:12.00"), event.getCountyTime(2002)); // 17 oldest CT
-        assertEquals(RaceTime.create("1:12.00"), event.getCountyTime(2001));
+        assertEquals(RaceTime.create("1:30.00"), event.getCountyTime(2011)); // 9
+        assertEquals(RaceTime.create("1:30.00"), event.getCountyTime(2010));
+        assertEquals(RaceTime.create("1:30.00"), event.getCountyTime(2009)); // 11 youngest CT 'NEXT YEAR'
+        assertEquals(RaceTime.create("1:25.00"), event.getCountyTime(2008)); // 12
+        assertEquals(RaceTime.create("1:19.50"), event.getCountyTime(2007)); // 13
+        assertEquals(RaceTime.create("1:17.00"), event.getCountyTime(2006));
+        assertEquals(RaceTime.create("1:15.00"), event.getCountyTime(2005));
+        assertEquals(RaceTime.create("1:13.50"), event.getCountyTime(2004));
+        assertEquals(RaceTime.create("1:12.00"), event.getCountyTime(2003)); // 17 oldest CT
+        assertEquals(RaceTime.create("1:12.00"), event.getCountyTime(2002));
 
         // No county times for 100 IM
         event = events.get(11);
@@ -85,16 +85,20 @@ public class ModelHelperTest
         Club club = new Club("Bracknell", clubAbbreviations);
 
         assertEquals("Mia Richardson", new Swimmer("Mia Richardson",  2001, club).getName());
-        assertEquals("M Richardson",   new Swimmer("Mia Richardson",  2001, club).getAbbreviatedName(13));
+        assertEquals("M Richardson",   new Swimmer("Mia Richardson",  2001, club).getStandardName(13));
 
         assertEquals("Mi Richardson",  new Swimmer("Mi Richardson",   2001, club).getName());
-        assertEquals("Mi Richardson",  new Swimmer("Mi Richardson",   2001, club).getAbbreviatedName(13));
+        assertEquals("Mi Richardson",  new Swimmer("Mi Richardson",   2001, club).getStandardName(13));
 
-        assertEquals("M Richardson",   new Swimmer("Miad Richardson", 2001, club).getAbbreviatedName(13));
+        assertEquals("M Richardson",   new Swimmer("Miad Richardson", 2001, club).getStandardName(13));
 
-        assertEquals("M Richardson",   new Swimmer("Mia Richardson",  2001, club).getAbbreviatedName(12));
-        assertEquals("M Richardso",    new Swimmer("Mia Richardson",  2001, club).getAbbreviatedName(11));
-        assertEquals("M R",            new Swimmer("Mia Richardson",  2001, club).getAbbreviatedName(3));
+        assertEquals("M Richardson",   new Swimmer("Mia Richardson",  2001, club).getStandardName(12));
+        assertEquals("M Richardso",    new Swimmer("Mia Richardson",  2001, club).getStandardName(11));
+        assertEquals("M R",            new Swimmer("Mia Richardson",  2001, club).getStandardName(3));
+
+        assertEquals("Elen Rance",     new Swimmer("Elen RANCE",      2001, club).getStandardName(13));
+        assertEquals("Elen Rance",     new Swimmer("Elen RANCE",      2001, club).getStandardName(10));
+        assertEquals("E Rance",        new Swimmer("E RANCE",         2001, club).getStandardName(9));
     }
 
     @Test
@@ -291,6 +295,7 @@ public class ModelHelperTest
         assertEquals( "-1.00RT*", event.getImprovement("Emma3", "1:27.00").toString()); // new regional base
         assertEquals(      "rt*", event.getImprovement("Tess",  "1:28.00").toString()); // new time, but not regional base
         assertEquals(      "RT*", event.getImprovement("Tess",  "1:26.00").toString()); // new time and regional base
+        assertEquals(      "RT*", event.getImprovement("TESS",  "1:26.00").toString()); // new time and regional base
     }
 
     @Test

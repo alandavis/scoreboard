@@ -26,18 +26,24 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
+import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 public class DataReaderTest
 {
-    public static final String RESET =
+    private static final float SPEED_FACTOR = 0.025f;
+
+    private static final String RESET =
                 "[16]00000000[01]008010000002048000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000[04]4c[17]\n"; // Opens a new race
-    public static final String NEW_EVENT =
+    private static final String NEW_EVENT =
+                "[16]00000000[01]003000001[04]39[17]\n"+
                 "[16]00000000[01]0040100000[02]Men 100 m Freestyle                  [04]DD[17]\n" +  // Write event title
                 "[16]00000000[01]0040100100[02]Ev 2,  Ht 3                          [04]35[17]\n" +  // Write second line of title
                 "[16]00000000[01]0040100200[02]1  Harry Mann       WYCS             [04]55[17]\n" +  // Writes lane number, swimmer name and club of swimmer in lane 1
@@ -46,9 +52,9 @@ public class DataReaderTest
                 "[16]00000000[01]0040100500[02]4  James Jones      AMES             [04]7A[17]\n" +  // Ditto
                 "[16]00000000[01]0040100600[02]5  Rob Moore        BRKS             [04]FE[17]\n" +  // Ditto
                 "[16]00000000[01]0040100700[02]6  Millie sab                        [04]9B[17]\n";   // Ditto
-    public static final String TIMER_ZEROED =
+    private static final String TIMER_ZEROED =
                 "[16]00000000[01]0040101100[02]    0.0 [04]9C[17]\n";                                // Displays zero running time
-    public static final String TIMER_STARTED =
+    private static final String TIMER_STARTED =
             "3500[16]00000000[01]0040101100[02]    0.1 [04]9D[17]\n" +                               // Race starts and running time advances 0.1 sec
             "100 [16]00000000[01]0040101100[02]    0.2 [04]9E[17]\n" +
             "100 [16]00000000[01]0040101100[02]    0.3 [04]9F[17]\n" +
@@ -137,12 +143,11 @@ public class DataReaderTest
             "100 [16]00000000[01]0040101100[02]    8.6 [04]AA[17]\n" +
             "100 [16]00000000[01]0040101100[02]    8.7 [04]AB[17]\n" +
             "100 [16]00000000[01]0040101100[02]    8.8 [04]AC[17]\n" +
-            "100 [16]00000000[01]0040101100[02]    8.9 [04]AD[17]\n" +
-            "100 [16]00000000[01]0040101100[02]    9.0 [04]A5[17]\n";
-    public static final String SPLIT_1 =
+            "100 [16]00000000[01]0040101100[02]    8.9 [04]AD[17]\n";
+    private static final String SPLIT_1 =
             "060 [16]00000000[01]0040100700[02]6  Millie sab                9.06 1  [04]F9[17]\n"+  // First split lane 6, 9.06 sec and 1st place
                 "[16]00000000[01]0040101100[02]    9.06[04]BB[17]\n";                               // Running time continues
-    public static final String SPLITS_23456 =
+    private static final String SPLITS_23456 =
             "034 [16]00000000[01]0040100600[02]5  Rob Moore        BRKS     9.40 2  [04]5B[17]\n"+  // 2nd split lane 5, 9.40 sec and 2nd place
             "037 [16]00000000[01]0040100500[02]4  James Jones      AMES     9.77 3  [04]E2[17]\n"+  // etc.
             "223 [16]00000000[01]0040101100[02]   10.2 [04]AF[17]\n" +
@@ -157,7 +162,7 @@ public class DataReaderTest
             "100 [16]00000000[01]0040101100[02]   10.9 [04]B6[17]\n" +
             "100 [16]00000000[01]0040101100[02]   11.0 [04]AE[17]\n" +
             "007 [16]00000000[01]0040100200[02]1  Harry Mann       WYCS    11.07 6  [04]C2[17]\n";
-    public static final String TIMER_POST_SPLITS =
+    private static final String TIMER_POST_SPLITS =
             "093 [16]00000000[01]0040101100[02]   11.1 [04]AF[17]\n" +
             "100 [16]00000000[01]0040101100[02]   11.2 [04]B0[17]\n" +
             "100 [16]00000000[01]0040101100[02]   11.3 [04]B1[17]\n" +
@@ -239,13 +244,13 @@ public class DataReaderTest
             "100 [16]00000000[01]0040101100[02]   18.9 [04]BE[17]\n" +
             "100 [16]00000000[01]0040101100[02]   19.0 [04]B6[17]\n" +
             "100 [16]00000000[01]0040101100[02]   19.1 [04]B7[17]\n";
-    public static final String CLEAR_65 =
+    private static final String CLEAR_65 =
                 "[16]00000000[01]0040100700[02]6  Millie sab                        [04]9B[17]\n" + // First split disappears
             "100 [16]00000000[01]0040101100[02]   19.2 [04]B8[17]\n" +
             "100 [16]00000000[01]0040101100[02]   19.3 [04]B9[17]\n" +
             "100 [16]00000000[01]0040101100[02]   19.4 [04]BA[17]\n" +
                 "[16]00000000[01]0040100600[02]5  Rob Moore        BRKS             [04]FE[17]\n";  // second split disappears
-    public static final String CLEAR_432 =
+    private static final String CLEAR_432 =
             "100 [16]00000000[01]0040101100[02]   19.5 [04]BB[17]\n" +
             "100 [16]00000000[01]0040101100[02]   19.6 [04]BC[17]\n" +
             "100 [16]00000000[01]0040101100[02]   19.7 [04]BD[17]\n" +
@@ -260,14 +265,14 @@ public class DataReaderTest
             "100 [16]00000000[01]0040101100[02]   20.4 [04]B2[17]\n" +
             "100 [16]00000000[01]0040101100[02]   20.5 [04]B3[17]\n" +
             "100 [16]00000000[01]0040101100[02]   20.6 [04]B4[17]\n" +
-                "[16]00000000[01]0040100300[02]2  Billy Evans      CHAS             [04]79[17]\n" +
-            "100 [16]00000000[01]0040101100[02]   20.7 [04]B5[17]\n" +
-            "100 [16]00000000[01]0040101100[02]   20.8 [04]B6[17]\n" +
-            "100 [16]00000000[01]0040101100[02]   20.9 [04]B7[17]\n" +
-            "100 [16]00000000[01]0040101100[02]   21.0 [04]AF[17]\n" +
-            "100 [16]00000000[01]0040101100[02]   21.1 [04]B0[17]\n";
-    public static final String FINISH =
+                "[16]00000000[01]0040100300[02]2  Billy Evans      CHAS             [04]79[17]\n";
+    private static final String FINISH =
             //  Missing running times and finishes?
+            "100 [16]00000000[01]0040101100[02]   20.7 [04]B5[17]\\n" +
+            "100 [16]00000000[01]0040101100[02]   20.8 [04]B6[17]\\n" +
+            "100 [16]00000000[01]0040101100[02]   20.9 [04]B7[17]\\n" +
+            "100 [16]00000000[01]0040101100[02]   21.0 [04]AF[17]\\n" +
+            "100 [16]00000000[01]0040101100[02]   21.1 [04]B0[17]\\n\"+" +
                 "[16]00000000[01]0040100300[02]2  Billy Evans      CHAS    21.10 1  [04]E8[17]\n" + // First finish time, lane 2, swimmer name and club, in 21.10 secs, first place
                 "[16]00000000[01]0040101100[02]   21.10[04]C0[17]\n" +                              // Running time stops and updates to 1st place time
             "029 [16]00000000[01]0040100200[02]1  Harry Mann       WYCS    21.39 2  [04]B8[17]\n" + // Second finish place
@@ -275,9 +280,9 @@ public class DataReaderTest
             "034 [16]00000000[01]0040100500[02]4  James Jones      AMES    22.06 4  [04]E6[17]\n" +
             "036 [16]00000000[01]0040100600[02]5  Rob Moore        BRKS    22.42 5  [04]6B[17]\n" +
             "078 [16]00000000[01]0040100700[02]6  Millie sab               23.24 6  [04]0A[17]\n";
-    public static final String RESET_BEFORE_RESULT =
+    private static final String RESET_BEFORE_RESULT =
             "3500"+RESET;
-    public static final String RESULT =
+    private static final String RESULT =
                 "[16]00000000[01]003000002[04]3a[17]\n" + // ?? switches to result mode which reorders swimmers from lane order to finish order (unfortunately more data has lane 1 first etc
                 "[16]00000000[01]0040100000[02]Men 100 m Freestyle                  [04]DD[17]\n" +
                 "[16]00000000[01]0040100100[02]Ev 2,  Ht 3                          [04]35[17]\n" +
@@ -289,8 +294,16 @@ public class DataReaderTest
                 "[16]00000000[01]0040100700[02]P6  Millie sab               23.24 6 [04]3A[17]\n";
 
     private Config config = new Config(null);
-    private AbstractScoreboard scoreboard = new Scoreboard(config, false);
-    private DataReader dataReader = new DataReader(config);
+    private List<ScoreboardEvent> events = new ArrayList<>();
+    private DataReader dataReader = new DataReader(config)
+    {
+        @Override
+        protected void publishEvent(ScoreboardEvent event)
+        {
+            events.add(event);
+            super.publishEvent(event);
+        }
+    };
     private InputStream inputStream;
 
     @Before
@@ -298,7 +311,7 @@ public class DataReaderTest
     {
         MockitoAnnotations.initMocks(this);
         dataReader.setTrace(false);
-        dataReader.addObserver(scoreboard);
+        events.clear();
     }
 
     @After
@@ -307,226 +320,185 @@ public class DataReaderTest
         inputStream.close();
     }
 
-    @Test
-    public void testDummyInputStream() throws IOException
+    private void read(String data) throws InterruptedException
     {
-        long start = System.currentTimeMillis();
-        inputStream = new DummyInputStream(
-                "[20]The cat[09]\n" +
-                        "200 [20]and the dog.", true);
+        inputStream = new DummyInputStream(data);
+        dataReader.readInputStream(inputStream, SPEED_FACTOR);
+        dataReader.waitForFinish();
+    }
 
-        StringBuilder sb = new StringBuilder();
-        for (int i = inputStream.read(); i != -1; i = inputStream.read())
-        {
-            sb.append((char) i);
-        }
-        long ms = System.currentTimeMillis() - start;
-        assertEquals(" The cat\t and the dog.", sb.toString());
-        assertTrue("The wait time looks wrong. It was " + ms + "ms", ms >= 190 && ms < 250);
+    private String getText(int i)
+    {
+        return events.isEmpty() ? "" : events.get(events.size() - 1 - i).toString();
     }
 
     @Test
     public void testNoData() throws InterruptedException
     {
-        inputStream = new DummyInputStream("", false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='|SB ------> Title <----------|', " +
-                        "subTitle='|--> SubTitle <-|', result=false, clock='MM.SS.hh', swimmers=[" +
-                        "Swimmer{name='|---> Name <---|', club='CLUB', lane='1', place='1st', time='MM.SS.hh'}, " +
-                        "Swimmer{name='|---> Name <---|', club='CLUB', lane='2', place='2nd', time='MM.SS.hh'}, " +
-                        "Swimmer{name='|---> Name <---|', club='CLUB', lane='3', place='3rd', time='MM.SS.hh'}, " +
-                        "Swimmer{name='|---> Name <---|', club='CLUB', lane='4', place='4th', time='MM.SS.hh'}, " +
-                        "Swimmer{name='|---> Name <---|', club='CLUB', lane='5', place='5th', time='MM.SS.hh'}, " +
-                        "Swimmer{name='|---> Name <---|', club='CLUB', lane='6', place='6th', time='MM.SS.hh'}]}",
-                scoreboard.toString());
+        read("");
+        assertEquals("", getText(0));
     }
 
     @Test
     public void testReset() throws InterruptedException
     {
-        inputStream = new DummyInputStream(
-                RESET, false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='', subTitle='', result=false, clock='', swimmers=[]}", scoreboard.toString());
+        read(RESET);
+        assertEquals(0, events.size());
     }
 
     @Test
     public void testNewEvent() throws InterruptedException
     {
-        inputStream = new DummyInputStream(
-                RESET +
-                NEW_EVENT, false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='', time=''}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='', time=''}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='', time=''}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='', time=''}]}", scoreboard.toString());
+        read(RESET +
+                NEW_EVENT);
+        assertEquals(0, events.size());
     }
 
     @Test
     public void testTimerZeroed() throws InterruptedException
     {
-        inputStream = new DummyInputStream(
-                RESET +
+        read(RESET +
                 NEW_EVENT +
-                TIMER_ZEROED, false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='0.0', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='', time=''}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='', time=''}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='', time=''}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='', time=''}]}", scoreboard.toString());
+                TIMER_ZEROED);
+        assertEquals(6, events.size());
+        assertEquals("LineupEvent 5\n" +
+                "        Men 100 m Freestyle                  \n" +
+                "        Ev 2,  Ht 3                          \n" +
+                "        1  Harry Mann       WYCS             \n" +
+                "        2  Billy Evans      CHAS             \n" +
+                "        3  John Smith       REAS             \n" +
+                "        4  James Jones      AMES             \n" +
+                "        5  Rob Moore        BRKS             \n" +
+                "        6  Millie sab                        \n" +
+                "            0.0 ", getText(0));
     }
 
     @Test
     public void testTimerStarted() throws InterruptedException
     {
-        inputStream = new DummyInputStream(
-                RESET +
+        read(RESET +
                 NEW_EVENT +
                 TIMER_ZEROED +
-                TIMER_STARTED, false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='9.0', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='', time=''}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='', time=''}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='', time=''}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='', time=''}]}", scoreboard.toString());
+                TIMER_STARTED);
+        assertTrue(getText(1).startsWith("RaceTimerEvent     8."));
+        assertEquals("RaceEvent 0\n" +
+                "        Men 100 m Freestyle                  \n" +
+                "        Ev 2,  Ht 3                          \n" +
+                "        1  Harry Mann       WYCS             \n" +
+                "        2  Billy Evans      CHAS             \n" +
+                "        3  John Smith       REAS             \n" +
+                "        4  James Jones      AMES             \n" +
+                "        5  Rob Moore        BRKS             \n" +
+                "        6  Millie sab                        \n" +
+                "            9.0 ", getText(1));
+        int size = events.size();
+        assertTrue("There should have been lots of RaceTimerEvents ("+size+")", size >= 90 && size <= 94); // 92 is normal
     }
 
     @Test
     public void testSplit1() throws InterruptedException
     {
-        inputStream = new DummyInputStream(
-                RESET +
-                        NEW_EVENT +
-                        TIMER_ZEROED +
-                        TIMER_STARTED +
-                        SPLIT_1, false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='9.06', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='', time=''}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='', time=''}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='', time=''}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='1st', time='9.06'}]}", scoreboard.toString());
+        read(RESET +
+                NEW_EVENT +
+                TIMER_ZEROED +
+                TIMER_STARTED +
+                SPLIT_1);
+        assertEquals("RaceSplitTimeEvent 0 laneIndex 5\n" +
+                "        Men 100 m Freestyle                  \n" +
+                "        Ev 2,  Ht 3                          \n" +
+                "        1  Harry Mann       WYCS             \n" +
+                "        2  Billy Evans      CHAS             \n" +
+                "        3  John Smith       REAS             \n" +
+                "        4  James Jones      AMES             \n" +
+                "        5  Rob Moore        BRKS             \n" +
+                "        6  Millie sab                9.06 1  \n" +
+                        "            9.06", getText(1));
+        int size = events.size();
+        assertTrue("There should have been lots of RaceTimerEvents ("+size+")", size >= 92 && size <= 96); // 94 is normal
     }
 
     @Test
     public void testBadSplit() throws InterruptedException
     {
-        inputStream = new DummyInputStream(
-                NEW_EVENT +
-                        TIMER_ZEROED +
-                        TIMER_STARTED +
-                "060 [16]00000000[01]0040100700[02]too short[04]F9[17]\n",
-                false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='9.0', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='', time=''}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='', time=''}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='', time=''}, " +
-                "Swimmer{name='short sab', club='', lane='6', place='', time=''}]}", scoreboard.toString());  // place and time not set
+        read(NEW_EVENT +
+                TIMER_ZEROED +
+                TIMER_STARTED +
+                "060 [16]00000000[01]0040100700[02]too short[04]F9[17]\n");
+        assertEquals("LineupEvent 0\n" +
+                "        Men 100 m Freestyle                  \n" +
+                "        Ev 2,  Ht 3                          \n" +
+                "        1  Harry Mann       WYCS             \n" +
+                "        2  Billy Evans      CHAS             \n" +
+                "        3  John Smith       REAS             \n" +
+                "        4  James Jones      AMES             \n" +
+                "        5  Rob Moore        BRKS             \n" +
+                "        6  Millie sab                        \n" +
+                "            0.0", getText(1));  // place and time not set
     }
 
     @Test
     public void testSplits2356() throws InterruptedException
     {
-        inputStream = new DummyInputStream(
-                RESET +
+        read(RESET +
                 NEW_EVENT +
                 TIMER_ZEROED +
                 TIMER_STARTED +
                 SPLIT_1 +
-                SPLITS_23456, false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='11.0', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6th', time='11.07'}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='5th', time='10.60'}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='4th', time='10.19'}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='3rd', time='9.77'}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='2nd', time='9.40'}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='1st', time='9.06'}]}", scoreboard.toString());
+                SPLITS_23456);
+        assertEquals("RaceSplitTimeEvent 5 laneIndex 0\n" +
+                "        Men 100 m Freestyle                  \n" +
+                "        Ev 2,  Ht 3                          \n" +
+                "        1  Harry Mann       WYCS    11.07 6  \n" +
+                "        2  Billy Evans      CHAS    10.60 5  \n" +
+                "        3  John Smith       REAS    10.19 4  \n" +
+                "        4  James Jones      AMES     9.77 3  \n" +
+                "        5  Rob Moore        BRKS     9.40 2  \n" +
+                "        6  Millie sab                9.06 1  \n" +
+                "           11.0 ", getText(1));
+        int size = events.size();
+        assertTrue("There should have been lots of RaceTimerEvents ("+size+")", size >= 98 && size <= 104); // 101 is normal
     }
 
     @Test
     public void testTimerPostSplits() throws InterruptedException
     {
-        inputStream = new DummyInputStream(
-                RESET +
+        read(RESET +
                 NEW_EVENT +
                 TIMER_ZEROED +
                 TIMER_STARTED +
                 SPLIT_1 +
                 SPLITS_23456 +
-                TIMER_POST_SPLITS, false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='19.1', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6th', time='11.07'}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='5th', time='10.60'}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='4th', time='10.19'}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='3rd', time='9.77'}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='2nd', time='9.40'}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='1st', time='9.06'}]}", scoreboard.toString());
+                TIMER_POST_SPLITS);
+        assertTrue(getText(1).startsWith("RaceTimerEvent    19."));
     }
 
     @Test
     public void testClear65() throws InterruptedException
     {
-        inputStream = new DummyInputStream(
-                RESET +
+        read(RESET +
                 NEW_EVENT +
                 TIMER_ZEROED +
                 TIMER_STARTED +
                 SPLIT_1 +
                 SPLITS_23456 +
                 TIMER_POST_SPLITS +
-                CLEAR_65, false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='19.4', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6th', time='11.07'}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='5th', time='10.60'}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='4th', time='10.19'}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='3rd', time='9.77'}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='', time=''}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='', time=''}]}", scoreboard.toString());
+                CLEAR_65);
+        assertEquals("RaceSplitTimeEvent 7 laneIndex 4\n" +
+                "        Men 100 m Freestyle                  \n" +
+                "        Ev 2,  Ht 3                          \n" +
+                "        1  Harry Mann       WYCS    11.07 6  \n" +
+                "        2  Billy Evans      CHAS    10.60 5  \n" +
+                "        3  John Smith       REAS    10.19 4  \n" +
+                "        4  James Jones      AMES     9.77 3  \n" +
+                "        5  Rob Moore        BRKS             \n" +
+                "        6  Millie sab                        \n" +
+                "           19.4 ", getText(1));
     }
 
     @Test
     public void testClear432() throws InterruptedException
     {
-        inputStream = new DummyInputStream(
-                RESET +
+        read(RESET +
                 NEW_EVENT +
                 TIMER_ZEROED +
                 TIMER_STARTED +
@@ -534,24 +506,23 @@ public class DataReaderTest
                 SPLITS_23456 +
                 TIMER_POST_SPLITS +
                 CLEAR_65 +
-                CLEAR_432, false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='21.1', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='6th', time='11.07'}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='', time=''}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='', time=''}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='', time=''}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='', time=''}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='', time=''}]}", scoreboard.toString());
+                CLEAR_432);
+        assertEquals("RaceSplitTimeEvent 10 laneIndex 1\n" +
+                "        Men 100 m Freestyle                  \n" +
+                "        Ev 2,  Ht 3                          \n" +
+                "        1  Harry Mann       WYCS    11.07 6  \n" +
+                "        2  Billy Evans      CHAS             \n" +
+                "        3  John Smith       REAS             \n" +
+                "        4  James Jones      AMES             \n" +
+                "        5  Rob Moore        BRKS             \n" +
+                "        6  Millie sab                        \n" +
+                "           20.6 ", getText(1));
     }
 
     @Test
     public void testFinish() throws InterruptedException
     {
-        inputStream = new DummyInputStream(
-                RESET +
+        read(RESET +
                 NEW_EVENT +
                 TIMER_ZEROED +
                 TIMER_STARTED +
@@ -560,24 +531,23 @@ public class DataReaderTest
                 TIMER_POST_SPLITS +
                 CLEAR_65 +
                 CLEAR_432 +
-                FINISH, false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=false, clock='21.10', swimmers=[" +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='2nd', time='21.39'}, " +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='1st', time='21.10'}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='3rd', time='21.72'}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='4th', time='22.06'}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='5th', time='22.42'}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='6th', time='23.24'}]}", scoreboard.toString());
+                FINISH);
+        assertEquals("RaceSplitTimeEvent 16 laneIndex 5\n" +
+                "        Men 100 m Freestyle                  \n" +
+                "        Ev 2,  Ht 3                          \n" +
+                "        1  Harry Mann       WYCS    21.39 2  \n" +
+                "        2  Billy Evans      CHAS    21.10 1  \n" +
+                "        3  John Smith       REAS    21.72 3  \n" +
+                "        4  James Jones      AMES    22.06 4  \n" +
+                "        5  Rob Moore        BRKS    22.42 5  \n" +
+                "        6  Millie sab               23.24 6  \n" +
+                "           21.10", getText(1));
     }
 
     @Test
     public void testResetBeforeResult() throws InterruptedException
     {
-        inputStream = new DummyInputStream(
-                RESET +
+        read(RESET +
                 NEW_EVENT +
                 TIMER_ZEROED +
                 TIMER_STARTED +
@@ -587,18 +557,14 @@ public class DataReaderTest
                 CLEAR_65 +
                 CLEAR_432 +
                 FINISH +
-                RESET_BEFORE_RESULT, false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='', subTitle='', result=false, clock='', swimmers=[]}", scoreboard.toString());
+                RESET_BEFORE_RESULT);
+        assertTrue(getText(1).startsWith("RaceTimerEvent    24.7"));
     }
 
     @Test
     public void testResult() throws InterruptedException
     {
-        inputStream = new DummyInputStream(
-                RESET +
+        read(RESET +
                 NEW_EVENT +
                 TIMER_ZEROED +
                 TIMER_STARTED +
@@ -609,16 +575,15 @@ public class DataReaderTest
                 CLEAR_432 +
                 FINISH +
                 RESET_BEFORE_RESULT +
-                RESULT, false);
-
-        dataReader.setInputStream(inputStream);
-        dataReader.readInputStream();
-        assertEquals("Scoreboard{title='Men 100 m Freestyle', subTitle='Ev 2,  Ht 3', result=true, clock='', swimmers=[" +
-                "Swimmer{name='Billy Evans', club='CHAS', lane='2', place='1st', time='21.10'}, " +
-                "Swimmer{name='Harry Mann', club='WYCS', lane='1', place='2nd', time='21.39'}, " +
-                "Swimmer{name='John Smith', club='REAS', lane='3', place='3rd', time='21.72'}, " +
-                "Swimmer{name='James Jones', club='AMES', lane='4', place='4th', time='22.06'}, " +
-                "Swimmer{name='Rob Moore', club='BRKS', lane='5', place='5th', time='22.42'}, " +
-                "Swimmer{name='Millie sab', club='', lane='6', place='6th', time='23.24'}]}", scoreboard.toString());
+                RESULT);
+        assertEquals("ResultEvent 11\n" +
+                "        Men 100 m Freestyle                  \n" +
+                "        Ev 2,  Ht 3                          \n" +
+                "        P1  Billy Evans      CHAS    21.10 2 \n" +
+                "        P2  Harry Mann       WYCS    21.39 1 \n" +
+                "        P3  John Smith       REAS    21.72 3 \n" +
+                "        P4  James Jones      AMES    22.06 4 \n" +
+                "        P5  Rob Moore        BRKS    22.42 5 \n" +
+                "        P6  Millie sab               23.24 6 ", getText(0));
     }
 }

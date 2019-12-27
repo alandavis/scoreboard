@@ -1,6 +1,7 @@
 package uk.org.bwscswim.scoreboard;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import uk.org.bwscswim.scoreboard.event.LineupEvent;
 import uk.org.bwscswim.scoreboard.event.RaceEvent;
@@ -332,12 +333,14 @@ public class ScoreboardTest
         }
     }
 
+    @Ignore
     @Test
     public void longerTest() throws Exception
     {
         race(1f, false, 1);
     }
 
+    @Ignore
     @Test
     public void skipTest() throws Exception
     {
@@ -345,17 +348,26 @@ public class ScoreboardTest
     }
 
     @Test
+    public void fastTest() throws Exception
+    {
+        race(0.2f, false, 1);
+    }
+
+    @Ignore
+    @Test
     public void skipLoopTest() throws Exception
     {
         race(1f, true, 5);
     }
 
+    @Ignore
     @Test
     public void fastLoopTest() throws Exception
     {
         race(0.2f, false, 5);
     }
 
+    @Ignore
     @Test
     public void fastSkipLoopTest() throws Exception
     {

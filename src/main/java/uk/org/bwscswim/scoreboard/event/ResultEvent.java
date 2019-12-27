@@ -32,7 +32,7 @@ public class ResultEvent extends PageEvent
     private Event lookupEvent(List<Event> events)
     {
         int eventNumber = getEventNumber();
-        if (eventNumber != -1)
+        if (eventNumber != -1 && events != null)
         {
             for (Event event : events)
             {

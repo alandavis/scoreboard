@@ -98,11 +98,12 @@ public class Event implements Comparable<Event>
 
     private EventEntry lookupEventEntry(String name)
     {
+        name = Swimmer.getStandardName(name, 14);
         EventEntry match = null;
         for (EventEntry entry : getEntries())
         {
             Swimmer swimmer = entry.getSwimmer();
-            String swimmerName = swimmer.getAbbreviatedName(14);
+            String swimmerName = swimmer.getStandardName(14);
             if (swimmerName.equals(name))
             {
                 if (match != null) // we have a duplicate, so don't display either.

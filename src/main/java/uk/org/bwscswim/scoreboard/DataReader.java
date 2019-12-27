@@ -30,6 +30,7 @@ import uk.org.bwscswim.scoreboard.event.RaceEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
 import uk.org.bwscswim.scoreboard.event.ResultEvent;
+import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
 import uk.org.bwscswim.scoreboard.event.TestcardEvent;
 import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
@@ -43,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
 import static uk.org.bwscswim.scoreboard.RawTrace.format;
 import static uk.org.bwscswim.scoreboard.State.LINEUP;
 import static uk.org.bwscswim.scoreboard.State.LINEUP_COMPLETE;
@@ -165,11 +167,6 @@ class DataReader
         this.events = events;
     }
 
-    void setInputStream(InputStream inputStream)
-    {
-        this.inputStream = inputStream;
-    }
-
     void setTrace(boolean trace)
     {
         this.trace = trace;
@@ -189,9 +186,8 @@ class DataReader
                     try
                     {
                         float speedFactor = config.getFloat("speedFactor", 1);
-                        sleeper.setSpeedFactor(speedFactor);
-                        setInputStream(new DummyInputStream(testFilename, sleeper, config));
-                        readInputStream();
+                        DummyInputStream inputStream = new DummyInputStream(testFilename, config);
+                        readInputStream(inputStream, speedFactor);
                     }
                     catch (InterruptedException ignore)
                     {
@@ -230,8 +226,8 @@ class DataReader
                             System.out.println("Using " + toString(port));
                             try
                             {
-                                setInputStream(port.getInputStream());
-                                readInputStream();
+                                InputStream inputStream = port.getInputStream();
+                                readInputStream(inputStream, 1);
                             }
                             finally
                             {
@@ -240,7 +236,7 @@ class DataReader
                         }
                         if (waitBetweenConnects)
                         {
-                            Thread.sleep(250);
+                            sleep(250);
                         }
                     }
                     catch (InterruptedException e)
@@ -291,10 +287,11 @@ class DataReader
         long showTestCardFor = config.getInt("showTestCardFor", 0);
         if (showTestCardFor > 0)
         {
-            eventPublisher.publishEvent(new TestcardEvent());
+            TestcardEvent event = new TestcardEvent();
+            publishEvent(event);
             try
             {
-                Thread.sleep(showTestCardFor);
+                sleep(showTestCardFor);
             }
             catch (InterruptedException ignore)
             {
@@ -302,8 +299,15 @@ class DataReader
         }
     }
 
-    void readInputStream() throws InterruptedException
+    void readInputStream(InputStream inputStream, float speedFactor) throws InterruptedException
     {
+        this.inputStream = inputStream;
+        sleeper = new Sleeper();
+        sleeper.setSpeedFactor(speedFactor);
+        if (inputStream instanceof DummyInputStream)
+        {
+            ((DummyInputStream)inputStream).setSleeper(sleeper);
+        }
         for (; ; )
         {
             try
@@ -315,6 +319,10 @@ class DataReader
             catch (EOFException e)
             {
                 System.err.println(e.getMessage());
+                synchronized (this)
+                {
+                    this.inputStream = null;
+                }
                 break;
             }
             catch (IOException e)
@@ -463,11 +471,7 @@ class DataReader
                 {
                     // TODO don't call setState(RACE_COMPLETE); here. Allow the raceTimer to do it
                     setState(RACE_COMPLETE);
-                    if (raceTimerThread != null)
-                    {
-                        raceTimerThread.terminate();
-                        raceTimerThread = null;
-                    }
+                    clearRaceTimer();
                 }
             }
         }
@@ -482,11 +486,7 @@ class DataReader
         }
         else if (CONTROL_RESULTS.equals(control))
         {
-            if (raceTimerThread != null)
-            {
-                raceTimerThread.terminate();
-                raceTimerThread = null;
-            }
+            clearRaceTimer();
             setState(RESULTS);
         }
         else if (CONTROL_TIME_OF_DAY.equals(control))
@@ -519,7 +519,7 @@ class DataReader
                                 ? new RaceEvent(text, count)
                                 : new RaceSplitTimeEvent(text, count, lineNumberWithSplitTime)
                     : new   ResultEvent(text, count, events);
-            eventPublisher.publishEvent(event);
+            publishEvent(event);
         }
     }
 
@@ -528,8 +528,14 @@ class DataReader
         if (showData())
         {
             RaceTimerEvent event = new RaceTimerEvent(clock);
-            eventPublisher.publishEvent(event);
+            publishEvent(event);
         }
+    }
+
+
+    protected void publishEvent(ScoreboardEvent event)
+    {
+        eventPublisher.publishEvent(event);
     }
 
     synchronized void setState(State state)
@@ -585,10 +591,30 @@ class DataReader
             }
         }
         State state = this.text.getState();
-        if (state == RESULTS_COMPLETE && stateTimer == null)
+        if (state == RESULTS_COMPLETE && stateTimer == null && inputStream != null)
         {
             showTimeOfDay();
         }
+    }
+
+    // Used in testing only
+    synchronized void waitForFinish()
+    {
+        while (stateTimer != null || !queuedStateData.isEmpty())
+        {
+//            System.out.println("stateTimer is "+(stateTimer == null ? "" : "NOT ")+"null   "+
+//                    "queue is "+(queuedStateData.isEmpty() ? "" : "NOT ")+"empty  "+
+//                    "inputStream is "+(inputStream == null ? "closed" : "open"));
+            try
+            {
+                wait(1000);
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        clearRaceTimer();
     }
 
     private void showTimeOfDay()
@@ -698,6 +724,13 @@ class DataReader
         if (stateTimer != null)
         {
             stateTimer.terminate();
+            try
+            {
+                stateTimer.join();
+            }
+            catch (InterruptedException ignore)
+            {
+            }
             stateTimer = null;
         }
     }
@@ -707,6 +740,13 @@ class DataReader
         if (raceTimerThread != null)
         {
             raceTimerThread.terminate();
+            try
+            {
+                raceTimerThread.join();
+            }
+            catch (InterruptedException ignore)
+            {
+            }
             raceTimerThread = null;
         }
     }

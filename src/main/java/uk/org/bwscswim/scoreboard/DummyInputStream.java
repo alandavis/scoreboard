@@ -37,27 +37,25 @@ import java.io.StringReader;
  */
 class DummyInputStream extends InputStream
 {
-    private boolean includeDelay = true;
     private BufferedReader reader;
     private String line;
     private int i;
     private long time = System.currentTimeMillis();
-    private boolean ignoreFirstDelay = true;
-    private Sleeper sleeper;
+    private Sleeper sleeper = new Sleeper();
 
-    DummyInputStream(String string, boolean includeDelay)
+    DummyInputStream(String string)
     {
-        sleeper = new Sleeper();
-        this.includeDelay = includeDelay;
         reader = new BufferedReader(new StringReader(string));
     }
 
-    DummyInputStream(String filename, Sleeper sleeper, Config config) throws FileNotFoundException
+    DummyInputStream(String filename, Config config) throws FileNotFoundException
+    {
+        reader = FileLoader.getBufferedReader(filename, config);
+    }
+
+    public void setSleeper(Sleeper sleeper)
     {
         this.sleeper = sleeper;
-        // TODO do we want to remove ignoreFirstDelay now that there is a time of day clock?
-        ignoreFirstDelay = false;
-        reader = FileLoader.getBufferedReader(filename, config);
     }
 
     @Override
@@ -84,36 +82,30 @@ class DummyInputStream extends InputStream
 
             if (line != null)
             {
-                if (includeDelay)
+                String delay = line.substring(0, i).trim();
+                if (!delay.isEmpty())
                 {
-                    String delay = line.substring(0, i).trim();
-                    if (!delay.isEmpty())
+                    try
                     {
-                        try
+                        long t = Long.parseLong(delay) - System.currentTimeMillis() + time - 3; // -3 to allow for some processing;
+                        if (t > 0)
                         {
-                            long t = ignoreFirstDelay
-                                ? 0
-                                : Long.parseLong(delay) - System.currentTimeMillis() + time - 3; // -3 to allow for some processing;
-                            if (t > 0)
+                            try
                             {
-                                try
-                                {
-                                    sleeper.sleep(t);
-                                }
-                                catch (InterruptedException e)
-                                {
-                                    reader.close();
-                                    line = null;
-                                }
+                                sleeper.sleep(t);
+                            }
+                            catch (InterruptedException e)
+                            {
+                                reader.close();
+                                line = null;
                             }
                         }
-                        catch (NumberFormatException ignore)
-                        {
-                        }
-                        time = System.currentTimeMillis();
                     }
+                    catch (NumberFormatException ignore)
+                    {
+                    }
+                    time = System.currentTimeMillis();
                 }
-                ignoreFirstDelay = false;
             }
         }
 

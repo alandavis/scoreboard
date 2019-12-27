@@ -226,7 +226,7 @@ public class ModelHelper
         if (event != null)
         {
             TreeMap<Integer, RaceTime> times = new TreeMap<>();
-            int baseYear = getYearOfBirth(11);
+            int baseYear = getYearOfBirth(11) + 1;
             event.setCountyTimes(times);
             for (int i=1; i<split.length; i++)
             {
@@ -288,7 +288,7 @@ public class ModelHelper
         {
             TreeMap<Integer, RaceTime> baseTimes = new TreeMap<>();
             TreeMap<Integer, RaceTime> autoTimes = new TreeMap<>();
-            int baseYear = getYearOfBirth(12);
+            int baseYear = getYearOfBirth(12) + 1;
             event.setRegionalBaseTimes(baseTimes);
             event.setRegionalAutoTimes(autoTimes);
             for (int i=1, j=1; j<split.length; i++, j+=2)
