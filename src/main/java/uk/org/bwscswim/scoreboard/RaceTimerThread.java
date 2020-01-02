@@ -35,16 +35,27 @@ import static uk.org.bwscswim.scoreboard.State.RACE_FINISHING;
  */
 class RaceTimerThread extends Thread
 {
+    // Increment on the race timer by 0.075 seconds looks good when displayed to 2 decimal places
+    public static final int WAIT = 75;
+
+    // The race winner has finished if there has not been a clock for more than 2.1 seconds (add an extra 0.4 in case it is slow)
+    private static final int FINISHED_IF_NO_CLOCK = 2500;
+
     private final DataReader dataReader;
-    private final StateTrace stateTrace;
+    private final Sleeper sleeper;
+    private final long wakeIn;
+    private final long finishedIfNoClock;
+
     private boolean terminate;
     private long lastClock;
     private long timeZero;
 
-    RaceTimerThread(DataReader dataReader, String clock, StateTrace stateTrace)
+    RaceTimerThread(DataReader dataReader, String clock, Sleeper sleeper)
     {
         this.dataReader = dataReader;
-        this.stateTrace = stateTrace;
+        this.sleeper = sleeper;
+        wakeIn = sleeper.convert(WAIT);
+        finishedIfNoClock = sleeper.convert(FINISHED_IF_NO_CLOCK);
 
         resetClock(clock);
         setDaemon(true);
@@ -53,34 +64,31 @@ class RaceTimerThread extends Thread
     }
 
     @Override
-    public void run()
+    public synchronized void run()
     {
         boolean winnerFinished = false;
+        long now = System.currentTimeMillis();
         try
         {
-            long now = System.currentTimeMillis();
             for(;;)
             {
-                long wakeIn = 75 - (now % 75);
-                Thread.sleep(wakeIn);
+                wait(wakeIn);
                 now = System.currentTimeMillis();
-                int timeNow;
-                synchronized (this)
-                {
-                    // The race winner has finished if there has not been a clock for more than 2.1 seconds (add a buffer of 0.4)
-                    long lastClockAge = now - lastClock;
-                    if (!winnerFinished && lastClockAge > 2500)
-                    {
-                        dataReader.setState(RACE_FINISHING);
-                        winnerFinished = true;
-                    }
 
-                    if (terminate || !dataReader.isRaceInProgress())
-                    {
-                        dataReader.setClock("");
-                        break;
-                    }
-                    timeNow = (int)((now - timeZero)/10)*10;
+                long lastClockAge = now - lastClock;
+                int timeNow = (int)(sleeper.convertBack(now - timeZero) /10)*10;
+//                System.err.println("------ wake  lastClock="+lastClock+" timeZero="+timeZero+" lastClockAge="+lastClockAge+" finishedIfNoClock="+finishedIfNoClock+" timeNow="+timeNow);
+                if (!winnerFinished && lastClockAge > finishedIfNoClock)
+                {
+//                    System.err.println("------ FINISHED");
+                    dataReader.setState(RACE_FINISHING);
+                    winnerFinished = true;
+                }
+
+                if (terminate || !dataReader.isRaceInProgress())
+                {
+                    dataReader.setClock("");
+                    break;
                 }
                 setClock(timeNow);
             }
@@ -99,11 +107,13 @@ class RaceTimerThread extends Thread
         int mins = i == -1 ? 0 : Integer.parseInt(clock.substring(0, i));
         int secs = Integer.parseInt(clock.substring(i == -1 ? 0 : i+1, j));
         int hunds = Integer.parseInt(clock.substring(j+1)+(clock.length()-2 == j ? "0" : ""));
-        int time = (mins*60+secs)*1000 + hunds*10;
+        long time = sleeper.convert((mins*60+secs)*1000 + hunds*10);
         lastClock = System.currentTimeMillis();
         synchronized(this)
         {
+            lastClock = System.currentTimeMillis();
             timeZero = lastClock - time;
+//            System.err.println("------ reset lastClock="+lastClock+" timeZero="+timeZero+" clock="+clock+" time="+time+" convert="+((int)(sleeper.convertBack(lastClock - timeZero) /10)*10));
         }
     }
 
@@ -123,6 +133,7 @@ class RaceTimerThread extends Thread
 
     synchronized void terminate()
     {
+//        System.err.println("------ TERMINATE "+System.currentTimeMillis());
         terminate = true;
     }
 }

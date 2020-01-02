@@ -26,19 +26,25 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
+import uk.org.bwscswim.scoreboard.event.LineupEvent;
+import uk.org.bwscswim.scoreboard.event.RaceEvent;
+import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
+import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
+import uk.org.bwscswim.scoreboard.event.ResultEvent;
 import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 public class DataReaderTest
 {
-    private static final float SPEED_FACTOR = 0.025f;
+    private static final float SPEED_FACTOR = 1f/25; // 25 times faster
 
     private static final String RESET =
                 "[16]00000000[01]008010000002048000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000[04]4c[17]\n"; // Opens a new race
@@ -55,7 +61,7 @@ public class DataReaderTest
     private static final String TIMER_ZEROED =
                 "[16]00000000[01]0040101100[02]    0.0 [04]9C[17]\n";                                // Displays zero running time
     private static final String TIMER_STARTED =
-            "3500[16]00000000[01]0040101100[02]    0.1 [04]9D[17]\n" +                               // Race starts and running time advances 0.1 sec
+            "3600[16]00000000[01]0040101100[02]    0.1 [04]9D[17]\n" +                               // Race starts after 3.5 seconds and running time advances 0.1 sec
             "100 [16]00000000[01]0040101100[02]    0.2 [04]9E[17]\n" +
             "100 [16]00000000[01]0040101100[02]    0.3 [04]9F[17]\n" +
             "100 [16]00000000[01]0040101100[02]    0.4 [04]A0[17]\n" +
@@ -317,7 +323,10 @@ public class DataReaderTest
     @After
     public void after() throws IOException
     {
-        inputStream.close();
+        if (inputStream != null)
+        {
+            inputStream.close();
+        }
     }
 
     private void read(String data) throws InterruptedException
@@ -327,16 +336,88 @@ public class DataReaderTest
         dataReader.waitForFinish();
     }
 
-    private String getText(int i)
+    private void assertRaceTimerEventCount(int expectedAtNormalSpeed)
     {
-        return events.isEmpty() ? "" : events.get(events.size() - 1 - i).toString();
+        // When we run the clock faster, we get fewer RaceTimerEvent, probably due to rounding, so try to allow for this
+        int expected = expectedAtNormalSpeed - (int)((expectedAtNormalSpeed/110f)/SPEED_FACTOR-2);
+
+        int allowance = Math.max(1, (int)Math.round(expected*0.05)); // 5% of the expected, with a minimum of 1.
+        int from = expected - allowance;
+        int to = expected + allowance;
+        int count = count(RaceTimerEvent.class);
+        String message = "There should have been about "+ expected +" (" + from + "..." + to +") " +
+                RaceTimerEvent.class.getSimpleName() + "s. There were " + count +
+                ". At normal speed we expect "+expectedAtNormalSpeed;
+        assertTrue(message,count >= from && count <= to);
+        System.out.println(message);
+    }
+
+    private <T extends ScoreboardEvent> void assertCount(Class<T> eventClass, int expected)
+    {
+        int count = count(eventClass);
+        assertEquals("There should have been "+expected+" " +
+                eventClass.getSimpleName() + "s. There were " + count, expected, count);
+    }
+
+    private <T extends ScoreboardEvent> T getEvent(int i, Class<T> eventClass)
+    {
+        T event = null;
+        for (int j=events.size()-1; j >= 0; j--)
+        {
+            ScoreboardEvent e = events.get(j);
+            if (eventClass.isInstance(e))
+            {
+                if (i-- <= 0)
+                {
+                    event = (T)e;
+                    break;
+                }
+            }
+        }
+        return event;
+    }
+
+    private <T extends ScoreboardEvent> int count(Class<T> eventClass)
+    {
+        int count = 0;
+        for (int j=events.size()-1; j >= 0; j--)
+        {
+            ScoreboardEvent e = events.get(j);
+            if (eventClass.isInstance(e))
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private <T extends ScoreboardEvent> String getText(int i, Class<T> eventClass)
+    {
+        T event = getEvent(i, eventClass);
+        return event == null ? "" : event.toString();
+    }
+
+    @Test
+    public void sleeper()
+    {
+        for (float speedFactor: new float[] {1f, 0.25f, 0.05f})
+        {
+            Sleeper sleeper = new Sleeper();
+            sleeper.setSpeedFactor(speedFactor);
+            for (long normalMs : new long[]{1000, 60000, 80}) // Must use values exactly divisible by inverse of the speedFactor (1, 4, 20)
+            {
+                long ms = sleeper.convert(normalMs);
+                long backMs = sleeper.convertBack(ms);
+                assertEquals("Expected " + normalMs + " to be converted back from " + ms + " but was " + backMs + " with speedFactor="+speedFactor, normalMs, backMs);
+            }
+        }
     }
 
     @Test
     public void testNoData() throws InterruptedException
     {
         read("");
-        assertEquals("", getText(0));
+        assertCount(ScoreboardEvent.class, 0);
     }
 
     @Test
@@ -370,7 +451,7 @@ public class DataReaderTest
                 "        4  James Jones      AMES             \n" +
                 "        5  Rob Moore        BRKS             \n" +
                 "        6  Millie sab                        \n" +
-                "            0.0 ", getText(0));
+                "            0.0 ", getText(0, LineupEvent.class));
     }
 
     @Test
@@ -380,8 +461,7 @@ public class DataReaderTest
                 NEW_EVENT +
                 TIMER_ZEROED +
                 TIMER_STARTED);
-        assertTrue(getText(1).startsWith("RaceTimerEvent     8."));
-        assertEquals("RaceEvent 0\n" +
+        assertRegex("RaceEvent 0\n" +
                 "        Men 100 m Freestyle                  \n" +
                 "        Ev 2,  Ht 3                          \n" +
                 "        1  Harry Mann       WYCS             \n" +
@@ -390,9 +470,17 @@ public class DataReaderTest
                 "        4  James Jones      AMES             \n" +
                 "        5  Rob Moore        BRKS             \n" +
                 "        6  Millie sab                        \n" +
-                "            9.0 ", getText(1));
-        int size = events.size();
-        assertTrue("There should have been lots of RaceTimerEvents ("+size+")", size >= 90 && size <= 94); // 92 is normal
+                "            2\\.. ", // Race starts after 3.5 seconds, but lineup is held for 6, so the initial time is 2.5 (6-3.5) - sometimes out by 0.1
+                getText(0, RaceEvent.class));
+        assertRaceTimerEventCount(121); // x5:118 x25:95
+    }
+
+    private void assertRegex(String expectedRegex, String actual)
+    {
+        if (!Pattern.matches(expectedRegex, actual))
+        {
+            assertEquals("Actual value should have matched the expected regex value", expectedRegex, actual);
+        }
     }
 
     @Test
@@ -412,28 +500,9 @@ public class DataReaderTest
                 "        4  James Jones      AMES             \n" +
                 "        5  Rob Moore        BRKS             \n" +
                 "        6  Millie sab                9.06 1  \n" +
-                        "            9.06", getText(1));
-        int size = events.size();
-        assertTrue("There should have been lots of RaceTimerEvents ("+size+")", size >= 92 && size <= 96); // 94 is normal
-    }
-
-    @Test
-    public void testBadSplit() throws InterruptedException
-    {
-        read(NEW_EVENT +
-                TIMER_ZEROED +
-                TIMER_STARTED +
-                "060 [16]00000000[01]0040100700[02]too short[04]F9[17]\n");
-        assertEquals("LineupEvent 0\n" +
-                "        Men 100 m Freestyle                  \n" +
-                "        Ev 2,  Ht 3                          \n" +
-                "        1  Harry Mann       WYCS             \n" +
-                "        2  Billy Evans      CHAS             \n" +
-                "        3  John Smith       REAS             \n" +
-                "        4  James Jones      AMES             \n" +
-                "        5  Rob Moore        BRKS             \n" +
-                "        6  Millie sab                        \n" +
-                "            0.0", getText(1));  // place and time not set
+                        "            8.9 ", // 8.9 is the previous clock reset
+                getText(0, RaceSplitTimeEvent.class));
+        assertRaceTimerEventCount(123); // x5:120 x25:96
     }
 
     @Test
@@ -454,9 +523,8 @@ public class DataReaderTest
                 "        4  James Jones      AMES     9.77 3  \n" +
                 "        5  Rob Moore        BRKS     9.40 2  \n" +
                 "        6  Millie sab                9.06 1  \n" +
-                "           11.0 ", getText(1));
-        int size = events.size();
-        assertTrue("There should have been lots of RaceTimerEvents ("+size+")", size >= 98 && size <= 104); // 101 is normal
+                "           11.0 ",  getText(0, RaceSplitTimeEvent.class));
+        assertRaceTimerEventCount(137); // x5:133 x25:106
     }
 
     @Test
@@ -469,7 +537,8 @@ public class DataReaderTest
                 SPLIT_1 +
                 SPLITS_23456 +
                 TIMER_POST_SPLITS);
-        assertTrue(getText(1).startsWith("RaceTimerEvent    19."));
+        assertRegex("RaceTimerEvent ...    22\\..*", getText(1, RaceTimerEvent.class));
+        assertRaceTimerEventCount(242); // x5:235 x25:186
     }
 
     @Test
@@ -492,7 +561,9 @@ public class DataReaderTest
                 "        4  James Jones      AMES     9.77 3  \n" +
                 "        5  Rob Moore        BRKS             \n" +
                 "        6  Millie sab                        \n" +
-                "           19.4 ", getText(1));
+                "           19.4 ", getText(0, RaceSplitTimeEvent.class));
+        assertRegex("RaceTimerEvent ...    22\\..*", getText(1, RaceTimerEvent.class));
+        assertRaceTimerEventCount(246); // x5:234 x25:190
     }
 
     @Test
@@ -516,7 +587,8 @@ public class DataReaderTest
                 "        4  James Jones      AMES             \n" +
                 "        5  Rob Moore        BRKS             \n" +
                 "        6  Millie sab                        \n" +
-                "           20.6 ", getText(1));
+                "           20.6 ", getText(0, RaceSplitTimeEvent.class));
+        assertRaceTimerEventCount(260); // x5:254 x25:201
     }
 
     @Test
@@ -541,7 +613,8 @@ public class DataReaderTest
                 "        4  James Jones      AMES    22.06 4  \n" +
                 "        5  Rob Moore        BRKS    22.42 5  \n" +
                 "        6  Millie sab               23.24 6  \n" +
-                "           21.10", getText(1));
+                "           21.10", getText(0, RaceSplitTimeEvent.class));
+        assertRaceTimerEventCount(264); // x5:256 x25:206
     }
 
     @Test
@@ -558,7 +631,17 @@ public class DataReaderTest
                 CLEAR_432 +
                 FINISH +
                 RESET_BEFORE_RESULT);
-        assertTrue(getText(1).startsWith("RaceTimerEvent    24.7"));
+        assertEquals("RaceSplitTimeEvent 16 laneIndex 5\n" +
+                "        Men 100 m Freestyle                  \n" +
+                "        Ev 2,  Ht 3                          \n" +
+                "        1  Harry Mann       WYCS    21.39 2  \n" +
+                "        2  Billy Evans      CHAS    21.10 1  \n" +
+                "        3  John Smith       REAS    21.72 3  \n" +
+                "        4  James Jones      AMES    22.06 4  \n" +
+                "        5  Rob Moore        BRKS    22.42 5  \n" +
+                "        6  Millie sab               23.24 6  \n" +
+                "           21.10", getText(0, RaceSplitTimeEvent.class));
+        assertRaceTimerEventCount(310); // x5:299: x25:242
     }
 
     @Test
@@ -576,7 +659,18 @@ public class DataReaderTest
                 FINISH +
                 RESET_BEFORE_RESULT +
                 RESULT);
-        assertEquals("ResultEvent 11\n" +
+        assertEquals("RaceSplitTimeEvent 16 laneIndex 5\n" +
+                "        Men 100 m Freestyle                  \n" +
+                "        Ev 2,  Ht 3                          \n" +
+                "        1  Harry Mann       WYCS    21.39 2  \n" +
+                "        2  Billy Evans      CHAS    21.10 1  \n" +
+                "        3  John Smith       REAS    21.72 3  \n" +
+                "        4  James Jones      AMES    22.06 4  \n" +
+                "        5  Rob Moore        BRKS    22.42 5  \n" +
+                "        6  Millie sab               23.24 6  \n" +
+                "           21.10", getText(0, RaceSplitTimeEvent.class));
+        assertRaceTimerEventCount(272); // x5:265 x25:211
+        assertRegex("ResultEvent 1[01]\n" +
                 "        Men 100 m Freestyle                  \n" +
                 "        Ev 2,  Ht 3                          \n" +
                 "        P1  Billy Evans      CHAS    21.10 2 \n" +
@@ -584,6 +678,6 @@ public class DataReaderTest
                 "        P3  John Smith       REAS    21.72 3 \n" +
                 "        P4  James Jones      AMES    22.06 4 \n" +
                 "        P5  Rob Moore        BRKS    22.42 5 \n" +
-                "        P6  Millie sab               23.24 6 ", getText(0));
+                "        P6  Millie sab               23.24 6 ", getText(0, ResultEvent.class));
     }
 }

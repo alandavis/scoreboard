@@ -87,7 +87,7 @@ class DummyInputStream extends InputStream
                 {
                     try
                     {
-                        long t = Long.parseLong(delay) - System.currentTimeMillis() + time - 3; // -3 to allow for some processing;
+                        long t = Long.parseLong(delay) - System.currentTimeMillis() + time - 2; // -2 to allow for some processing;
                         if (t > 0)
                         {
                             try

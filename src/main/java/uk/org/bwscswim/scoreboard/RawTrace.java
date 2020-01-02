@@ -86,7 +86,8 @@ class RawTrace
             long now = System.currentTimeMillis();
             if (time != -1)
             {
-                long delay = ((now - time + 5) / 10) * 10; // round to 10 ms
+                Sleeper sleeper = stateTrace.getSleeper();
+                long delay = ((sleeper.convertBack(now - time) + 5) / 10) * 10; // round to 10 ms
                 trace(((delay == 0) ? "      " : String.format("%5d ", delay)));
             }
             time = now;

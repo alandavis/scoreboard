@@ -58,7 +58,15 @@ public class Text extends RawText
     }
 
     /**
-     * Creates a clone. As the scoreboard needs to display some data for a minimum amounts of time, copies are made
+     * Creates a clone for PageEvents.
+     */
+    public Text(Text orig)
+    {
+        this(orig.config, orig, orig.state);
+    }
+
+    /**
+     * Creates a clone. As the scoreboard needs to display some data for a minimum amount of time, copies are made
      * at these points.
      */
     Text(Text orig, State state)

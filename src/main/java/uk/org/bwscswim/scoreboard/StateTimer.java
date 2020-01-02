@@ -34,16 +34,20 @@ class StateTimer extends Thread
     public static final String THREAD_NAME_PREFIX = "StateTimer"; // "AWT-EventQueue";
     private final long tickTime;
     private final long end;
+
     private int count;
     private boolean terminate;
 
     StateTimer(long tickTime, long runForTime, Sleeper sleeper)
     {
         this.tickTime = sleeper.convert(tickTime);
-        end = runForTime == -1 ? Long.MAX_VALUE : System.currentTimeMillis() + sleeper.convert(runForTime);
+        long now = System.currentTimeMillis();
+        end = runForTime == -1 ? Long.MAX_VALUE : now + sleeper.convert(runForTime);
+
         setDaemon(true);
         setName(THREAD_NAME_PREFIX);
         start();
+//        System.out.println("====== StateTimer tickTime="+tickTime+"("+this.tickTime+") runForTime="+runForTime+" ("+(end-now)+")");
     }
 
     public static boolean isStateTimerThread()
@@ -52,24 +56,21 @@ class StateTimer extends Thread
     }
 
     @Override
-    public void run()
+    public synchronized void run()
     {
         try
         {
             for (;;)
             {
                 long now = System.currentTimeMillis();
-                synchronized (this)
+                if (terminate)
                 {
-                    if (terminate)
-                    {
-                        break;
-                    }
-                    if (now >= end)
-                    {
-                        end();
-                        break;
-                    }
+                    break;
+                }
+                if (now >= end)
+                {
+                    end();
+                    break;
                 }
 
                 tick(count++);
@@ -79,7 +80,8 @@ class StateTimer extends Thread
                 }
 
                 long wakeIn = now + tickTime > end ? end - now : tickTime;
-                Thread.sleep(wakeIn);
+//                System.out.println("====== StateTimer wakeIn="+wakeIn);
+                wait(wakeIn);
             }
         }
         catch (InterruptedException ignore)

@@ -308,6 +308,7 @@ class DataReader
         {
             ((DummyInputStream)inputStream).setSleeper(sleeper);
         }
+        stateTrace.setSleeper(sleeper);
         for (; ; )
         {
             try
@@ -442,7 +443,7 @@ class DataReader
                     if (!"0.0".equals(clock.trim())) // Think we are getting another 0.0 sometimes with test runs on data system
                     {
                         setState(RACE);
-                        raceTimerThread = new RaceTimerThread(this, clock, stateTrace);
+                        raceTimerThread = new RaceTimerThread(this, clock, sleeper);
                     }
                 }
                 else if (state == RACE)
@@ -598,22 +599,20 @@ class DataReader
     }
 
     // Used in testing only
-    synchronized void waitForFinish()
+    synchronized void waitForFinish() throws InterruptedException
     {
         while (stateTimer != null || !queuedStateData.isEmpty())
         {
 //            System.out.println("stateTimer is "+(stateTimer == null ? "" : "NOT ")+"null   "+
 //                    "queue is "+(queuedStateData.isEmpty() ? "" : "NOT ")+"empty  "+
 //                    "inputStream is "+(inputStream == null ? "closed" : "open"));
-            try
-            {
-                wait(1000);
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
+
+            wait(1000);
         }
+
+        // Give the race timer a chance to include the last clock reset and end of race
+         long wakeIn = sleeper.convert(3000);
+        wait(wakeIn);
         clearRaceTimer();
     }
 

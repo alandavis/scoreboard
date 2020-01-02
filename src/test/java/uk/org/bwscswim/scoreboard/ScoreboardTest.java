@@ -29,6 +29,7 @@ public class ScoreboardTest
     private Text text = new Text(config);
     private EventPublisher eventPublisher = new EventPublisher();
     private AbstractScoreboard scoreboard;
+    private StateTrace stateTrace = new StateTrace();
     private Sleeper sleeper;
     private ModelHelper helper;
 
@@ -46,6 +47,7 @@ public class ScoreboardTest
         {
             scoreboard = new Scoreboard(config, false);
             eventPublisher.addObserver(scoreboard);
+            eventPublisher.setStateTrace(stateTrace);
         });
     }
 
@@ -77,6 +79,7 @@ public class ScoreboardTest
     {
         this.sleeper = new Sleeper();
         sleeper.setSpeedFactor(speedFactor);
+        stateTrace.setSleeper(sleeper);
         for (int i=loops; i>0; i--)
         {
             publish(0, new TimeOfDayEvent(0));

@@ -24,6 +24,12 @@ public class Sleeper
 
     public long convert(long normalMs)
     {
-        return (long)((double)(normalMs*speedFactor));
+        long ms = (long) ((double) (normalMs * speedFactor));
+        return ms == 0 ? 1 : ms;
+    }
+
+    public long convertBack(long ms)
+    {
+        return (long) ((double) (ms / speedFactor));
     }
 }

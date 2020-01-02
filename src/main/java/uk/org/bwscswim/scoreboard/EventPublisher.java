@@ -14,7 +14,7 @@ public class EventPublisher extends SwingWorker<Void, ScoreboardEvent>
 {
     private final List<Observer> observers = new ArrayList<>();
 
-    private StateTrace stateTrace = new StateTrace();
+    private StateTrace stateTrace;
 
     public void addObserver(Observer observer)
     {

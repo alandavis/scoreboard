@@ -33,6 +33,17 @@ import java.util.StringJoiner;
 class StateTrace
 {
     private long time = -1;
+    private Sleeper sleeper;
+
+    public void setSleeper(Sleeper sleeper)
+    {
+        this.sleeper = sleeper;
+    }
+
+    public Sleeper getSleeper()
+    {
+        return sleeper;
+    }
 
     void trace(String msg)
     {
@@ -40,7 +51,7 @@ class StateTrace
         String prefix = "      ";
         if (time != -1)
         {
-            long delay = ((now - time + 5) / 10) * 10; // round to 10 ms
+            long delay = ((sleeper.convertBack(now - time) + 5) / 10) * 10; // round to 10 ms
             if (delay > 0)
             {
                 prefix = String.format("%5d ", delay);
