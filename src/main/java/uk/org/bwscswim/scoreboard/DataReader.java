@@ -2,7 +2,7 @@
  * #%L
  * BWSC Scoreboard
  * %%
- * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
+ * Copyright (C) 2018-2020 Bracknell and Wokingham Swimming Club (BWSC)
  * %%
  * This file is part of BWSC Scoreboard.
  *
@@ -376,7 +376,7 @@ class DataReader
         if (b == -1)
         {
             rawTrace.reset();
-            throw new EOFException("Unexpected end of data from timing equipment");
+            throw new EOFException("End of data from timing equipment");
         }
         if (b == 0 && tryNextPortOnZero) // Port appears not to be connected
         {

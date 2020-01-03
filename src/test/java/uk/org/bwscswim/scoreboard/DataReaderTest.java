@@ -2,7 +2,7 @@
  * #%L
  * BWSC Scoreboard
  * %%
- * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
+ * Copyright (C) 2018-2020 Bracknell and Wokingham Swimming Club (BWSC)
  * %%
  * This file is part of BWSC Scoreboard.
  *
@@ -341,7 +341,7 @@ public class DataReaderTest
         // When we run the clock faster, we get fewer RaceTimerEvent, probably due to rounding, so try to allow for this
         int expected = expectedAtNormalSpeed - (int)((expectedAtNormalSpeed/110f)/SPEED_FACTOR-2);
 
-        int allowance = Math.max(1, (int)Math.round(expected*0.05)); // 5% of the expected, with a minimum of 1.
+        int allowance = Math.max(1, (int)Math.round(expected*0.075)); // 7.5% of the expected, with a minimum of 1.
         int from = expected - allowance;
         int to = expected + allowance;
         int count = count(RaceTimerEvent.class);
@@ -472,7 +472,7 @@ public class DataReaderTest
                 "        6  Millie sab                        \n" +
                 "            2\\.. ", // Race starts after 3.5 seconds, but lineup is held for 6, so the initial time is 2.5 (6-3.5) - sometimes out by 0.1
                 getText(0, RaceEvent.class));
-        assertRaceTimerEventCount(121); // x5:118 x25:95
+        assertRaceTimerEventCount(120); // x5:118 x25:95
     }
 
     private void assertRegex(String expectedRegex, String actual)
@@ -563,7 +563,7 @@ public class DataReaderTest
                 "        6  Millie sab                        \n" +
                 "           19.4 ", getText(0, RaceSplitTimeEvent.class));
         assertRegex("RaceTimerEvent ...    22\\..*", getText(1, RaceTimerEvent.class));
-        assertRaceTimerEventCount(246); // x5:234 x25:190
+        assertRaceTimerEventCount(242); // x5:234 x25:187
     }
 
     @Test

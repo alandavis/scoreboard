@@ -20,29 +20,25 @@
  * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
  * #L%
  */
-package uk.org.bwscswim.scoreboard.meet.model;
+package uk.org.bwscswim.scoreboard;
+
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import uk.org.bwscswim.scoreboard.meet.service.ModelHelperTest;
+
+@RunWith(Suite.class)
+
+@Suite.SuiteClasses({
+        ModelHelperTest.class,
+        ConfigTest.class,
+        DataReaderTest.class,
+        PBTest.class,
+        ScoreboardTest.class
+})
 
 /**
  * @author adavis
  */
-public class EventEntry
+public class ScoreboardTestSuite
 {
-    private final Swimmer swimmer;
-    private final RaceTime entryTime;
-
-    public EventEntry(Swimmer swimmer, RaceTime entryTime)
-    {
-        this.swimmer = swimmer;
-        this.entryTime = entryTime;
-    }
-
-    public Swimmer getSwimmer()
-    {
-        return swimmer;
-    }
-
-    public RaceTime getEntryTime()
-    {
-        return entryTime;
-    }
 }

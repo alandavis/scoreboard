@@ -2,7 +2,7 @@
  * #%L
  * BWSC Scoreboard
  * %%
- * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
+ * Copyright (C) 2018-2020 Bracknell and Wokingham Swimming Club (BWSC)
  * %%
  * This file is part of BWSC Scoreboard.
  *
@@ -45,7 +45,7 @@ public class Application
             String countyTimesFilename = config.getString("countyTimesFilename", ":CountyTimes.txt");
             String regionalFilename = config.getString("regionalFilename", ":RegionalTimes.txt");
             String pbFilename = config.getString("pbFilename", "PB.txt");
-            helper = new ModelHelper(clubsFilename, countyTimesFilename, regionalFilename, acceptedSwimFilename, pbFilename, config);
+            helper = new ModelHelper(clubsFilename, countyTimesFilename, regionalFilename, acceptedSwimFilename, pbFilename, config, -1);
             List<Event> events = helper.getEvents();
             DataReader dataReader = new DataReader(config);
             dataReader.setEvents(events);

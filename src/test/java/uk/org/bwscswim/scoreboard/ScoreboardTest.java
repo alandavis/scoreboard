@@ -1,3 +1,25 @@
+/*
+ * #%L
+ * BWSC Scoreboard
+ * %%
+ * Copyright (C) 2018-2020 Bracknell and Wokingham Swimming Club (BWSC)
+ * %%
+ * This file is part of BWSC Scoreboard.
+ *
+ * BWSC Scoreboard is free software: you can redistribute it and/or modify
+ * it under the terms of the LGNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BWSC Scoreboard is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * LGNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the LGNU Lesser General Public License
+ * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
+ * #L%
+ */
 package uk.org.bwscswim.scoreboard;
 
 import org.junit.Before;
@@ -38,10 +60,9 @@ public class ScoreboardTest
     @Before
     public void setup() throws IOException, InvocationTargetException, InterruptedException
     {
-        helper = new ModelHelper(":Clubs.txt", ":CountyTimes.txt",
-                ":RegionalTimes.txt", ":AcceptedTest.txt",
-                ":PBTest.txt", null
-        );
+        helper = new ModelHelper(":ClubsTest.txt", ":CountyTimesTest.txt",
+                ":RegionalTimesTest.txt", ":AcceptedTest.txt",
+                ":PBTest.txt", null, -1);
         events = helper.getEvents();
         java.awt.EventQueue.invokeAndWait(() ->
         {
@@ -350,10 +371,17 @@ public class ScoreboardTest
         race(1f, true, 1);
     }
 
+    @Ignore
     @Test
     public void fastTest() throws Exception
     {
         race(0.2f, false, 1);
+    }
+
+    @Test
+    public void superFastTest() throws Exception
+    {
+        race(0.05f, false, 1);
     }
 
     @Ignore

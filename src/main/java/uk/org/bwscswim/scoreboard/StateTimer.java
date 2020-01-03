@@ -2,7 +2,7 @@
  * #%L
  * BWSC Scoreboard
  * %%
- * Copyright (C) 2018-2019 Bracknell and Wokingham Swimming Club (BWSC)
+ * Copyright (C) 2018-2020 Bracknell and Wokingham Swimming Club (BWSC)
  * %%
  * This file is part of BWSC Scoreboard.
  *

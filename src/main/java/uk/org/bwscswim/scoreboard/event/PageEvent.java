@@ -15,7 +15,7 @@ public class PageEvent implements ScoreboardEvent
 
     public PageEvent(Text text, int count)
     {
-        this.text = new Text(text);
+        this.text = text == null ? null : new Text(text);
         this.count = count;
     }
 

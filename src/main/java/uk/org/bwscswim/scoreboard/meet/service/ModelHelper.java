@@ -1,3 +1,25 @@
+/*
+ * #%L
+ * BWSC Scoreboard
+ * %%
+ * Copyright (C) 2018-2020 Bracknell and Wokingham Swimming Club (BWSC)
+ * %%
+ * This file is part of BWSC Scoreboard.
+ *
+ * BWSC Scoreboard is free software: you can redistribute it and/or modify
+ * it under the terms of the LGNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BWSC Scoreboard is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * LGNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the LGNU Lesser General Public License
+ * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
+ * #L%
+ */
 package uk.org.bwscswim.scoreboard.meet.service;
 
 import uk.org.bwscswim.scoreboard.Config;
@@ -32,26 +54,22 @@ public class ModelHelper
     private final Map<String, Club> clubs = new HashMap<>();
     private final Map<Integer, Event> events = new HashMap<>();
     private final Map<String, Swimmer> swimmers = new HashMap<>();
-
-    private int year = LocalDate.now().getYear();
+    private final int year;
 
     private int lineNumber;
     private String prevStdEventName;
 
     public ModelHelper(String clubsFilename, String countyTimesFilename, String regionalTimesFilename,
-                       String acceptedSwimFilename, String pbFilename, Config config) throws IOException
+                       String acceptedSwimFilename, String pbFilename, Config config, int testYear) throws IOException
     {
+        year = testYear >= 2019 ? testYear : LocalDate.now().getYear();
+
         clubAbbreviations = new Abbreviations(clubsFilename, config);
 
         loadAcceptedSwimmers(acceptedSwimFilename, config);
         loadCountyTimes(countyTimesFilename, acceptedSwimFilename, config);
         loadRegionalTimes(regionalTimesFilename, acceptedSwimFilename, config);
         loadPBTimes(pbFilename, config);
-    }
-
-    void setYear(int year)
-    {
-        this.year = year;
     }
 
     public List<Event> getEvents()
