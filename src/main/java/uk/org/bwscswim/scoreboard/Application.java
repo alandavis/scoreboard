@@ -54,11 +54,12 @@ public class Application
             java.awt.EventQueue.invokeAndWait(() ->
             {
                 boolean multipleScreens = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length > 1;
-                new Scoreboard(config, dataReader, false, true);
+                Scoreboard controlScoreboard = new Scoreboard(config, dataReader, false, true);
                 if (multipleScreens)
                 {
                     new Scoreboard(config, dataReader, true, false);
                 }
+                controlScoreboard.requestFocus();
             });
 
             dataReader.readDataInBackground();

@@ -41,7 +41,7 @@ public abstract class BaseScoreboard extends javax.swing.JFrame  implements Obse
 {
     protected final Config config;
     private final boolean useSecondScreen;
-    private final boolean includeControls;
+    protected final boolean includeControls;
 
     private DataReader dataReader;
 
@@ -60,11 +60,8 @@ public abstract class BaseScoreboard extends javax.swing.JFrame  implements Obse
     protected void makeScoreboardVisible()
     {
         pack();
-        int width = config.getInt("width", 1159);
-        int height = config.getInt("height", 728);
-        setMinimumSize(new Dimension(width, height)); // height is 710 otherwise and we later end up with truncation.
 
-        String id = "Scoreboard " + (useSecondScreen ? "(second) " : "");
+        String id = "Scoreboard " + (useSecondScreen ? "(second) " : "(laptop)");
         System.out.println(id + " size=" + getSize());
 
         GraphicsEnvironment localGraphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -87,6 +84,7 @@ public abstract class BaseScoreboard extends javax.swing.JFrame  implements Obse
 
         DisplayMode displayMode = graphicsDevice.getDisplayMode();
         System.out.println(id+" \"" + graphicsDevice.getIDstring() + "\" " + displayMode.getWidth() + "x" + displayMode.getHeight());
+        System.out.println(id + " size=" + getSize());
     }
 
     private void addExitAndFullScreenListeners(GraphicsDevice graphicsDevice)
@@ -101,9 +99,8 @@ public abstract class BaseScoreboard extends javax.swing.JFrame  implements Obse
                 {
                     if (includeControls)
                     {
-                        graphicsDevice.setFullScreenWindow(
-                                (graphicsDevice.getFullScreenWindow() == null ? BaseScoreboard.this : null));
-//                        setUndecorated(true);
+                        boolean alreadyFullScreen = graphicsDevice.getFullScreenWindow() != null;
+                        toggleFullScreen(alreadyFullScreen, graphicsDevice);
                     }
                     else
                     {
@@ -123,7 +120,12 @@ public abstract class BaseScoreboard extends javax.swing.JFrame  implements Obse
         });
     }
 
-    private void exit()
+    protected void toggleFullScreen(boolean alreadyFullScreen, GraphicsDevice graphicsDevice)
+    {
+        graphicsDevice.setFullScreenWindow((alreadyFullScreen ? null : BaseScoreboard.this));
+    }
+
+    void exit()
     {
         if (dataReader != null)
         {

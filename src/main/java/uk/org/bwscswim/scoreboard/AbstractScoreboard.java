@@ -23,7 +23,6 @@
 package uk.org.bwscswim.scoreboard;
 
 import uk.org.bwscswim.scoreboard.event.LineupEvent;
-import uk.org.bwscswim.scoreboard.event.Observer;
 import uk.org.bwscswim.scoreboard.event.PageEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
@@ -34,7 +33,10 @@ import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
 import uk.org.bwscswim.scoreboard.meet.model.Improvement;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -64,14 +66,17 @@ abstract class AbstractScoreboard extends BaseScoreboard
         protected JLabel place = new JLabel("", SwingConstants.CENTER);
     }
 
+    private JTabbedPane tabbedConfigPane;
+    private Container racePanel;
+
     private CardLayout cardLayout = new CardLayout();
     protected Container timeOfDayPanel = new JPanel();
     protected Container splashPanel = new JPanel();
     protected Container scoreboardPanel = new JPanel();
 
-    public static final String TIME_OF_DAY_PANEL = "timeOfDay";
-    public static final String SPLASH = "splash";
-    public static final String SCOREBOARD_PANEL = "scoreboard";
+    private static final String TIME_OF_DAY_PANEL = "timeOfDay";
+    private static final String SPLASH = "splash";
+    private static final String SCOREBOARD_PANEL = "scoreboard";
 
     protected JLabel title = new JLabel();
     protected String clock = "";
@@ -102,15 +107,86 @@ abstract class AbstractScoreboard extends BaseScoreboard
         getFonts();
 
         Container contentPane = getContentPane();
-        contentPane.setLayout(cardLayout);
-        contentPane.add(scoreboardPanel, SCOREBOARD_PANEL);
-        contentPane.add(timeOfDayPanel, TIME_OF_DAY_PANEL);
-        contentPane.add(splashPanel, SPLASH);
+        if (includeControls)
+        {
+            racePanel = new JPanel();
+            Container configPanel = makeTextPanel("Screen Configuration"); // TODO create these somewhere. One per class.
+            Container tracePanel = makeTextPanel("Trace");
+            Container countyPanel = makeTextPanel("County Times");
+            Container regionalPanel = makeTextPanel("Regional Times");
+            Container swimmerPanel = makeTextPanel("Swimmers");
+            Container helpPanel = makeTextPanel("ESCAPE - Toggle full screen race scoreboard");
+            Container exitPanel = new ExitPanel(this);
+
+            tabbedConfigPane = new JTabbedPane();
+            tabbedConfigPane.setTabPlacement(JTabbedPane.BOTTOM);
+            tabbedConfigPane.addTab("Race", racePanel);
+            tabbedConfigPane.addTab("Trace", tracePanel);
+            tabbedConfigPane.addTab("Config", configPanel);
+            tabbedConfigPane.addTab("County", countyPanel);
+            tabbedConfigPane.addTab("Regional", regionalPanel);
+            tabbedConfigPane.addTab("Swimmers", swimmerPanel);
+            tabbedConfigPane.addTab("Help", helpPanel);
+            tabbedConfigPane.addTab("Exit", exitPanel);
+            tabbedConfigPane.setSelectedComponent(racePanel);
+            contentPane.add(tabbedConfigPane);
+        }
+        else
+        {
+            racePanel = contentPane;
+        }
+
+        int width = config.getInt("width", 1159);
+        int height = config.getInt("height", 728);
+        racePanel.setMinimumSize(new Dimension(width, height)); // height is 710 otherwise and we later end up with truncation.
+
+        racePanel.setLayout(cardLayout);
+        racePanel.add(scoreboardPanel, SCOREBOARD_PANEL);
+        racePanel.add(timeOfDayPanel, TIME_OF_DAY_PANEL);
+        racePanel.add(splashPanel, SPLASH);
+
 
         setSplash();
         createSwimmers();
         setColors();
         setFonts();
+    }
+
+    @Override
+    protected void makeScoreboardVisible()
+    {
+        super.makeScoreboardVisible();
+    }
+
+    @Override
+    protected void toggleFullScreen(boolean alreadyFullScreen, GraphicsDevice graphicsDevice)
+    {
+        if (alreadyFullScreen)
+        {
+            Container contentPane = getContentPane();
+            contentPane.remove(racePanel);
+            contentPane.add(tabbedConfigPane);
+            tabbedConfigPane.insertTab("Race", null, racePanel, null, 0);
+            tabbedConfigPane.setSelectedComponent(racePanel);
+        }
+        else
+        {
+            Container contentPane = getContentPane();
+            contentPane.remove(tabbedConfigPane);
+            contentPane.add(racePanel);
+            tabbedConfigPane.remove(racePanel);
+        }
+        super.toggleFullScreen(alreadyFullScreen, graphicsDevice);
+    }
+
+    protected JComponent makeTextPanel(String text)
+    {
+        JPanel panel = new JPanel(false);
+        JLabel filler = new JLabel(text);
+        filler.setHorizontalAlignment(JLabel.CENTER);
+        panel.setLayout(new GridLayout(1, 1));
+        panel.add(filler);
+        return panel;
     }
 
     private void createSwimmers()
@@ -272,7 +348,10 @@ abstract class AbstractScoreboard extends BaseScoreboard
     private void update(RaceTimerEvent event)
     {
         setClock(event.getClock());
-        getContentPane().setVisible(true);
+        if (racePanel.isVisible())
+        {
+            racePanel.setVisible(true);
+        }
     }
 
     private void update(TimeOfDayEvent event)
@@ -283,16 +362,16 @@ abstract class AbstractScoreboard extends BaseScoreboard
          int count = event.getCount() % timeOfDayMod;
         if (count >= splashAt && count < (splashAt + splashFor))
         {
-            if (!splashPanel.isVisible())
+            if (racePanel.isVisible() && !splashPanel.isVisible())
             {
-                cardLayout.show(getContentPane(), SPLASH);
+                cardLayout.show(racePanel, SPLASH);
             }
         }
         else
         {
-            if (!timeOfDayPanel.isVisible())
+            if (racePanel.isVisible() && !timeOfDayPanel.isVisible())
             {
-                cardLayout.show(getContentPane(), TIME_OF_DAY_PANEL);
+                cardLayout.show(racePanel, TIME_OF_DAY_PANEL);
             }
         }
     }
@@ -319,9 +398,9 @@ abstract class AbstractScoreboard extends BaseScoreboard
             scoreboardPanel.setBackground(event instanceof ResultEvent ? new Color(Integer.parseInt("0033cc", 16)) : BLACK);
         }
         setText(event, eventCount, from, to);
-        if (!scoreboardPanel.isVisible())
+        if (racePanel.isVisible() && !scoreboardPanel.isVisible())
         {
-            cardLayout.show(getContentPane(), SCOREBOARD_PANEL);
+            cardLayout.show(racePanel, SCOREBOARD_PANEL);
         }
     }
 
