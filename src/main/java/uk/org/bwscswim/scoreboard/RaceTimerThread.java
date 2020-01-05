@@ -35,7 +35,8 @@ import static uk.org.bwscswim.scoreboard.State.RACE_FINISHING;
  */
 class RaceTimerThread extends Thread
 {
-    // Increment on the race timer by 0.075 seconds looks good when displayed to 2 decimal places
+    // Increment on the race timer by 0.075 seconds looks good when displayed to 2 decimal places.
+    // 42 gives 24 updates per second like TV but looks too fast.
     public static final int WAIT = 75;
 
     // The race winner has finished if there has not been a clock for more than 2.1 seconds (add an extra 0.4 in case it is slow)

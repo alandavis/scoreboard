@@ -24,8 +24,6 @@ package uk.org.bwscswim.scoreboard;
 
 import javax.swing.*;
 
-import java.io.FileNotFoundException;
-
 import static javax.swing.GroupLayout.Alignment.CENTER;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
@@ -36,9 +34,9 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
  */
 public class Scoreboard extends AbstractScoreboard
 {
-    public Scoreboard(Config config, boolean secondScreen)
+    public Scoreboard(Config config, DataReader dataReader, boolean secondScreen)
     {
-        super(config, secondScreen);
+        super(config, dataReader, secondScreen);
 
         layoutScoreboard();
         layoutTimeOfDay();

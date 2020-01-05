@@ -52,16 +52,10 @@ public class Application
 
             java.awt.EventQueue.invokeAndWait(() ->
             {
-                AbstractScoreboard scoreboard1 = new Scoreboard(config, false);
-                scoreboard1.setDataReader(dataReader);
-                dataReader.addObserver(scoreboard1);
-
-                Boolean secondScoreboardVisible = config.getBoolean("secondScoreboardVisible", false);
-                if (secondScoreboardVisible)
+                new Scoreboard(config, dataReader, false);
+                if (config.getBoolean("secondScoreboardVisible", false))
                 {
-                    AbstractScoreboard scoreboard2 = new Scoreboard(config, true);
-                    scoreboard2.setDataReader(dataReader);
-                    dataReader.addObserver(scoreboard2);
+                    new Scoreboard(config, dataReader, true);
                 }
             });
 

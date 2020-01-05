@@ -49,9 +49,8 @@ import static java.awt.Color.YELLOW;
  *
  * @author adavis
  */
-abstract class AbstractScoreboard extends BaseScoreboard implements Observer
+abstract class AbstractScoreboard extends BaseScoreboard
 {
-
     public static final Color GREENISH  = new Color(0, 220, 60);
 
     class Swimmer
@@ -94,9 +93,9 @@ abstract class AbstractScoreboard extends BaseScoreboard implements Observer
     private int splashAt;
     private int splashFor;
 
-    AbstractScoreboard(Config config, boolean secondScreen)
+    AbstractScoreboard(Config config, DataReader dataReader, boolean secondScreen)
     {
-        super(config, secondScreen);
+        super(config, dataReader, secondScreen);
 
         laneCount = config.getInt("laneCount", 6);
 

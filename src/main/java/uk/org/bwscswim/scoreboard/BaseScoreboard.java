@@ -22,20 +22,20 @@
  */
 package uk.org.bwscswim.scoreboard;
 
+import uk.org.bwscswim.scoreboard.event.Observer;
+
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import static uk.org.bwscswim.scoreboard.State.RESULTS;
-
 /**
- * Abstract class containing methods used to setup the window onto the Scoreboard.
+ * Abstract class containing methods used to setup the windows onto the Scoreboard.
  *
  * @author adavis
  */
-public abstract class BaseScoreboard extends javax.swing.JFrame
+public abstract class BaseScoreboard extends javax.swing.JFrame  implements Observer
 {
     protected final Config config;
     private final boolean secondScreen;
@@ -43,9 +43,14 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
 
     private DataReader dataReader;
 
-    public BaseScoreboard(Config config, boolean secondScreen)
+    public BaseScoreboard(Config config, DataReader dataReader, boolean secondScreen)
     {
         this.config = config;
+        if (dataReader != null)
+        {
+            this.dataReader = dataReader;
+            dataReader.addObserver(this);
+        }
         this.secondScreen = secondScreen;
         scoreboardVisible = !secondScreen || config.getBoolean("secondScoreboardVisible", false);
     }
@@ -182,8 +187,4 @@ public abstract class BaseScoreboard extends javax.swing.JFrame
         return graphicsDevice;
     }
 
-    public void setDataReader(DataReader dataReader)
-    {
-        this.dataReader = dataReader;
-    }
 }
