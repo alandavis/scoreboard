@@ -66,7 +66,7 @@ public class ScoreboardTest
         events = helper.getEvents();
         java.awt.EventQueue.invokeAndWait(() ->
         {
-            scoreboard = new Scoreboard(config, null, false);
+            scoreboard = new Scoreboard(config, null, false, false);
             eventPublisher.addObserver(scoreboard);
             eventPublisher.setStateTrace(stateTrace);
         });

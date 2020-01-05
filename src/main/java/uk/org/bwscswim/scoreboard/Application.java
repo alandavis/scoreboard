@@ -25,6 +25,7 @@ package uk.org.bwscswim.scoreboard;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
 import uk.org.bwscswim.scoreboard.meet.service.ModelHelper;
 
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -52,10 +53,11 @@ public class Application
 
             java.awt.EventQueue.invokeAndWait(() ->
             {
-                new Scoreboard(config, dataReader, false);
-                if (config.getBoolean("secondScoreboardVisible", false))
+                boolean multipleScreens = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length > 1;
+                new Scoreboard(config, dataReader, false, true);
+                if (multipleScreens)
                 {
-                    new Scoreboard(config, dataReader, true);
+                    new Scoreboard(config, dataReader, true, false);
                 }
             });
 

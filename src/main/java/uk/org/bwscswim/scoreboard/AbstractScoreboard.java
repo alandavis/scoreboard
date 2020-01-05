@@ -93,9 +93,9 @@ abstract class AbstractScoreboard extends BaseScoreboard
     private int splashAt;
     private int splashFor;
 
-    AbstractScoreboard(Config config, DataReader dataReader, boolean secondScreen)
+    AbstractScoreboard(Config config, DataReader dataReader, boolean useSecondScreen, boolean includeControls)
     {
-        super(config, dataReader, secondScreen);
+        super(config, dataReader, useSecondScreen, includeControls);
 
         laneCount = config.getInt("laneCount", 6);
 

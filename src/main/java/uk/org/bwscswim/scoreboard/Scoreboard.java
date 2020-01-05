@@ -34,9 +34,9 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
  */
 public class Scoreboard extends AbstractScoreboard
 {
-    public Scoreboard(Config config, DataReader dataReader, boolean secondScreen)
+    public Scoreboard(Config config, DataReader dataReader, boolean useSecondScreen, boolean includeControls)
     {
-        super(config, dataReader, secondScreen);
+        super(config, dataReader, useSecondScreen, includeControls);
 
         layoutScoreboard();
         layoutTimeOfDay();

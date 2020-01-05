@@ -31,19 +31,21 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 /**
- * Abstract class containing methods used to setup the windows onto the Scoreboard.
+ * Abstract class containing methods used to setup the windows onto the Scoreboard. When there are two screens
+ * the main one is used as the control window (on the laptop's screen) with the second one as the main scoreboard
+ * (on the monitor).
  *
  * @author adavis
  */
 public abstract class BaseScoreboard extends javax.swing.JFrame  implements Observer
 {
     protected final Config config;
-    private final boolean secondScreen;
-    private final boolean scoreboardVisible;
+    private final boolean useSecondScreen;
+    private final boolean includeControls;
 
     private DataReader dataReader;
 
-    public BaseScoreboard(Config config, DataReader dataReader, boolean secondScreen)
+    public BaseScoreboard(Config config, DataReader dataReader, boolean useSecondScreen, boolean includeControls)
     {
         this.config = config;
         if (dataReader != null)
@@ -51,140 +53,82 @@ public abstract class BaseScoreboard extends javax.swing.JFrame  implements Obse
             this.dataReader = dataReader;
             dataReader.addObserver(this);
         }
-        this.secondScreen = secondScreen;
-        scoreboardVisible = !secondScreen || config.getBoolean("secondScoreboardVisible", false);
+        this.useSecondScreen = useSecondScreen;
+        this.includeControls = includeControls;
     }
 
     protected void makeScoreboardVisible()
     {
-        exitOnEscapeOrEnter();
-
-        if (scoreboardVisible)
-        {
-            if (secondScreen)
-            {
-                Boolean fullScreen = config.getBoolean(null, null, "fullScreen2", true);
-                if (fullScreen)
-                {
-                    setUndecorated(true);
-                }
-
-                packAndSetSize();
-                System.out.println("Second ScoreboardSize=" + getSize());
-
-                GraphicsDevice graphicsDevice = getGraphicsDevice("graphicsDevice2");
-                DisplayMode displayMode = graphicsDevice.getDisplayMode();
-                System.out.println("Second GraphicsDevice \"" + graphicsDevice.getIDstring() + "\" " + displayMode.getWidth() + "x" + displayMode.getHeight());
-
-                if (fullScreen)
-                {
-                    graphicsDevice.setFullScreenWindow(this);
-                }
-                else
-                {
-                    javax.swing.JFrame dualview = new javax.swing.JFrame(graphicsDevice.getDefaultConfiguration());
-                    setLocationRelativeTo(dualview);
-                    dualview.dispose();
-                    setVisible(true);
-                }
-            }
-            else
-            {
-                Boolean fullScreen = config.getBoolean(null, null, "fullScreen1", true);
-                if (fullScreen)
-                {
-                    setUndecorated(true);
-                }
-
-                packAndSetSize();
-                System.out.println("ScoreboardSize=" + getSize());
-
-                GraphicsDevice graphicsDevice = getGraphicsDevice("graphicsDevice1");
-                DisplayMode displayMode = graphicsDevice.getDisplayMode();
-                System.out.println("Using GraphicsDevice \"" + graphicsDevice.getIDstring() + "\" " + displayMode.getWidth() + "x" + displayMode.getHeight());
-
-                if (fullScreen)
-                {
-                    graphicsDevice.setFullScreenWindow(this);
-                }
-                else
-                {
-                    javax.swing.JFrame dualview = new javax.swing.JFrame(graphicsDevice.getDefaultConfiguration());
-                    setLocationRelativeTo(dualview);
-                    dualview.dispose();
-                    setVisible(true);
-                }
-            }
-        }
-    }
-
-    private void packAndSetSize()
-    {
         pack();
-        int width = config.getInt("width", -1);
-        int height = config.getInt("height", -1);
-        width = 1159;
-        height = 728;
-        if (width != -1 && height != -1)
+        int width = config.getInt("width", 1159);
+        int height = config.getInt("height", 728);
+        setMinimumSize(new Dimension(width, height)); // height is 710 otherwise and we later end up with truncation.
+
+        String id = "Scoreboard " + (useSecondScreen ? "(second) " : "");
+        System.out.println(id + " size=" + getSize());
+
+        GraphicsEnvironment localGraphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice graphicsDevice = localGraphicsEnvironment.getDefaultScreenDevice();
+        if (useSecondScreen)
         {
-            setMinimumSize(new Dimension(width, height));
+            GraphicsDevice[] screenDevices = localGraphicsEnvironment.getScreenDevices();
+            graphicsDevice = screenDevices[0].equals(graphicsDevice) ? screenDevices[1] : screenDevices[0];
+
+            javax.swing.JFrame dualview = new javax.swing.JFrame(graphicsDevice.getDefaultConfiguration());
+            setLocationRelativeTo(dualview);
+            dualview.dispose();
+            graphicsDevice.setFullScreenWindow(this);
         }
+        else
+        {
+            addExitAndFullScreenListeners(graphicsDevice);
+        }
+        setVisible(true);
+
+        DisplayMode displayMode = graphicsDevice.getDisplayMode();
+        System.out.println(id+" \"" + graphicsDevice.getIDstring() + "\" " + displayMode.getWidth() + "x" + displayMode.getHeight());
     }
 
-    protected void exitOnEscapeOrEnter()
+    private void addExitAndFullScreenListeners(GraphicsDevice graphicsDevice)
     {
-        if (dataReader != null)
-        {
-            dataReader.close();
-        }
         setFocusable(true);
         addKeyListener(new KeyAdapter()
         {
             @Override
             public void keyTyped(KeyEvent e)
             {
-                char c = e.getKeyChar();
-                if (c == '\n' || c == 27)
+                if (e.getKeyChar() == 27)
                 {
-                    System.exit(0);
+                    if (includeControls)
+                    {
+                        graphicsDevice.setFullScreenWindow(
+                                (graphicsDevice.getFullScreenWindow() == null ? BaseScoreboard.this : null));
+//                        setUndecorated(true);
+                    }
+                    else
+                    {
+                        exit();
+                    }
                 }
                 super.keyTyped(e);
             }
         });
+
         addWindowListener(new WindowAdapter()
         {
             public void windowClosing(WindowEvent e)
             {
-                System.exit(0);
+                exit();
             }
         });
     }
 
-    @Override
-    public void setVisible(boolean visible)
+    private void exit()
     {
-        if (scoreboardVisible)
+        if (dataReader != null)
         {
-            super.setVisible(visible);
+            dataReader.close();
         }
+        System.exit(0);
     }
-
-    private GraphicsDevice getGraphicsDevice(String propertyName)
-    {
-        String graphicsDeviceId = config.getString(propertyName, "\\Display1");
-        GraphicsDevice graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        System.out.println("\nGraphicsDevices");
-        int i = 1;
-        for (GraphicsDevice device : GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices())
-        {
-            String id = device.getIDstring();
-            System.out.println((i++)+". "+ id);
-            if (id.equals(graphicsDeviceId))
-            {
-                graphicsDevice = device;
-            }
-        }
-        return graphicsDevice;
-    }
-
 }
