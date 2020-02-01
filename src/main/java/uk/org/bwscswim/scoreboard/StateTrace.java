@@ -30,7 +30,7 @@ import java.util.StringJoiner;
  *
  * @author adavis
  */
-class StateTrace
+public class StateTrace
 {
     private long time = -1;
     private Sleeper sleeper;
@@ -45,7 +45,7 @@ class StateTrace
         return sleeper;
     }
 
-    void trace(String msg)
+    public void trace(String msg)
     {
         long now = System.currentTimeMillis();
         String prefix = "      ";

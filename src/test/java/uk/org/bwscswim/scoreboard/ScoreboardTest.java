@@ -25,6 +25,7 @@ package uk.org.bwscswim.scoreboard;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import uk.org.bwscswim.scoreboard.event.EventPublisher;
 import uk.org.bwscswim.scoreboard.event.LineupEvent;
 import uk.org.bwscswim.scoreboard.event.RaceEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;

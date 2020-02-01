@@ -6,6 +6,8 @@ import java.awt.*;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
+import static java.awt.Font.PLAIN;
+
 /**
  * @author adavis
  */
@@ -17,6 +19,8 @@ public class TracePanel extends JPanel
 
         JTextArea textArea = new JTextArea(30, 150);
         textArea.setEditable(false);
+        Font font = new Font("Courier", PLAIN, 13);
+        textArea.setFont(font);
         JScrollPane scrollPane = new JScrollPane(textArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         int width = config.getInt("width", 1159);

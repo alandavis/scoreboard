@@ -23,12 +23,14 @@
 package uk.org.bwscswim.scoreboard;
 
 import com.fazecast.jSerialComm.SerialPort;
+import uk.org.bwscswim.scoreboard.event.EventPublisher;
 import uk.org.bwscswim.scoreboard.event.LineupEvent;
 import uk.org.bwscswim.scoreboard.event.Observer;
 import uk.org.bwscswim.scoreboard.event.PageEvent;
 import uk.org.bwscswim.scoreboard.event.RaceEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
+import uk.org.bwscswim.scoreboard.event.RawTextEvent;
 import uk.org.bwscswim.scoreboard.event.ResultEvent;
 import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
 import uk.org.bwscswim.scoreboard.event.TestcardEvent;
@@ -430,6 +432,7 @@ class DataReader
             int lineNumber = position / 100;
             int offset = position % 100;
             text.setText(lineNumber, offset, data);
+            publishEvent(new RawTextEvent(lineNumber, offset, data));
 
             if (control.equals(CONTROL_CLOCK))
             {
@@ -480,6 +483,7 @@ class DataReader
         {
             lanesWithTimesAtTheEndOfTheRace = text.countLanesWithTimes();
             text.clear();
+            publishEvent(new RawTextEvent());
         }
         else if (CONTROL_LINEUP.equals(control))
         {

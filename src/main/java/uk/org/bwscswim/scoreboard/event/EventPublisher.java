@@ -20,8 +20,9 @@
  * along with BWSC Scoreboard.  If not, see <https://www.gnu.org/licenses/>.
  * #L%
  */
-package uk.org.bwscswim.scoreboard;
+package uk.org.bwscswim.scoreboard.event;
 
+import uk.org.bwscswim.scoreboard.StateTrace;
 import uk.org.bwscswim.scoreboard.event.Observer;
 import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
 
@@ -48,9 +49,12 @@ public class EventPublisher extends SwingWorker<Void, ScoreboardEvent>
         this.stateTrace = stateTrace;
     }
 
-    void publishEvent(ScoreboardEvent event)
+    public void publishEvent(ScoreboardEvent event)
     {
-        stateTrace.trace(event.toString());
+        if (!(event instanceof RawTextEvent))
+        {
+            stateTrace.trace(event.toString());
+        }
         publish(event);
     }
 

@@ -26,6 +26,7 @@ import uk.org.bwscswim.scoreboard.event.LineupEvent;
 import uk.org.bwscswim.scoreboard.event.PageEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
 import uk.org.bwscswim.scoreboard.event.RaceTimerEvent;
+import uk.org.bwscswim.scoreboard.event.RawTextEvent;
 import uk.org.bwscswim.scoreboard.event.ResultEvent;
 import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
 import uk.org.bwscswim.scoreboard.event.TestcardEvent;
@@ -68,6 +69,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
 
     private JTabbedPane tabbedConfigPane;
     private Container racePanel;
+    private RawTextPanel rawTextPanel;
 
     private CardLayout cardLayout = new CardLayout();
     protected Container timeOfDayPanel = new JPanel();
@@ -111,7 +113,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
         {
             racePanel = new JPanel();
             Container configPanel = makeTextPanel("Screen Configuration"); // TODO create these somewhere. One per class.
-            Container rawPanel = makeTextPanel("TODO: Display the raw text scoreboard");
+            rawTextPanel = new RawTextPanel(config);
             Container tracePanel = new TracePanel(config);
             Container countyPanel = new QualificationTimePanel(config.getCountyTimesFilename(), config);
             Container regionalPanel = new QualificationTimePanel(config.getRegionalTimesFilename(), config);
@@ -121,7 +123,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
             tabbedConfigPane = new JTabbedPane();
             tabbedConfigPane.setTabPlacement(JTabbedPane.BOTTOM);
             tabbedConfigPane.addTab("Race", racePanel);
-            tabbedConfigPane.addTab("Raw", rawPanel);
+            tabbedConfigPane.addTab("Raw", rawTextPanel);
             tabbedConfigPane.addTab("Trace", tracePanel);
             tabbedConfigPane.addTab("Config", configPanel);
             tabbedConfigPane.addTab("County", countyPanel);
@@ -342,6 +344,10 @@ abstract class AbstractScoreboard extends BaseScoreboard
         else if (event instanceof TestcardEvent)
         {
             updated((TestcardEvent)event);
+        }
+        else if (event instanceof RawTextEvent && includeControls)
+        {
+            rawTextPanel.update((RawTextEvent)event);
         }
     }
 
