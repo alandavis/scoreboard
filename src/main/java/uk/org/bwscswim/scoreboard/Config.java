@@ -418,4 +418,29 @@ public class Config
             }
         };
     }
+
+    public String getAcceptedSwimFilename()
+    {
+        return getString("acceptedSwimFilename", "Accepted.txt");
+    }
+
+    public String getClubsFilename()
+    {
+        return getString("clubsFilename", ":Clubs.txt");
+    }
+
+    public String getCountyTimesFilename()
+    {
+        return getString("countyTimesFilename", ":CountyTimes.txt");
+    }
+
+    public String getRegionalTimesFilename()
+    {
+        return getString("regionalFilename", ":RegionalTimes.txt");
+    }
+
+    public String getPbFilename()
+    {
+        return getString("pbFilename", "PB.txt");
+    }
 }

@@ -41,12 +41,7 @@ public class Application
         ModelHelper helper = null;
         try
         {
-            String acceptedSwimFilename = config.getString("acceptedSwimFilename", "Accepted.txt");
-            String clubsFilename = config.getString("clubsFilename", ":Clubs.txt");
-            String countyTimesFilename = config.getString("countyTimesFilename", ":CountyTimes.txt");
-            String regionalFilename = config.getString("regionalFilename", ":RegionalTimes.txt");
-            String pbFilename = config.getString("pbFilename", "PB.txt");
-            helper = new ModelHelper(clubsFilename, countyTimesFilename, regionalFilename, acceptedSwimFilename, pbFilename, config, -1);
+            helper = new ModelHelper(config);
             List<Event> events = helper.getEvents();
             DataReader dataReader = new DataReader(config);
             dataReader.setEvents(events);

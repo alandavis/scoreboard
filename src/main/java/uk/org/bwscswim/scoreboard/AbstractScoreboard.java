@@ -111,22 +111,22 @@ abstract class AbstractScoreboard extends BaseScoreboard
         {
             racePanel = new JPanel();
             Container configPanel = makeTextPanel("Screen Configuration"); // TODO create these somewhere. One per class.
-            Container tracePanel = makeTextPanel("Trace");
-            Container countyPanel = makeTextPanel("County Times");
-            Container regionalPanel = makeTextPanel("Regional Times");
+            Container rawPanel = makeTextPanel("TODO: Display the raw text scoreboard");
+            Container tracePanel = new TracePanel(config);
+            Container countyPanel = new QualificationTimePanel(config.getCountyTimesFilename(), config);
+            Container regionalPanel = new QualificationTimePanel(config.getRegionalTimesFilename(), config);
             Container swimmerPanel = makeTextPanel("Swimmers");
-            Container helpPanel = makeTextPanel("ESCAPE - Toggle full screen race scoreboard");
             Container exitPanel = new ExitPanel(this);
 
             tabbedConfigPane = new JTabbedPane();
             tabbedConfigPane.setTabPlacement(JTabbedPane.BOTTOM);
             tabbedConfigPane.addTab("Race", racePanel);
+            tabbedConfigPane.addTab("Raw", rawPanel);
             tabbedConfigPane.addTab("Trace", tracePanel);
             tabbedConfigPane.addTab("Config", configPanel);
             tabbedConfigPane.addTab("County", countyPanel);
             tabbedConfigPane.addTab("Regional", regionalPanel);
             tabbedConfigPane.addTab("Swimmers", swimmerPanel);
-            tabbedConfigPane.addTab("Help", helpPanel);
             tabbedConfigPane.addTab("Exit", exitPanel);
             tabbedConfigPane.setSelectedComponent(racePanel);
             contentPane.add(tabbedConfigPane);

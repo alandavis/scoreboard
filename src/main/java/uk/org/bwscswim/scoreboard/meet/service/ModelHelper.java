@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Reads the accepted swims file and populates data structures that may the be accessed via {@link #getEvents()}.
@@ -58,6 +59,17 @@ public class ModelHelper
 
     private int lineNumber;
     private String prevStdEventName;
+    private int firstAge;
+
+    public ModelHelper(Config config) throws IOException
+    {
+        this(config.getClubsFilename(),
+             config.getCountyTimesFilename(),
+             config.getRegionalTimesFilename(),
+             config.getAcceptedSwimFilename(),
+             config.getPbFilename(),
+             config, -1);
+    }
 
     public ModelHelper(String clubsFilename, String countyTimesFilename, String regionalTimesFilename,
                        String acceptedSwimFilename, String pbFilename, Config config, int testYear) throws IOException
@@ -213,7 +225,8 @@ public class ModelHelper
         prevStdEventName = null;
         try (BufferedReader reader = FileLoader.getBufferedReader(filename, config))
         {
-            reader.lines().forEach(line -> loadCountyTime(line, events, missingEvents));
+            AtomicInteger lineNumber = new AtomicInteger(1);
+            reader.lines().forEach(line -> loadCountyTime(lineNumber.getAndIncrement(), line, events, missingEvents));
         }
 
         if (missingEvents.length() > 0)
@@ -236,32 +249,48 @@ public class ModelHelper
         }
     }
 
-    private void loadCountyTime(String line, List<Event> events, StringJoiner missingEvents)
+    private void loadCountyTime(int lineNumber, String line, List<Event> events, StringJoiner missingEvents)
     {
-        String[] split = line.split(",");
-        String eventName = Event.getStdName(split[0]);
-        Event event = lookupEvent(events, eventName);
-        if (event != null)
+        if (lineNumber == 1)
         {
-            TreeMap<Integer, RaceTime> times = new TreeMap<>();
-            int baseYear = getYearOfBirth(11) + 1;
-            event.setCountyTimes(times);
-            for (int i=1; i<split.length; i++)
+            firstAge = getFirstAge(line);
+        }
+        else
+        {
+            String[] split = line.split(",");
+            String eventName = Event.getStdName(split[0]);
+            Event event = lookupEvent(events, eventName);
+            if (event != null)
             {
-                String timeStr = split[i].trim();
-                if (!timeStr.isEmpty())
+                TreeMap<Integer, RaceTime> times = new TreeMap<>();
+                int baseYear = getYearOfBirth(firstAge) + 1;
+                event.setCountyTimes(times);
+                for (int i = 1; i < split.length; i++)
                 {
-                    RaceTime time = RaceTime.create(timeStr);
-                    int age = baseYear-i+1;
-                    times.put(age, time);
+                    String timeStr = split[i].trim();
+                    if (!timeStr.isEmpty())
+                    {
+                        RaceTime time = RaceTime.create(timeStr);
+                        int age = baseYear - i + 1;
+                        times.put(age, time);
+                    }
                 }
             }
+            else if (!eventName.equals(prevStdEventName))
+            {
+                missingEvents.add(eventName);
+            }
+            prevStdEventName = eventName;
         }
-        else if (!eventName.equals(prevStdEventName))
-        {
-            missingEvents.add(eventName);
-        }
-        prevStdEventName = eventName;
+    }
+
+    private int getFirstAge(String line)
+    {
+        String[] split = line.split(",");
+        String firstAgeString = split[1].trim();
+        int i = firstAgeString.lastIndexOf('/');
+        firstAgeString = i == -1 ? firstAgeString : firstAgeString.substring(i+1);
+        return Integer.parseInt(firstAgeString);
     }
 
     private void loadRegionalTimes(String filename, String acceptedSwimFilename, Config config) throws IOException
@@ -274,7 +303,8 @@ public class ModelHelper
         prevStdEventName = null;
         try (BufferedReader reader = FileLoader.getBufferedReader(filename, config))
         {
-            reader.lines().forEach(line -> loadRegionalTimes(line, events, missingEvents));
+            AtomicInteger lineNumber = new AtomicInteger(1);
+            reader.lines().forEach(line -> loadRegionalTimes(lineNumber.getAndIncrement(), line, events, missingEvents));
         }
 
         if (missingEvents.length() > 0)
@@ -297,40 +327,47 @@ public class ModelHelper
         }
     }
 
-    private void loadRegionalTimes(String line, List<Event> events, StringJoiner missingEvents)
+    private void loadRegionalTimes(int lineNumber, String line, List<Event> events, StringJoiner missingEvents)
     {
-        String[] split = line.split(",");
-        String eventName = Event.getStdName(split[0]);
-        Event event = lookupEvent(events, eventName);
-        if (event != null)
+        if (lineNumber == 1)
         {
-            TreeMap<Integer, RaceTime> baseTimes = new TreeMap<>();
-            TreeMap<Integer, RaceTime> autoTimes = new TreeMap<>();
-            int baseYear = getYearOfBirth(12) + 1;
-            event.setRegionalBaseTimes(baseTimes);
-            event.setRegionalAutoTimes(autoTimes);
-            for (int i=1, j=1; j<split.length; i++, j+=2)
+            firstAge = getFirstAge(line);
+        }
+        else
+        {
+            String[] split = line.split(",");
+            String eventName = Event.getStdName(split[0]);
+            Event event = lookupEvent(events, eventName);
+            if (event != null)
             {
-                int age = baseYear-i+1;
-                String timeStr = split[j].trim();
-                if (!timeStr.isEmpty())
+                TreeMap<Integer, RaceTime> baseTimes = new TreeMap<>();
+                TreeMap<Integer, RaceTime> autoTimes = new TreeMap<>();
+                int baseYear = getYearOfBirth(firstAge) + 1;
+                event.setRegionalBaseTimes(baseTimes);
+                event.setRegionalAutoTimes(autoTimes);
+                for (int i = 1, j = 1; j < split.length; i++, j += 2)
                 {
-                    RaceTime time = RaceTime.create(timeStr);
-                    baseTimes.put(age, time);
-                }
-                timeStr = split[j+1].trim();
-                if (!timeStr.isEmpty())
-                {
-                    RaceTime time = RaceTime.create(timeStr);
-                    autoTimes.put(age, time);
+                    int age = baseYear - i + 1;
+                    String timeStr = split[j].trim();
+                    if (!timeStr.isEmpty())
+                    {
+                        RaceTime time = RaceTime.create(timeStr);
+                        baseTimes.put(age, time);
+                    }
+                    timeStr = split[j + 1].trim();
+                    if (!timeStr.isEmpty())
+                    {
+                        RaceTime time = RaceTime.create(timeStr);
+                        autoTimes.put(age, time);
+                    }
                 }
             }
+            else if (!eventName.equals(prevStdEventName))
+            {
+                missingEvents.add(eventName);
+            }
+            prevStdEventName = eventName;
         }
-        else if (!eventName.equals(prevStdEventName))
-        {
-            missingEvents.add(eventName);
-        }
-        prevStdEventName = eventName;
     }
 
     private void loadPBTimes(String pbFilename, Config config)
