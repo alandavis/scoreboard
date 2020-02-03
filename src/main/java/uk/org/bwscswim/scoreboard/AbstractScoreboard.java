@@ -34,10 +34,7 @@ import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
 import uk.org.bwscswim.scoreboard.meet.model.Improvement;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.KeyEvent;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -76,9 +73,10 @@ abstract class AbstractScoreboard extends BaseScoreboard
     protected Container splashPanel = new JPanel();
     protected Container scoreboardPanel = new JPanel();
 
-    private static final String TIME_OF_DAY_PANEL = "timeOfDay";
+    private static final String TIME_OF_DAY = "timeOfDay";
     private static final String SPLASH = "splash";
-    private static final String SCOREBOARD_PANEL = "scoreboard";
+    private static final String SCOREBOARD = "scoreboard";
+    private String currentPanel = SCOREBOARD;
 
     protected JLabel title = new JLabel();
     protected String clock = "";
@@ -132,6 +130,16 @@ abstract class AbstractScoreboard extends BaseScoreboard
             tabbedConfigPane.addTab("Exit", exitPanel);
             tabbedConfigPane.setSelectedComponent(racePanel);
             contentPane.add(tabbedConfigPane);
+
+            tabbedConfigPane.addChangeListener(e ->
+            {
+                JTabbedPane tabbedConfigPane = (JTabbedPane)e.getSource();
+                Component selectedComponent = tabbedConfigPane.getSelectedComponent();
+                if (selectedComponent == racePanel)
+                {
+                    cardLayout.show(racePanel, currentPanel);
+                }
+            });
         }
         else
         {
@@ -143,10 +151,10 @@ abstract class AbstractScoreboard extends BaseScoreboard
         racePanel.setMinimumSize(new Dimension(width, height)); // height is 710 otherwise and we later end up with truncation.
 
         racePanel.setLayout(cardLayout);
-        racePanel.add(scoreboardPanel, SCOREBOARD_PANEL);
-        racePanel.add(timeOfDayPanel, TIME_OF_DAY_PANEL);
+        racePanel.add(scoreboardPanel, SCOREBOARD);
+        racePanel.add(timeOfDayPanel, TIME_OF_DAY);
         racePanel.add(splashPanel, SPLASH);
-
+        currentPanel = SCOREBOARD;
 
         setSplash();
         createSwimmers();
@@ -365,21 +373,8 @@ abstract class AbstractScoreboard extends BaseScoreboard
         String time = event.getTimeOfDay();
         this.timeOfDay.setText(time);
 
-         int count = event.getCount() % timeOfDayMod;
-        if (count >= splashAt && count < (splashAt + splashFor))
-        {
-            if (racePanel.isVisible() && !splashPanel.isVisible())
-            {
-                cardLayout.show(racePanel, SPLASH);
-            }
-        }
-        else
-        {
-            if (racePanel.isVisible() && !timeOfDayPanel.isVisible())
-            {
-                cardLayout.show(racePanel, TIME_OF_DAY_PANEL);
-            }
-        }
+        int count = event.getCount() % timeOfDayMod;
+        switchPanel((count >= splashAt && count < (splashAt + splashFor)) ? SPLASH : TIME_OF_DAY);
     }
 
     private void updated(TestcardEvent event)
@@ -404,9 +399,18 @@ abstract class AbstractScoreboard extends BaseScoreboard
             scoreboardPanel.setBackground(event instanceof ResultEvent ? new Color(Integer.parseInt("0033cc", 16)) : BLACK);
         }
         setText(event, eventCount, from, to);
-        if (racePanel.isVisible() && !scoreboardPanel.isVisible())
+        switchPanel(SCOREBOARD);
+    }
+
+    private void switchPanel(String panel)
+    {
+        if (!currentPanel.equals(panel))
         {
-            cardLayout.show(racePanel, SCOREBOARD_PANEL);
+            currentPanel = panel;
+            if (racePanel.isVisible())
+            {
+                cardLayout.show(racePanel, panel);
+            }
         }
     }
 
