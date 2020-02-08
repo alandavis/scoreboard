@@ -43,6 +43,7 @@ public class Text extends RawText
     private final String NAME_RANGE;
     private final String CLUB_RANGE;
     private final String TIME_RANGE;
+    private final String SCORE_RANGE;
     private final String PLACE_RANGE;
 
     private final int FIRST_LANE_LINE_NUMBER;
@@ -94,6 +95,7 @@ public class Text extends RawText
         NAME_RANGE = config.getCharRange("nameRange", "03..18");
         CLUB_RANGE = config.getCharRange("clubRange", "20..23");
         TIME_RANGE = config.getCharRange("timeRange", "25..32");
+        SCORE_RANGE = config.getCharRange("scoreRange", "25..32");
         PLACE_RANGE = config.getCharRange("placeRange", "34..37");
     }
 
@@ -134,6 +136,11 @@ public class Text extends RawText
     public int getLaneIndex(int lineNumber)
     {
         return isLaneLineNumber(lineNumber) ? lineNumber-FIRST_LANE_LINE_NUMBER : -1;
+    }
+
+    public int getLineNumber(int laneIndex)
+    {
+        return FIRST_LANE_LINE_NUMBER+laneIndex;
     }
 
     int countLanesWithNames()
@@ -177,6 +184,11 @@ public class Text extends RawText
         return getText(TITLE_RANGE, "");
     }
 
+    public void setTitle(String title)
+    {
+        setText(TITLE_RANGE, title, false);
+    }
+
     public String getSubtitle()
     {
         return getText(SUBTITLE_RANGE, "");
@@ -202,14 +214,30 @@ public class Text extends RawText
         return getLaneOrPlace(laneIndex, false);
     }
 
+    public void setLane(int laneIndex)
+    {
+        String lane = Integer.toString(laneIndex+1);
+        setText(laneIndex, LANE_RANGE, lane, false);
+    }
+
     public int getPlace(int laneIndex)
     {
         return getLaneOrPlace(laneIndex, true);
     }
 
+    public void setPlace(int laneIndex, String place)
+    {
+        setText(laneIndex, PLACE_RANGE, place, false);
+    }
+
     public String getName(int laneIndex)
     {
         return getNameClubOrTime(laneIndex, NAME_RANGE);
+    }
+
+    public void setName(int laneIndex, String name)
+    {
+        setText(laneIndex, NAME_RANGE, name, false);
     }
 
     public String getClub(int laneIndex)
@@ -220,6 +248,22 @@ public class Text extends RawText
     public String getTime(int laneIndex)
     {
         return getNameClubOrTime(laneIndex, TIME_RANGE);
+    }
+
+    public String getScore(int laneIndex)
+    {
+        return getNameClubOrTime(laneIndex, SCORE_RANGE);
+    }
+
+    public void setScore(int laneIndex, String score)
+    {
+        setText(laneIndex, SCORE_RANGE, score, false);
+    }
+
+    private void setText(int laneIndex, String charRange, String value, boolean leftPad)
+    {
+        String range = getRange(getLineNumber(laneIndex), charRange);
+        setText(range, value, leftPad);
     }
 
     private int getLaneOrPlace(int laneIndex, boolean place)

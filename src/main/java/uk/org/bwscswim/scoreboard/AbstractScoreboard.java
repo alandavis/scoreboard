@@ -22,6 +22,7 @@
  */
 package uk.org.bwscswim.scoreboard;
 
+import uk.org.bwscswim.scoreboard.event.ClubEvent;
 import uk.org.bwscswim.scoreboard.event.LineupEvent;
 import uk.org.bwscswim.scoreboard.event.PageEvent;
 import uk.org.bwscswim.scoreboard.event.RaceSplitTimeEvent;
@@ -41,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static java.awt.Color.BLACK;
+import static java.awt.Color.BLUE;
 import static java.awt.Color.WHITE;
 import static java.awt.Color.YELLOW;
 
@@ -64,6 +66,14 @@ abstract class AbstractScoreboard extends BaseScoreboard
         protected JLabel place = new JLabel("", SwingConstants.CENTER);
     }
 
+    class Club
+    {
+        protected JLabel lane = new JLabel();
+        protected JLabel name = new JLabel();
+        protected JLabel score = new JLabel("", SwingConstants.RIGHT);
+        protected JLabel place = new JLabel("", SwingConstants.CENTER);
+    }
+
     private JTabbedPane tabbedConfigPane;
     private Container racePanel;
     private RawTextPanel rawTextPanel;
@@ -72,15 +82,19 @@ abstract class AbstractScoreboard extends BaseScoreboard
     protected Container timeOfDayPanel = new JPanel();
     protected Container splashPanel = new JPanel();
     protected Container scoreboardPanel = new JPanel();
+    protected Container clubScoreboardPanel = new JPanel();
 
     private static final String TIME_OF_DAY = "timeOfDay";
     private static final String SPLASH = "splash";
     private static final String SCOREBOARD = "scoreboard";
+    private static final String CLUB_SCOREBOARD = "clubScoreboard";
     private String currentPanel = SCOREBOARD;
 
     protected JLabel title = new JLabel();
+    protected JLabel clubTitle = new JLabel();
     protected String clock = "";
     protected List<Swimmer> swimmers = new ArrayList<>();
+    protected List<Club> clubs = new ArrayList<>();
 
     protected int laneCount;
 
@@ -116,6 +130,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
             Container countyPanel = new QualificationTimePanel(config.getCountyTimesFilename(), config);
             Container regionalPanel = new QualificationTimePanel(config.getRegionalTimesFilename(), config);
             Container swimmerPanel = makeTextPanel("Swimmers");
+            Container clubRacePanel = makeTextPanel("clubRacePanel");
             Container exitPanel = new ExitPanel(this);
 
             tabbedConfigPane = new JTabbedPane();
@@ -127,6 +142,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
             tabbedConfigPane.addTab("County", countyPanel);
             tabbedConfigPane.addTab("Regional", regionalPanel);
             tabbedConfigPane.addTab("Swimmers", swimmerPanel);
+            tabbedConfigPane.addTab("ClubRace", clubRacePanel);
             tabbedConfigPane.addTab("Exit", exitPanel);
             tabbedConfigPane.setSelectedComponent(racePanel);
             contentPane.add(tabbedConfigPane);
@@ -152,12 +168,14 @@ abstract class AbstractScoreboard extends BaseScoreboard
 
         racePanel.setLayout(cardLayout);
         racePanel.add(scoreboardPanel, SCOREBOARD);
+        racePanel.add(clubScoreboardPanel, CLUB_SCOREBOARD);
         racePanel.add(timeOfDayPanel, TIME_OF_DAY);
         racePanel.add(splashPanel, SPLASH);
         currentPanel = SCOREBOARD;
 
         setSplash();
         createSwimmers();
+        createClubs();
         setColors();
         setFonts();
     }
@@ -208,6 +226,15 @@ abstract class AbstractScoreboard extends BaseScoreboard
         }
     }
 
+    private void createClubs()
+    {
+        for (int lane=1; lane<=laneCount; lane++)
+        {
+            Club club = new Club();
+            clubs.add(club);
+        }
+    }
+
     protected void setSplash()
     {
         timeOfDayMod = config.getInt("timeOfDayMod", 60);
@@ -241,6 +268,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
         timeOfDay.setFont(timeOfDayFont);
 
         title.setFont(singleTitleFont);
+        clubTitle.setFont(singleTitleFont);
 
         for (Swimmer swimmer : swimmers)
         {
@@ -248,6 +276,13 @@ abstract class AbstractScoreboard extends BaseScoreboard
             swimmer.name.setFont(nameFont);
             swimmer.clubTime.setFont(clubTimeFont);
             swimmer.place.setFont(placeFont);
+        }
+        for (Club club : clubs)
+        {
+            club.lane.setFont(laneFont);
+            club.name.setFont(nameFont);
+            club.score.setFont(clubTimeFont);
+            club.place.setFont(placeFont);
         }
     }
 
@@ -257,11 +292,12 @@ abstract class AbstractScoreboard extends BaseScoreboard
         Color splashBackground = config.getColor("splash", "background", WHITE);
         splashPanel.setBackground(splashBackground);
         scoreboardPanel.setBackground(BLACK);
+        clubScoreboardPanel.setBackground(BLACK);
 
         timeOfDay.setForeground(WHITE);
 
-
         title.setForeground(YELLOW);
+        clubTitle.setForeground(YELLOW);
 
         for (Swimmer swimmer : swimmers)
         {
@@ -271,6 +307,15 @@ abstract class AbstractScoreboard extends BaseScoreboard
             swimmer.place.setForeground(YELLOW);
 
             swimmer.name.setOpaque(false);
+        }
+        for (Club club : clubs)
+        {
+            club.lane.setForeground(WHITE);
+            club.name.setForeground(WHITE);
+            club.score.setForeground(WHITE);
+            club.place.setForeground(YELLOW);
+
+            club.name.setOpaque(false);
         }
     }
 
@@ -349,13 +394,17 @@ abstract class AbstractScoreboard extends BaseScoreboard
         {
             update((PageEvent)event, 0, ((PageEvent)event).getLaneCount());
         }
-        else if (event instanceof TestcardEvent)
+        else if (event instanceof ClubEvent)
         {
-            updated((TestcardEvent)event);
+            update((ClubEvent)event);
         }
         else if (event instanceof RawTextEvent && includeControls)
         {
             rawTextPanel.update((RawTextEvent)event);
+        }
+        else if (event instanceof TestcardEvent)
+        {
+            updated((TestcardEvent)event);
         }
     }
 
@@ -398,24 +447,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
         {
             scoreboardPanel.setBackground(event instanceof ResultEvent ? new Color(Integer.parseInt("0033cc", 16)) : BLACK);
         }
-        setText(event, eventCount, from, to);
-        switchPanel(SCOREBOARD);
-    }
 
-    private void switchPanel(String panel)
-    {
-        if (!currentPanel.equals(panel))
-        {
-            currentPanel = panel;
-            if (racePanel.isVisible())
-            {
-                cardLayout.show(racePanel, panel);
-            }
-        }
-    }
-
-    private void setText(PageEvent event, int eventCount, int from, int to)
-    {
         this.title.setText(trim(event.getCombinedTitle(), 29));
 
         boolean hasImprovments = false;
@@ -451,6 +483,28 @@ abstract class AbstractScoreboard extends BaseScoreboard
             swimmer.place.setForeground(normalFormat || !swimmer.improvement.isNewBand() ? YELLOW : GREENISH);
             setclubTime(laneIndex + 1, swimmer, event, hasImprovments);
         }
+        switchPanel(SCOREBOARD);
+    }
+
+    private void update(ClubEvent event)
+    {
+        clubScoreboardPanel.setBackground(BLACK);
+
+        this.clubTitle.setText(trim(event.getTitle(), 29));
+
+        int to = event.getLaneCount();
+        for (int laneIndex = 0; laneIndex < to; laneIndex++)
+        {
+            Club club = clubs.get(laneIndex);
+            int lane = event.getLane(laneIndex);
+            String laneText = lane <= 0 ? "" : Integer.toString(lane);
+            club.lane.setText(laneText);
+            setTrimmedText(club.name, event.getName(laneIndex));
+            int place = event.getPlace(laneIndex);
+            club.place.setText(place <= 0 ? " " : Integer.toString(place));
+            club.score.setText(event.getScore(laneIndex));
+        }
+        switchPanel(CLUB_SCOREBOARD);
     }
 
     // Sets the label's text truncating it so that it fits. Avoids the ... display.
@@ -470,6 +524,18 @@ abstract class AbstractScoreboard extends BaseScoreboard
             text = text.substring(0, --length);
         }
         label.setText(text);
+    }
+
+    private void switchPanel(String panel)
+    {
+        if (!currentPanel.equals(panel))
+        {
+            currentPanel = panel;
+            if (racePanel.isVisible())
+            {
+                cardLayout.show(racePanel, panel);
+            }
+        }
     }
 
     @Override

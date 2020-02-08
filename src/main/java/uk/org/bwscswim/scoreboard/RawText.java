@@ -22,6 +22,9 @@
  */
 package uk.org.bwscswim.scoreboard;
 
+import sun.nio.cs.StreamEncoder;
+
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,6 +66,16 @@ class RawText
         return Integer.parseInt(charRange.substring(4,6))+1;
     }
 
+    public void setText(String range, String text, boolean leftPad)
+    {
+        String charRange = getCharRange(range);
+        int lineNumber = getLineNumber(range);
+        int from = getCharRangeFrom(charRange);
+        int to = getCharRangeTo(charRange);
+        text = pad(text, to-from, leftPad);
+        setText(lineNumber, from, text);
+    }
+
     void setText(int lineNumber, int offset, String text)
     {
         String line = getText(lineNumber, "");
@@ -83,6 +96,33 @@ class RawText
         ensureLineExists(lineNumber);
         lines.set(lineNumber, text);
         trimBlankLines();
+    }
+
+    String pad(String text, int len, boolean leftPad)
+    {
+        text = text.trim();
+        int length = text.length();
+        if (length > len)
+        {
+            text = leftPad ? text.substring(length-len) : text.substring(0, len);
+        }
+        else
+        {
+            StringBuilder sb = new StringBuilder(text);
+            while (sb.length() < len)
+            {
+                if (leftPad)
+                {
+                    sb.insert(0, ' ');
+                }
+                else
+                {
+                    sb.append(' ');
+                }
+            }
+            text = sb.toString();
+        }
+        return text;
     }
 
     private void trimBlankLines()
@@ -106,7 +146,7 @@ class RawText
         }
     }
 
-    private String getText(int lineNumber, String defaultValue)
+    public String getText(int lineNumber, String defaultValue)
     {
         String line = lineNumber >= lines.size() ? null : lines.get(lineNumber);
         return line == null ? defaultValue : line;
@@ -152,7 +192,13 @@ class RawText
         return range.substring(2, 6)+range.substring(8,10);
     }
 
-    void clear()
+    public String getRange(int lineNumber, String charRange)
+    {
+        String l = (lineNumber > 9 ? "" : "0")+lineNumber;
+        return l+charRange.substring(0,4)+l+charRange.substring(4);
+    }
+
+    public void clear()
     {
         lines.clear();
     }

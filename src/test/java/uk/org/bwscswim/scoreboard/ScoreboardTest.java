@@ -25,6 +25,7 @@ package uk.org.bwscswim.scoreboard;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import uk.org.bwscswim.scoreboard.event.ClubEvent;
 import uk.org.bwscswim.scoreboard.event.EventPublisher;
 import uk.org.bwscswim.scoreboard.event.LineupEvent;
 import uk.org.bwscswim.scoreboard.event.RaceEvent;
@@ -40,6 +41,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static uk.org.bwscswim.scoreboard.State.RESULTS;
 import static uk.org.bwscswim.scoreboard.State.TIME_OF_DAY;
 
@@ -404,5 +406,58 @@ public class ScoreboardTest
     public void fastSkipLoopTest() throws Exception
     {
         race(0.2f, true, 5);
+    }
+
+    private void clubRace(float speedFactor, boolean skip, int loops) throws Exception
+    {
+        Text text = new Text(config);
+        this.sleeper = new Sleeper();
+        sleeper.setSpeedFactor(speedFactor);
+        stateTrace.setSleeper(sleeper);
+        for (int i = loops; i > 0; i--)
+        {
+//            publish(0, new TimeOfDayEvent(0));
+//            publish(1000, new TimeOfDayEvent(1));
+//            publish(1000, new TimeOfDayEvent(2));
+//            if (!skip)
+//            {
+//                publish(1000, new TimeOfDayEvent(3));
+//                publish(1000, new TimeOfDayEvent(4));
+//                publish(1000, new TimeOfDayEvent(5));
+//                publish(1000, new TimeOfDayEvent(6));
+//            }
+            ClubEvent clubEvent = new ClubEvent(text, "Thames Valley Junior League",
+                    "Bracknell & Wokingham SC", "", "",
+                    "Reading", "", "",
+                    "Maindenhead", "", "",
+                    "Aylesbury & District SC", "", "",
+                    "Henley SC", "", "",
+                    "Rushmoor Royals SC", "", "");
+            assertEquals("ClubEvent\n" +
+                    "        Thames Valley Junior League           \n" +
+                    "        1  Bracknell & Woki                   \n" +
+                    "        2  Reading                            \n" +
+                    "        3  Maindenhead                        \n" +
+                    "        4  Aylesbury & Dist                   \n" +
+                    "        5  Henley SC                          \n" +
+                    "        6  Rushmoor Royals                    ", clubEvent.toString());
+            publish(1000, clubEvent);
+
+            publish(1000, new ClubEvent(text, "48 12y boys free relay",
+                    "Bracknell & Wokingham SC", "236", "1",
+                    "Reading",                   "5", "2",
+                    "Maindenhead",               "4", "3",
+                    "Aylesbury & District SC",   "3", "4",
+                    "Henley SC",                 "2", "5",
+                    "Rushmoor Royals SC",        "1", "6"));
+
+            publish(20000, new TimeOfDayEvent(1));
+        }
+    }
+    @Ignore
+    @Test
+    public void longerClubTest() throws Exception
+    {
+        clubRace(1f, false, 1);
     }
 }
