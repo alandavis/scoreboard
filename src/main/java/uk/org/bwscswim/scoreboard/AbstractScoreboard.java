@@ -79,7 +79,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
     private RawTextPanel rawTextPanel;
 
     private CardLayout cardLayout = new CardLayout();
-    protected Container timeOfDayPanel = new JPanel();
+    protected TimeOfDayPanel timeOfDayPanel;
     protected Container splashPanel = new JPanel();
     protected Container scoreboardPanel = new JPanel();
     protected Container clubScoreboardPanel = new JPanel();
@@ -98,15 +98,11 @@ abstract class AbstractScoreboard extends BaseScoreboard
 
     protected int laneCount;
 
-    private Font timeOfDayFont;
     private Font singleTitleFont;
     private Font laneFont;
     private Font nameFont;
     private Font clubTimeFont;
     private Font placeFont;
-
-    protected JLabel logo  = new JLabel();
-    protected JLabel timeOfDay  = new JLabel();
 
     private int timeOfDayMod;
     private int splashAt;
@@ -161,6 +157,8 @@ abstract class AbstractScoreboard extends BaseScoreboard
         {
             racePanel = contentPane;
         }
+
+        timeOfDayPanel = new TimeOfDayPanel(config);
 
         int width = config.getInt("width", 1159);
         int height = config.getInt("height", 728);
@@ -243,7 +241,6 @@ abstract class AbstractScoreboard extends BaseScoreboard
         try
         {
             splashPanel.add(new JLabel(new ImageIcon(FileLoader.getBytes(":Splash.jpg", config))));
-            logo.setIcon(new ImageIcon(FileLoader.getBytes(":Logo.jpg", config)));
         }
         catch (FileNotFoundException e)
         {
@@ -253,8 +250,6 @@ abstract class AbstractScoreboard extends BaseScoreboard
 
     private void getFonts()
     {
-        timeOfDayFont = config.getFont(null, "timeOfDay");
-
         singleTitleFont = config.getFont(null, "title");
 
         laneFont = config.getFont(null, "lane");
@@ -265,8 +260,6 @@ abstract class AbstractScoreboard extends BaseScoreboard
 
     private void setFonts()
     {
-        timeOfDay.setFont(timeOfDayFont);
-
         title.setFont(singleTitleFont);
         clubTitle.setFont(singleTitleFont);
 
@@ -288,13 +281,10 @@ abstract class AbstractScoreboard extends BaseScoreboard
 
     protected void setColors()
     {
-        timeOfDayPanel.setBackground(BLACK);
         Color splashBackground = config.getColor("splash", "background", WHITE);
         splashPanel.setBackground(splashBackground);
         scoreboardPanel.setBackground(BLACK);
         clubScoreboardPanel.setBackground(BLACK);
-
-        timeOfDay.setForeground(WHITE);
 
         title.setForeground(YELLOW);
         clubTitle.setForeground(YELLOW);
@@ -383,7 +373,9 @@ abstract class AbstractScoreboard extends BaseScoreboard
         }
         else if (event instanceof TimeOfDayEvent)
         {
-            update((TimeOfDayEvent)event);
+            timeOfDayPanel.update((TimeOfDayEvent)event);
+            int count = ((TimeOfDayEvent)event).getCount() % timeOfDayMod;
+            switchPanel((count >= splashAt && count < (splashAt + splashFor)) ? SPLASH : TIME_OF_DAY);
         }
         else if (event instanceof RaceSplitTimeEvent)
         {
@@ -415,15 +407,6 @@ abstract class AbstractScoreboard extends BaseScoreboard
         {
             racePanel.setVisible(true);
         }
-    }
-
-    private void update(TimeOfDayEvent event)
-    {
-        String time = event.getTimeOfDay();
-        this.timeOfDay.setText(time);
-
-        int count = event.getCount() % timeOfDayMod;
-        switchPanel((count >= splashAt && count < (splashAt + splashFor)) ? SPLASH : TIME_OF_DAY);
     }
 
     private void updated(TestcardEvent event)

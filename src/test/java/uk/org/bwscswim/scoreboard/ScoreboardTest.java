@@ -416,16 +416,16 @@ public class ScoreboardTest
         stateTrace.setSleeper(sleeper);
         for (int i = loops; i > 0; i--)
         {
-//            publish(0, new TimeOfDayEvent(0));
-//            publish(1000, new TimeOfDayEvent(1));
-//            publish(1000, new TimeOfDayEvent(2));
-//            if (!skip)
-//            {
-//                publish(1000, new TimeOfDayEvent(3));
-//                publish(1000, new TimeOfDayEvent(4));
-//                publish(1000, new TimeOfDayEvent(5));
-//                publish(1000, new TimeOfDayEvent(6));
-//            }
+            publish(0, new TimeOfDayEvent(0));
+            publish(1000, new TimeOfDayEvent(1));
+            publish(1000, new TimeOfDayEvent(2));
+            if (!skip)
+            {
+                publish(1000, new TimeOfDayEvent(3));
+                publish(1000, new TimeOfDayEvent(4));
+                publish(1000, new TimeOfDayEvent(5));
+                publish(1000, new TimeOfDayEvent(6));
+            }
             ClubEvent clubEvent = new ClubEvent(text, "Thames Valley Junior League",
                     "Bracknell & Wokingham SC", "", "",
                     "Reading", "", "",
@@ -451,7 +451,7 @@ public class ScoreboardTest
                     "Henley SC",                 "2", "5",
                     "Rushmoor Royals SC",        "1", "6"));
 
-            publish(20000, new TimeOfDayEvent(1));
+            publish(5000, new TimeOfDayEvent(1));
         }
     }
     @Ignore

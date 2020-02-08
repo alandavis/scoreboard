@@ -40,7 +40,6 @@ public class Scoreboard extends AbstractScoreboard
 
         layoutScoreboard();
         layoutClubScoreboard();
-        layoutTimeOfDay();
 
         makeScoreboardVisible();
     }
@@ -169,32 +168,5 @@ public class Scoreboard extends AbstractScoreboard
             row.addComponent(club.place);
             col4.addComponent(club.place, PREFERRED_SIZE, placeWidth, PREFERRED_SIZE);
         }
-    }
-
-    private void layoutTimeOfDay()
-    {
-        int timeOfDayTopGap = config.getInt(null, null, "timeOfDayTopGap", 50);
-        int timeOfDayLeftGap = config.getInt(null, null, "timeOfDayLeftGap", 50);
-        int timeOfDayMiddleGap = config.getInt(null, null, "timeOfDayMiddleGap", 70);
-        int timeOfDayBottomGap = config.getInt(null, null, "timeOfDayBottomGap", 0);
-
-        GroupLayout layout = new GroupLayout(timeOfDayPanel);
-        timeOfDayPanel.setLayout(layout);
-
-        layout.setHorizontalGroup(
-                layout.createParallelGroup(CENTER)
-                        .addGroup(layout.createSequentialGroup()
-                                .addGap(timeOfDayLeftGap)
-                                .addComponent(logo)
-                                .addGap(timeOfDayMiddleGap)
-                                .addComponent(timeOfDay)));
-
-        layout.setVerticalGroup(
-                layout.createSequentialGroup()
-                        .addGap(timeOfDayTopGap)
-                        .addGroup(layout.createParallelGroup(CENTER)
-                            .addComponent(logo)
-                            .addComponent(timeOfDay))
-                        .addGap(timeOfDayBottomGap));
     }
 }
