@@ -42,7 +42,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import static java.awt.Color.BLACK;
-import static java.awt.Color.BLUE;
 import static java.awt.Color.WHITE;
 import static java.awt.Color.YELLOW;
 
@@ -71,16 +70,16 @@ abstract class AbstractScoreboard extends BaseScoreboard
     private RawTextPanel rawTextPanel;
 
     private CardLayout cardLayout = new CardLayout();
-    protected TimeOfDayPanel timeOfDayPanel;
-    protected Container splashPanel = new JPanel();
-    protected Container scoreboardPanel = new JPanel();
-    protected ClubScoreboardPanel clubScoreboardPanel;
+    private TimeOfDayPanel timeOfDayPanel;
+    private SplashPanel splashPanel;
+    private Container mainScoreboardPanel;
+    private ClubScoreboardPanel clubScoreboardPanel;
 
     private static final String TIME_OF_DAY = "timeOfDay";
     private static final String SPLASH = "splash";
-    private static final String SCOREBOARD = "scoreboard";
+    private static final String MAIN_SCOREBOARD = "mainScoreboard";
     private static final String CLUB_SCOREBOARD = "clubScoreboard";
-    private String currentPanel = SCOREBOARD;
+    private String currentPanel = MAIN_SCOREBOARD;
 
     protected JLabel title = new JLabel();
     protected String clock = "";
@@ -93,10 +92,6 @@ abstract class AbstractScoreboard extends BaseScoreboard
     private Font nameFont;
     private Font clubTimeFont;
     private Font placeFont;
-
-    private int timeOfDayMod;
-    private int splashAt;
-    private int splashFor;
 
     AbstractScoreboard(Config config, DataReader dataReader, boolean useSecondScreen, boolean includeControls)
     {
@@ -149,6 +144,8 @@ abstract class AbstractScoreboard extends BaseScoreboard
         }
 
         timeOfDayPanel = new TimeOfDayPanel(config);
+        splashPanel = new SplashPanel(config);
+        mainScoreboardPanel = new JPanel();
         clubScoreboardPanel = new ClubScoreboardPanel(config);
 
         int width = config.getInt("width", 1159);
@@ -156,13 +153,12 @@ abstract class AbstractScoreboard extends BaseScoreboard
         racePanel.setMinimumSize(new Dimension(width, height)); // height is 710 otherwise and we later end up with truncation.
 
         racePanel.setLayout(cardLayout);
-        racePanel.add(scoreboardPanel, SCOREBOARD);
+        racePanel.add(mainScoreboardPanel, MAIN_SCOREBOARD);
         racePanel.add(clubScoreboardPanel, CLUB_SCOREBOARD);
         racePanel.add(timeOfDayPanel, TIME_OF_DAY);
         racePanel.add(splashPanel, SPLASH);
-        currentPanel = SCOREBOARD;
+        currentPanel = MAIN_SCOREBOARD;
 
-        setSplash();
         createSwimmers();
         setColors();
         setFonts();
@@ -214,21 +210,6 @@ abstract class AbstractScoreboard extends BaseScoreboard
         }
     }
 
-    protected void setSplash()
-    {
-        timeOfDayMod = config.getInt("timeOfDayMod", 60);
-        splashAt = config.getInt("splashAt", 45);
-        splashFor = config.getInt("splashFor", 15);
-        try
-        {
-            splashPanel.add(new JLabel(new ImageIcon(FileLoader.getBytes(":Splash.jpg", config))));
-        }
-        catch (FileNotFoundException e)
-        {
-            System.err.println("Filed to read image "+e.getMessage());
-        }
-    }
-
     private void getFonts()
     {
         singleTitleFont = config.getFont(null, "title");
@@ -254,9 +235,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
 
     protected void setColors()
     {
-        Color splashBackground = config.getColor("splash", "background", WHITE);
-        splashPanel.setBackground(splashBackground);
-        scoreboardPanel.setBackground(BLACK);
+        mainScoreboardPanel.setBackground(BLACK);
 
         title.setForeground(YELLOW);
 
@@ -336,8 +315,9 @@ abstract class AbstractScoreboard extends BaseScoreboard
         else if (event instanceof TimeOfDayEvent)
         {
             timeOfDayPanel.update((TimeOfDayEvent)event);
-            int count = ((TimeOfDayEvent)event).getCount() % timeOfDayMod;
-            switchPanel((count >= splashAt && count < (splashAt + splashFor)) ? SPLASH : TIME_OF_DAY);
+
+            int count = ((TimeOfDayEvent)event).getCount();
+            switchPanel(splashPanel.showSplash(count) ? SPLASH : TIME_OF_DAY);
         }
         else if (event instanceof RaceSplitTimeEvent)
         {
@@ -391,7 +371,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
         int eventCount = event.getCount();
         if (eventCount == 0)
         {
-            scoreboardPanel.setBackground(event instanceof ResultEvent ? new Color(Integer.parseInt("0033cc", 16)) : BLACK);
+            mainScoreboardPanel.setBackground(event instanceof ResultEvent ? new Color(Integer.parseInt("0033cc", 16)) : BLACK);
         }
 
         this.title.setText(trim(event.getCombinedTitle(), 29));
@@ -429,7 +409,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
             swimmer.place.setForeground(normalFormat || !swimmer.improvement.isNewBand() ? YELLOW : GREENISH);
             setclubTime(laneIndex + 1, swimmer, event, hasImprovments);
         }
-        switchPanel(SCOREBOARD);
+        switchPanel(MAIN_SCOREBOARD);
     }
 
     // Sets the label's text truncating it so that it fits. Avoids the ... display.

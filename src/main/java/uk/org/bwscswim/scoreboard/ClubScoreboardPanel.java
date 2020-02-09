@@ -18,7 +18,7 @@ import static javax.swing.GroupLayout.PREFERRED_SIZE;
  */
 public class ClubScoreboardPanel extends JPanel
 {
-    static class Club
+    private static class Club
     {
         protected JLabel lane = new JLabel();
         protected JLabel name = new JLabel();
@@ -26,8 +26,8 @@ public class ClubScoreboardPanel extends JPanel
         protected JLabel place = new JLabel("", SwingConstants.CENTER);
     }
 
-    protected JLabel title = new JLabel();
-    protected List<Club> clubs = new ArrayList<>();
+    private JLabel title = new JLabel();
+    private List<Club> clubs = new ArrayList<>();
 
     public ClubScoreboardPanel(Config config)
     {

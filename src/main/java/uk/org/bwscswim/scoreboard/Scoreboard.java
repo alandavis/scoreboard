@@ -24,7 +24,6 @@ package uk.org.bwscswim.scoreboard;
 
 import javax.swing.*;
 
-import static javax.swing.GroupLayout.Alignment.CENTER;
 import static javax.swing.GroupLayout.PREFERRED_SIZE;
 
 /*
@@ -55,8 +54,8 @@ public class Scoreboard extends AbstractScoreboard
         int preLaneGap = config.getInt(null, null, "preLaneGap", 10);
         int bottomGap = config.getInt(null, null, "bottomGap", 0);
 
-        GroupLayout layout = new GroupLayout(scoreboardPanel);
-        scoreboardPanel.setLayout(layout);
+        GroupLayout layout = new GroupLayout(mainScoreboardPanel);
+        mainScoreboardPanel.setLayout(layout);
 
         GroupLayout.ParallelGroup col1 = layout.createParallelGroup();
         GroupLayout.ParallelGroup col2 = layout.createParallelGroup();
