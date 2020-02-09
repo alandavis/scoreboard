@@ -415,9 +415,9 @@ public class ScoreboardTest
         stateTrace.setSleeper(sleeper);
         for (int i = loops; i > 0; i--)
         {
-//            publish(0, new TimeOfDayEvent(0));
-//            publish(1000, new TimeOfDayEvent(1));
-//            publish(1000, new TimeOfDayEvent(2));
+            publish(0, new TimeOfDayEvent(0));
+            publish(1000, new TimeOfDayEvent(1));
+            publish(1000, new TimeOfDayEvent(2));
             ClubEvent clubEvent = new ClubEvent("48 12y boys free relay",
                     "Bracknell", "", "",
                     "Reading", "", "",
@@ -435,13 +435,27 @@ public class ScoreboardTest
                     "    Rushmoor  0", clubEvent.toString());
             publish(1000, clubEvent);
 
-            publish(1000, new ClubEvent("48 12y boys free relay",
-                    "Bracknell",                "236", "1",
+            publish(1000, new ClubEvent("46 12y boys free relay",
+                    "Bracknell",                  "6", "1",
                     "Reading",                   "5", "2",
                     "Maindenhead",               "4", "3",
                     "Aylesbury",                 "3", "4",
                     "Henley",                    "2", "5",
                     "Rushmoor",                  "1", "6"));
+            publish(1000, new ClubEvent("47 12y boys free relay",
+                    "Bracknell",                "12", "1",
+                    "Reading",                  "10", "2",
+                    "Maindenhead",               "8", "3",
+                    "Aylesbury",                 "6", "4",
+                    "Henley",                    "4", "5",
+                    "Rushmoor",                  "2", "6"));
+            publish(1000, new ClubEvent("48 12y boys free relay",
+                    "Bracknell",                "102", "1",
+                    "Reading",                 "100", "2",
+                    "Maindenhead",              "98", "3",
+                    "Aylesbury",                "76", "4",
+                    "Henley",                   "64", "5",
+                    "Rushmoor",                 "52", "6"));
 
             publish(15000, new TimeOfDayEvent(1));
         }
