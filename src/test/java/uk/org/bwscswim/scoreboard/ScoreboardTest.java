@@ -410,48 +410,40 @@ public class ScoreboardTest
 
     private void clubRace(float speedFactor, boolean skip, int loops) throws Exception
     {
-        Text text = new Text(config);
         this.sleeper = new Sleeper();
         sleeper.setSpeedFactor(speedFactor);
         stateTrace.setSleeper(sleeper);
         for (int i = loops; i > 0; i--)
         {
-            publish(0, new TimeOfDayEvent(0));
-            publish(1000, new TimeOfDayEvent(1));
-            publish(1000, new TimeOfDayEvent(2));
-            if (!skip)
-            {
-                publish(1000, new TimeOfDayEvent(3));
-                publish(1000, new TimeOfDayEvent(4));
-                publish(1000, new TimeOfDayEvent(5));
-                publish(1000, new TimeOfDayEvent(6));
-            }
-            ClubEvent clubEvent = new ClubEvent(text, "Thames Valley Junior League",
-                    "Bracknell & Wokingham SC", "", "",
+//            publish(0, new TimeOfDayEvent(0));
+//            publish(1000, new TimeOfDayEvent(1));
+//            publish(1000, new TimeOfDayEvent(2));
+            ClubEvent clubEvent = new ClubEvent("48 12y boys free relay",
+                    "Bracknell", "", "",
                     "Reading", "", "",
                     "Maindenhead", "", "",
-                    "Aylesbury & District SC", "", "",
-                    "Henley SC", "", "",
-                    "Rushmoor Royals SC", "", "");
+                    "Aylesbury", "", "",
+                    "Henley", "", "",
+                    "Rushmoor", "", "");
             assertEquals("ClubEvent\n" +
-                    "        Thames Valley Junior League           \n" +
-                    "        1  Bracknell & Woki                   \n" +
-                    "        2  Reading                            \n" +
-                    "        3  Maindenhead                        \n" +
-                    "        4  Aylesbury & Dist                   \n" +
-                    "        5  Henley SC                          \n" +
-                    "        6  Rushmoor Royals                    ", clubEvent.toString());
+                    "  48 12y boys free relay\n" +
+                    "    Bracknell  0\n" +
+                    "    Reading  0\n" +
+                    "    Maindenhead  0\n" +
+                    "    Aylesbury  0\n" +
+                    "    Henley  0\n" +
+                    "    Rushmoor  0", clubEvent.toString());
             publish(1000, clubEvent);
 
-            publish(1000, new ClubEvent(text, "48 12y boys free relay",
-                    "Bracknell & Wokingham SC", "236", "1",
+            publish(1000, new ClubEvent("48 12y boys free relay",
+                    "Bracknell",                "236", "1",
                     "Reading",                   "5", "2",
                     "Maindenhead",               "4", "3",
-                    "Aylesbury & District SC",   "3", "4",
-                    "Henley SC",                 "2", "5",
-                    "Rushmoor Royals SC",        "1", "6"));
+                    "Aylesbury",                 "3", "4",
+                    "Henley",                    "2", "5",
+                    "Rushmoor",                  "1", "6"));
 
-            publish(5000, new TimeOfDayEvent(1));
+            publish(15000, new TimeOfDayEvent(1));
         }
     }
     @Ignore

@@ -33,8 +33,8 @@ public class ClubScoreboardPanel extends JPanel
     {
         int leftGap = config.getInt(null, null, "clubLeftGap", 30);
         int laneWidth = config.getInt(null, null, "clubLaneWidth", 60);
-        int nameWidth = config.getInt(null, null, "clubNameWidth", 669);
-        int clubTimeWidth = config.getInt(null, null, "clubScoreWidth", 287);
+        int nameWidth = config.getInt(null, null, "clubNameWidth", 800);
+        int scoreWidth = config.getInt(null, null, "clubScoreWidth", 156);
         int placeWidth = config.getInt(null, null, "clubPlaceWidth", 113);
         int rightGap = config.getInt(null, null, "clubRightGap", 0);
 
@@ -115,7 +115,7 @@ public class ClubScoreboardPanel extends JPanel
             col2.addComponent(club.name, PREFERRED_SIZE, nameWidth, PREFERRED_SIZE);
 
             row.addComponent(club.score);
-            col3.addComponent(club.score, PREFERRED_SIZE, clubTimeWidth, PREFERRED_SIZE);
+            col3.addComponent(club.score, PREFERRED_SIZE, scoreWidth, PREFERRED_SIZE);
 
             row.addComponent(club.place);
             col4.addComponent(club.place, PREFERRED_SIZE, placeWidth, PREFERRED_SIZE);
@@ -126,17 +126,17 @@ public class ClubScoreboardPanel extends JPanel
     {
         this.title.setText(Scoreboard.trim(event.getTitle(), 29));
 
-        int to = event.getLaneCount();
-        for (int laneIndex = 0; laneIndex < to; laneIndex++)
+        int laneCount = clubs.size();
+        for (int laneIndex = 0; laneIndex < laneCount; laneIndex++)
         {
             Club club = clubs.get(laneIndex);
-            int lane = event.getLane(laneIndex);
+            int lane = laneIndex+1;
             String laneText = lane <= 0 ? "" : Integer.toString(lane);
             club.lane.setText(laneText);
             Scoreboard.setTrimmedText(club.name, event.getName(laneIndex));
+            Scoreboard.setTrimmedText(club.score, event.getScore(laneIndex));
             int place = event.getPlace(laneIndex);
             club.place.setText(place <= 0 ? " " : Integer.toString(place));
-            club.score.setText(event.getScore(laneIndex));
         }
     }
 }

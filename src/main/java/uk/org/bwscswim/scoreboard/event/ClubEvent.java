@@ -10,9 +10,24 @@ import java.util.List;
  */
 public class ClubEvent implements ScoreboardEvent
 {
-    private Text text;
+    private static class Lane
+    {
+        final String name;
+        final String score;
+        final int place;
 
-    public ClubEvent(Text text, String title,
+        Lane(String name, String score, String place)
+        {
+            this.name = name;
+            this.score = score;
+            this.place = place.isEmpty() ? 0 : Integer.parseInt(place);
+        }
+    }
+
+    private final String title;
+    private final List<Lane> lanes = new ArrayList<>();
+
+    public ClubEvent(String title,
                      String name1, String score1, String place1,
                      String name2, String score2, String place2,
                      String name3, String score3, String place3,
@@ -20,94 +35,40 @@ public class ClubEvent implements ScoreboardEvent
                      String name5, String score5, String place5,
                      String name6, String score6, String place6)
     {
-        this.text = text;
-        text.clear();
-        setTitle(title);
-        setLaneNameScorePlace(0, name1, score1, place1);
-        setLaneNameScorePlace(1, name2, score2, place2);
-        setLaneNameScorePlace(2, name3, score3, place3);
-        setLaneNameScorePlace(3, name4, score4, place4);
-        setLaneNameScorePlace(4, name5, score5, place5);
-        setLaneNameScorePlace(5, name6, score6, place6);
-        this.text = new Text(text);
-    }
-
-    public List<RawTextEvent> getRawTextEvents()
-    {
-        List<RawTextEvent> events = new ArrayList<>();
-
-        events.add(new RawTextEvent());
-        events.add(new RawTextEvent(0, 0, text.getText(0, "")));
-
-        int lineNumber = text.getLineNumber(0);
-        for (int laneIndex = 0; laneIndex < 6; laneIndex++, lineNumber++)
-        {
-            events.add(new RawTextEvent(lineNumber, 0, text.getText(lineNumber, "")));
-        }
-
-        return events;
+        this.title = title;
+        lanes.add(new Lane(name1, score1, place1));
+        lanes.add(new Lane(name2, score2, place2));
+        lanes.add(new Lane(name3, score3, place3));
+        lanes.add(new Lane(name4, score4, place4));
+        lanes.add(new Lane(name5, score5, place5));
+        lanes.add(new Lane(name6, score6, place6));
     }
 
     public String getTitle()
     {
-        return text.getTitle();
-    }
-
-    private void setTitle(String title)
-    {
-        text.setTitle(title);
-    }
-
-    public int getLaneCount()
-    {
-        return text.getLaneCount();
-    }
-
-    int getLaneIndex(int lineNumber)
-    {
-        return text.getLaneIndex(lineNumber);
-    }
-
-    public int getLane(int laneIndex)
-    {
-        return text.getLane(laneIndex);
+        return title;
     }
 
     public String getName(int laneIndex)
     {
-        return text.getName(laneIndex);
+        return lanes.get(laneIndex).name;
     }
 
     public String getScore(int laneIndex)
     {
-        return text.getScore(laneIndex);
+        return lanes.get(laneIndex).score;
     }
 
     public int getPlace(int laneIndex)
     {
-        return text.getPlace(laneIndex);
-    }
-
-    private void setLaneNameScorePlace(int laneIndex, String name, String score, String place)
-    {
-        text.setLane(laneIndex);
-        text.setName(laneIndex, name);
-        text.setScore(laneIndex, score);
-        text.setPlace(laneIndex, place);
-    }
-
-    protected String toStringLine1Suffix()
-    {
-        return "";
+        return lanes.get(laneIndex).place;
     }
 
     @Override
     public String toString()
     {
-        StringBuilder sb = new StringBuilder(getClass().getSimpleName()).
-                append(toStringLine1Suffix()).
-                append("\n").
-                append(text);
+        StringBuilder sb = new StringBuilder(getClass().getSimpleName()).append("\n  ").append(title);
+        lanes.forEach(lane->sb.append("\n    ").append(lane.name).append(' ').append(lane.score).append(' ').append(lane.place));
         return sb.toString();
     }
 }
