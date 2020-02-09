@@ -22,85 +22,206 @@
  */
 package uk.org.bwscswim.scoreboard;
 
+import uk.org.bwscswim.scoreboard.event.ClubEvent;
+import uk.org.bwscswim.scoreboard.event.RawTextEvent;
+import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
+import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
+
 import javax.swing.*;
+import java.awt.*;
 
-import static javax.swing.GroupLayout.PREFERRED_SIZE;
-
-/*
- * The scoreboard. Class provides the layout of components from super classes.
+/**
+ * Contains Panels used to display the scoreboard and controls their display.
  *
  * @author adavis
  */
-public class Scoreboard extends AbstractScoreboard
+public class Scoreboard extends BaseScoreboard
 {
-    public Scoreboard(Config config, DataReader dataReader, boolean useSecondScreen, boolean includeControls)
+    private JTabbedPane tabbedConfigPane;
+    private Container racePanel;
+    private RawTextPanel rawTextPanel;
+
+    private CardLayout cardLayout = new CardLayout();
+    private TimeOfDayPanel timeOfDayPanel;
+    private SplashPanel splashPanel;
+    private MainScoreboardPanel mainScoreboardPanel;
+    private ClubScoreboardPanel clubScoreboardPanel;
+
+    private static final String TIME_OF_DAY = "timeOfDay";
+    private static final String SPLASH = "splash";
+    private static final String MAIN_SCOREBOARD = "mainScoreboard";
+    private static final String CLUB_SCOREBOARD = "clubScoreboard";
+    private String currentPanel = MAIN_SCOREBOARD;
+
+    Scoreboard(Config config, DataReader dataReader, boolean useSecondScreen, boolean includeControls)
     {
         super(config, dataReader, useSecondScreen, includeControls);
 
-        layoutScoreboard();
+        Container contentPane = getContentPane();
+        if (includeControls)
+        {
+            racePanel = new JPanel();
+            Container configPanel = makeTextPanel("Screen Configuration");
+            rawTextPanel = new RawTextPanel(config);
+            Container tracePanel = new TracePanel(config);
+            Container countyPanel = new QualificationTimePanel(config.getCountyTimesFilename(), config);
+            Container regionalPanel = new QualificationTimePanel(config.getRegionalTimesFilename(), config);
+            Container swimmerPanel = makeTextPanel("Swimmers");
+            Container clubRacePanel = makeTextPanel("clubRacePanel");
+            Container exitPanel = new ExitPanel(this);
+
+            tabbedConfigPane = new JTabbedPane();
+            tabbedConfigPane.setTabPlacement(JTabbedPane.BOTTOM);
+            tabbedConfigPane.addTab("Race", racePanel);
+            tabbedConfigPane.addTab("Raw", rawTextPanel);
+            tabbedConfigPane.addTab("Trace", tracePanel);
+            tabbedConfigPane.addTab("Config", configPanel);
+            tabbedConfigPane.addTab("County", countyPanel);
+            tabbedConfigPane.addTab("Regional", regionalPanel);
+            tabbedConfigPane.addTab("Swimmers", swimmerPanel);
+            tabbedConfigPane.addTab("ClubRace", clubRacePanel);
+            tabbedConfigPane.addTab("Exit", exitPanel);
+            tabbedConfigPane.setSelectedComponent(racePanel);
+            contentPane.add(tabbedConfigPane);
+
+            tabbedConfigPane.addChangeListener(e ->
+            {
+                JTabbedPane tabbedConfigPane = (JTabbedPane)e.getSource();
+                Component selectedComponent = tabbedConfigPane.getSelectedComponent();
+                if (selectedComponent == racePanel)
+                {
+                    cardLayout.show(racePanel, currentPanel);
+                }
+            });
+        }
+        else
+        {
+            racePanel = contentPane;
+        }
+
+        timeOfDayPanel = new TimeOfDayPanel(config);
+        splashPanel = new SplashPanel(config);
+        mainScoreboardPanel = new MainScoreboardPanel(config);
+        clubScoreboardPanel = new ClubScoreboardPanel(config);
+
+        int width = config.getInt("width", 1159);
+        int height = config.getInt("height", 728);
+        racePanel.setMinimumSize(new Dimension(width, height)); // height is 710 otherwise and we later end up with truncation.
+
+        racePanel.setLayout(cardLayout);
+        racePanel.add(mainScoreboardPanel, MAIN_SCOREBOARD);
+        racePanel.add(clubScoreboardPanel, CLUB_SCOREBOARD);
+        racePanel.add(timeOfDayPanel, TIME_OF_DAY);
+        racePanel.add(splashPanel, SPLASH);
+        currentPanel = MAIN_SCOREBOARD;
+
         makeScoreboardVisible();
     }
 
-    private void layoutScoreboard()
+    @Override
+    protected void toggleFullScreen(boolean alreadyFullScreen, GraphicsDevice graphicsDevice)
     {
-        int leftGap = config.getInt(null, null, "leftGap", 30);
-        int laneWidth = config.getInt(null, null, "laneWidth", 60);
-        int nameWidth = config.getInt(null, null, "nameWidth", 669);
-        int clubTimeWidth = config.getInt(null, null, "clubTimeWidth", 287);
-        int placeWidth = config.getInt(null, null, "placeWidth", 113);
-        int rightGap = config.getInt(null, null, "rightGap", 0);
-
-        int topGap = config.getInt(null, null, "topGap", 10);
-        int preLaneGap = config.getInt(null, null, "preLaneGap", 10);
-        int bottomGap = config.getInt(null, null, "bottomGap", 0);
-
-        GroupLayout layout = new GroupLayout(mainScoreboardPanel);
-        mainScoreboardPanel.setLayout(layout);
-
-        GroupLayout.ParallelGroup col1 = layout.createParallelGroup();
-        GroupLayout.ParallelGroup col2 = layout.createParallelGroup();
-        GroupLayout.ParallelGroup col3 = layout.createParallelGroup();
-        GroupLayout.ParallelGroup col4 = layout.createParallelGroup();
-
-        layout.setHorizontalGroup(
-                layout.createParallelGroup()
-                        .addGroup(layout.createSequentialGroup()
-                                .addGap(leftGap)
-                                .addComponent(title))
-                        .addGroup(layout.createSequentialGroup()
-                                .addGap(leftGap)
-                                .addGroup(col1)
-                                .addGroup(col2)
-                                .addGroup(col3)
-                                .addGroup(col4)
-                                .addGap(rightGap)));
-
-        GroupLayout.SequentialGroup rows = layout.createSequentialGroup();
-
-        layout.setVerticalGroup(
-                layout.createSequentialGroup()
-                        .addGap(topGap)
-                        .addComponent(title)
-                        .addGap(preLaneGap)
-                        .addGroup(rows)
-                        .addGap(bottomGap));
-
-        for (Swimmer swimmer : swimmers)
+        if (alreadyFullScreen)
         {
-            GroupLayout.ParallelGroup row = layout.createParallelGroup();
-            rows.addGroup(row);
-
-            row.addComponent(swimmer.lane);
-            col1.addComponent(swimmer.lane, PREFERRED_SIZE, laneWidth, PREFERRED_SIZE);
-
-            row.addComponent(swimmer.name);
-            col2.addComponent(swimmer.name, PREFERRED_SIZE, nameWidth, PREFERRED_SIZE);
-
-            row.addComponent(swimmer.clubTime);
-            col3.addComponent(swimmer.clubTime, PREFERRED_SIZE, clubTimeWidth, PREFERRED_SIZE);
-
-            row.addComponent(swimmer.place);
-            col4.addComponent(swimmer.place, PREFERRED_SIZE, placeWidth, PREFERRED_SIZE);
+            Container contentPane = getContentPane();
+            contentPane.remove(racePanel);
+            contentPane.add(tabbedConfigPane);
+            tabbedConfigPane.insertTab("Race", null, racePanel, null, 0);
+            tabbedConfigPane.setSelectedComponent(racePanel);
         }
+        else
+        {
+            Container contentPane = getContentPane();
+            contentPane.remove(tabbedConfigPane);
+            contentPane.add(racePanel);
+            tabbedConfigPane.remove(racePanel);
+        }
+        super.toggleFullScreen(alreadyFullScreen, graphicsDevice);
+    }
+
+    protected JComponent makeTextPanel(String text)
+    {
+        JPanel panel = new JPanel(false);
+        JLabel filler = new JLabel(text);
+        filler.setHorizontalAlignment(JLabel.CENTER);
+        panel.setLayout(new GridLayout(1, 1));
+        panel.add(filler);
+        return panel;
+    }
+
+    public static String trim(String value, int length)
+    {
+        value = value.trim();
+        if (value.length() >= length)
+        {
+            value = value.substring(0, length);
+        }
+        return value;
+    }
+
+    @Override
+    public void update(ScoreboardEvent event)
+    {
+        if (event instanceof TimeOfDayEvent)
+        {
+            timeOfDayPanel.update((TimeOfDayEvent)event);
+
+            int count = ((TimeOfDayEvent)event).getCount();
+            switchPanel(splashPanel.showSplash(count) ? SPLASH : TIME_OF_DAY);
+        }
+        else if (includeControls)
+        {
+            if (event instanceof ClubEvent)
+            {
+                clubScoreboardPanel.update((ClubEvent)event);
+                switchPanel(CLUB_SCOREBOARD);
+            }
+            else if (event instanceof RawTextEvent)
+            {
+                rawTextPanel.update((RawTextEvent)event);
+            }
+        }
+        else
+        {
+            mainScoreboardPanel.update(event);
+            switchPanel(MAIN_SCOREBOARD);
+        }
+    }
+
+    // Sets the label's text truncating it so that it fits. Avoids the ... display.
+    public static void setTrimmedText(JLabel label, String text)
+    {
+        int width = label.getWidth();
+        Font font = label.getFont();
+        FontMetrics fontMetrics = Toolkit.getDefaultToolkit().getFontMetrics(font);
+        int length = text.length();
+        while (true)
+        {
+            int textWidth = fontMetrics.stringWidth(text);
+            if (textWidth < width || length == 0)
+            {
+                break;
+            }
+            text = text.substring(0, --length);
+        }
+        label.setText(text);
+    }
+
+    private void switchPanel(String panel)
+    {
+        if (!currentPanel.equals(panel))
+        {
+            currentPanel = panel;
+            if (racePanel.isVisible())
+            {
+                cardLayout.show(racePanel, panel);
+            }
+        }
+    }
+
+    @Override
+    public String toString()
+    {
+        return mainScoreboardPanel.toString();
     }
 }

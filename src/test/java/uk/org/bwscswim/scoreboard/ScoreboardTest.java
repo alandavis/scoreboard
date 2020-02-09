@@ -53,7 +53,7 @@ public class ScoreboardTest
     private Config config = new Config("config.properties");
     private Text text = new Text(config);
     private EventPublisher eventPublisher = new EventPublisher();
-    private AbstractScoreboard scoreboard;
+    private Scoreboard scoreboard;
     private StateTrace stateTrace = new StateTrace();
     private Sleeper sleeper;
     private ModelHelper helper;

@@ -124,7 +124,7 @@ public class ClubScoreboardPanel extends JPanel
 
     public void update(ClubEvent event)
     {
-        this.title.setText(AbstractScoreboard.trim(event.getTitle(), 29));
+        this.title.setText(Scoreboard.trim(event.getTitle(), 29));
 
         int to = event.getLaneCount();
         for (int laneIndex = 0; laneIndex < to; laneIndex++)
@@ -133,7 +133,7 @@ public class ClubScoreboardPanel extends JPanel
             int lane = event.getLane(laneIndex);
             String laneText = lane <= 0 ? "" : Integer.toString(lane);
             club.lane.setText(laneText);
-            AbstractScoreboard.setTrimmedText(club.name, event.getName(laneIndex));
+            Scoreboard.setTrimmedText(club.name, event.getName(laneIndex));
             int place = event.getPlace(laneIndex);
             club.place.setText(place <= 0 ? " " : Integer.toString(place));
             club.score.setText(event.getScore(laneIndex));

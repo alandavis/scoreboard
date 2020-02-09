@@ -9,7 +9,7 @@ import static java.awt.Color.WHITE;
 /**
  * @author adavis
  */
-public class SplashPanel extends Container
+public class SplashPanel extends JPanel
 {
     private int timeOfDayMod;
     private int splashAt;
