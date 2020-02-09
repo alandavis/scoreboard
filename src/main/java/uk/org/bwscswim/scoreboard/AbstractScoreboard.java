@@ -66,14 +66,6 @@ abstract class AbstractScoreboard extends BaseScoreboard
         protected JLabel place = new JLabel("", SwingConstants.CENTER);
     }
 
-    class Club
-    {
-        protected JLabel lane = new JLabel();
-        protected JLabel name = new JLabel();
-        protected JLabel score = new JLabel("", SwingConstants.RIGHT);
-        protected JLabel place = new JLabel("", SwingConstants.CENTER);
-    }
-
     private JTabbedPane tabbedConfigPane;
     private Container racePanel;
     private RawTextPanel rawTextPanel;
@@ -82,7 +74,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
     protected TimeOfDayPanel timeOfDayPanel;
     protected Container splashPanel = new JPanel();
     protected Container scoreboardPanel = new JPanel();
-    protected Container clubScoreboardPanel = new JPanel();
+    protected ClubScoreboardPanel clubScoreboardPanel;
 
     private static final String TIME_OF_DAY = "timeOfDay";
     private static final String SPLASH = "splash";
@@ -91,10 +83,8 @@ abstract class AbstractScoreboard extends BaseScoreboard
     private String currentPanel = SCOREBOARD;
 
     protected JLabel title = new JLabel();
-    protected JLabel clubTitle = new JLabel();
     protected String clock = "";
     protected List<Swimmer> swimmers = new ArrayList<>();
-    protected List<Club> clubs = new ArrayList<>();
 
     protected int laneCount;
 
@@ -159,6 +149,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
         }
 
         timeOfDayPanel = new TimeOfDayPanel(config);
+        clubScoreboardPanel = new ClubScoreboardPanel(config);
 
         int width = config.getInt("width", 1159);
         int height = config.getInt("height", 728);
@@ -173,7 +164,6 @@ abstract class AbstractScoreboard extends BaseScoreboard
 
         setSplash();
         createSwimmers();
-        createClubs();
         setColors();
         setFonts();
     }
@@ -224,15 +214,6 @@ abstract class AbstractScoreboard extends BaseScoreboard
         }
     }
 
-    private void createClubs()
-    {
-        for (int lane=1; lane<=laneCount; lane++)
-        {
-            Club club = new Club();
-            clubs.add(club);
-        }
-    }
-
     protected void setSplash()
     {
         timeOfDayMod = config.getInt("timeOfDayMod", 60);
@@ -261,7 +242,6 @@ abstract class AbstractScoreboard extends BaseScoreboard
     private void setFonts()
     {
         title.setFont(singleTitleFont);
-        clubTitle.setFont(singleTitleFont);
 
         for (Swimmer swimmer : swimmers)
         {
@@ -270,13 +250,6 @@ abstract class AbstractScoreboard extends BaseScoreboard
             swimmer.clubTime.setFont(clubTimeFont);
             swimmer.place.setFont(placeFont);
         }
-        for (Club club : clubs)
-        {
-            club.lane.setFont(laneFont);
-            club.name.setFont(nameFont);
-            club.score.setFont(clubTimeFont);
-            club.place.setFont(placeFont);
-        }
     }
 
     protected void setColors()
@@ -284,10 +257,8 @@ abstract class AbstractScoreboard extends BaseScoreboard
         Color splashBackground = config.getColor("splash", "background", WHITE);
         splashPanel.setBackground(splashBackground);
         scoreboardPanel.setBackground(BLACK);
-        clubScoreboardPanel.setBackground(BLACK);
 
         title.setForeground(YELLOW);
-        clubTitle.setForeground(YELLOW);
 
         for (Swimmer swimmer : swimmers)
         {
@@ -297,15 +268,6 @@ abstract class AbstractScoreboard extends BaseScoreboard
             swimmer.place.setForeground(YELLOW);
 
             swimmer.name.setOpaque(false);
-        }
-        for (Club club : clubs)
-        {
-            club.lane.setForeground(WHITE);
-            club.name.setForeground(WHITE);
-            club.score.setForeground(WHITE);
-            club.place.setForeground(YELLOW);
-
-            club.name.setOpaque(false);
         }
     }
 
@@ -354,7 +316,7 @@ abstract class AbstractScoreboard extends BaseScoreboard
         return 0;
     }
 
-    private String trim(String value, int length)
+    static String trim(String value, int length)
     {
         value = value.trim();
         if (value.length() >= length)
@@ -388,7 +350,8 @@ abstract class AbstractScoreboard extends BaseScoreboard
         }
         else if (event instanceof ClubEvent)
         {
-            update((ClubEvent)event);
+            clubScoreboardPanel.update((ClubEvent)event);
+            switchPanel(CLUB_SCOREBOARD);
         }
         else if (event instanceof RawTextEvent && includeControls)
         {
@@ -469,29 +432,8 @@ abstract class AbstractScoreboard extends BaseScoreboard
         switchPanel(SCOREBOARD);
     }
 
-    private void update(ClubEvent event)
-    {
-        clubScoreboardPanel.setBackground(BLACK);
-
-        this.clubTitle.setText(trim(event.getTitle(), 29));
-
-        int to = event.getLaneCount();
-        for (int laneIndex = 0; laneIndex < to; laneIndex++)
-        {
-            Club club = clubs.get(laneIndex);
-            int lane = event.getLane(laneIndex);
-            String laneText = lane <= 0 ? "" : Integer.toString(lane);
-            club.lane.setText(laneText);
-            setTrimmedText(club.name, event.getName(laneIndex));
-            int place = event.getPlace(laneIndex);
-            club.place.setText(place <= 0 ? " " : Integer.toString(place));
-            club.score.setText(event.getScore(laneIndex));
-        }
-        switchPanel(CLUB_SCOREBOARD);
-    }
-
     // Sets the label's text truncating it so that it fits. Avoids the ... display.
-    private void setTrimmedText(JLabel label, String text)
+    static void setTrimmedText(JLabel label, String text)
     {
         int width = label.getWidth();
         Font font = label.getFont();
