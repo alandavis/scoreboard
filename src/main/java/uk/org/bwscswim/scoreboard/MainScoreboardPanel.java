@@ -207,10 +207,6 @@ public class MainScoreboardPanel extends JPanel
     private void update(RaceTimerEvent event)
     {
         setClock(event.getClock());
-        if (racePanel.isVisible())
-        {
-            racePanel.setVisible(true);
-        }
     }
 
     private void updated(TestcardEvent event)

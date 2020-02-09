@@ -169,17 +169,14 @@ public class Scoreboard extends BaseScoreboard
             int count = ((TimeOfDayEvent)event).getCount();
             switchPanel(splashPanel.showSplash(count) ? SPLASH : TIME_OF_DAY);
         }
-        else if (includeControls)
+        else if (event instanceof ClubEvent && includeControls)
         {
-            if (event instanceof ClubEvent)
-            {
-                clubScoreboardPanel.update((ClubEvent)event);
-                switchPanel(CLUB_SCOREBOARD);
-            }
-            else if (event instanceof RawTextEvent)
-            {
-                rawTextPanel.update((RawTextEvent)event);
-            }
+            clubScoreboardPanel.update((ClubEvent)event);
+            switchPanel(CLUB_SCOREBOARD);
+        }
+        else if (event instanceof RawTextEvent && includeControls)
+        {
+            rawTextPanel.update((RawTextEvent)event);
         }
         else
         {
