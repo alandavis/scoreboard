@@ -22,6 +22,7 @@
  */
 package uk.org.bwscswim.scoreboard;
 
+import uk.org.bwscswim.scoreboard.event.EventPublisher;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
 import uk.org.bwscswim.scoreboard.meet.service.ModelHelper;
 
@@ -43,21 +44,27 @@ public class Application
         {
             helper = new ModelHelper(config);
             List<Event> events = helper.getEvents();
+            List<String> clubEvents = helper.getClubEvents();
             DataReader dataReader = new DataReader(config);
             dataReader.setEvents(events);
 
             java.awt.EventQueue.invokeAndWait(() ->
             {
                 boolean multipleScreens = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length > 1;
-                Scoreboard controlScoreboard = new Scoreboard(config, dataReader, false, true);
+                Scoreboard controlScoreboard = new Scoreboard(config, dataReader, clubEvents, false, true);
                 if (multipleScreens)
                 {
-                    new Scoreboard(config, dataReader, true, false);
+                    Scoreboard secondScoreboard = new Scoreboard(config, dataReader, null, true, false);
+                    EventPublisher clubEventPublisher = controlScoreboard.getClubEventPublisher();
+                    clubEventPublisher.addObserver(secondScoreboard);
                 }
                 controlScoreboard.requestFocus();
             });
 
-            dataReader.readDataInBackground();
+            if (!config.getBoolean("clubEvent", false))
+            {
+                dataReader.readDataInBackground();
+            }
         }
         catch (Exception e)
         {

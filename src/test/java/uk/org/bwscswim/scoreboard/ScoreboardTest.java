@@ -65,11 +65,11 @@ public class ScoreboardTest
     {
         helper = new ModelHelper(":ClubsTest.txt", ":CountyTimesTest.txt",
                 ":RegionalTimesTest.txt", ":AcceptedTest.txt",
-                ":PBTest.txt", null, -1);
+                ":PBTest.txt", ":ClubEvents.txt", null, -1);
         events = helper.getEvents();
         java.awt.EventQueue.invokeAndWait(() ->
         {
-            scoreboard = new Scoreboard(config, null, false, false);
+            scoreboard = new Scoreboard(config, null, null, false, false);
             eventPublisher.addObserver(scoreboard);
             eventPublisher.setStateTrace(stateTrace);
         });

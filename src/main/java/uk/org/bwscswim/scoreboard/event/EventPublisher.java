@@ -51,7 +51,7 @@ public class EventPublisher extends SwingWorker<Void, ScoreboardEvent>
 
     public void publishEvent(ScoreboardEvent event)
     {
-        if (!(event instanceof RawTextEvent) && !(event instanceof RaceTimerEvent))
+        if (stateTrace != null && !(event instanceof RawTextEvent) && !(event instanceof RaceTimerEvent))
         {
             stateTrace.trace(event.toString());
         }

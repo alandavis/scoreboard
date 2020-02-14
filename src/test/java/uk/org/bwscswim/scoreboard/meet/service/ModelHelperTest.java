@@ -45,7 +45,7 @@ public class ModelHelperTest
     {
         ModelHelper helper = new ModelHelper(":ClubsTest.txt", ":CountyTimesTest.txt",
                 ":RegionalTimesTest.txt", ":AcceptedTest.txt",
-                ":PBTest.txt", null,
+                ":PBTest.txt", ":ClubEventsTest.txt", null,
                 2019);
 
         List<Event> events = helper.getEvents();

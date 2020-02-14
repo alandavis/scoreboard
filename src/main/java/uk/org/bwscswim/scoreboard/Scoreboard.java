@@ -23,12 +23,14 @@
 package uk.org.bwscswim.scoreboard;
 
 import uk.org.bwscswim.scoreboard.event.ClubEvent;
+import uk.org.bwscswim.scoreboard.event.EventPublisher;
 import uk.org.bwscswim.scoreboard.event.RawTextEvent;
 import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
 import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 /**
  * Contains Panels used to display the scoreboard and controls their display.
@@ -52,8 +54,9 @@ public class Scoreboard extends BaseScoreboard
     private static final String MAIN_SCOREBOARD = "mainScoreboard";
     private static final String CLUB_SCOREBOARD = "clubScoreboard";
     private String currentPanel = MAIN_SCOREBOARD;
+    private EventPublisher clubEventPublisher;
 
-    Scoreboard(Config config, DataReader dataReader, boolean useSecondScreen, boolean includeControls)
+    Scoreboard(Config config, DataReader dataReader, List<String> clubEvents, boolean useSecondScreen, boolean includeControls)
     {
         super(config, dataReader, useSecondScreen, includeControls);
 
@@ -67,7 +70,8 @@ public class Scoreboard extends BaseScoreboard
             Container countyPanel = new QualificationTimePanel(config.getCountyTimesFilename(), config);
             Container regionalPanel = new QualificationTimePanel(config.getRegionalTimesFilename(), config);
             Container swimmerPanel = makeTextPanel("Swimmers");
-            Container clubRacePanel = makeTextPanel("clubRacePanel");
+            ClubRacePanel clubRacePanel = new ClubRacePanel(config, clubEvents, this);
+            clubEventPublisher = clubRacePanel.getEventPublisher();
             Container exitPanel = new ExitPanel(this);
 
             tabbedConfigPane = new JTabbedPane();
@@ -116,6 +120,11 @@ public class Scoreboard extends BaseScoreboard
         currentPanel = MAIN_SCOREBOARD;
 
         makeScoreboardVisible();
+    }
+
+    public EventPublisher getClubEventPublisher()
+    {
+        return clubEventPublisher;
     }
 
     @Override

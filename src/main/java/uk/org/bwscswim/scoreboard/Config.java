@@ -97,10 +97,20 @@ public class Config
 
     Font getFont(State state, String componentName)
     {
+        return getFont(state, componentName, "Arial", Font.BOLD,85);
+    }
+
+    Font getMonoFont(State state, String componentName)
+    {
+        return getFont(state, componentName, Font.MONOSPACED, Font.PLAIN,40);
+    }
+
+    Font getFont(State state, String componentName, String name, int style, int size)
+    {
         return new Font(
-                getFontName(state, null, componentName+'.'+FONT_NAME, "Arial"),
-                getFontStyle(state, null, componentName+'.'+FONT_STYLE, Font.BOLD),
-                getInt(state, null, componentName+'.'+FONT_SIZE, 85));
+                getFontName(state, null, componentName+'.'+FONT_NAME, name),
+                getFontStyle(state, null, componentName+'.'+FONT_STYLE, style),
+                getInt(state, null, componentName+'.'+FONT_SIZE, size));
     }
 
     private String getFontName(State state, String componentName, String attributeName,
@@ -442,5 +452,10 @@ public class Config
     public String getPbFilename()
     {
         return getString("pbFilename", "PB.txt");
+    }
+
+    public String getClubEventFilename()
+    {
+        return getString("clubEventFilename", ":ClubEvents.txt");
     }
 }

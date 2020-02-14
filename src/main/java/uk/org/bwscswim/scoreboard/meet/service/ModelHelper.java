@@ -56,6 +56,7 @@ public class ModelHelper
     private final Map<Integer, Event> events = new HashMap<>();
     private final Map<String, Swimmer> swimmers = new HashMap<>();
     private final int year;
+    private final List<String> clubEvents = new ArrayList<>();
 
     private int lineNumber;
     private String prevStdEventName;
@@ -68,11 +69,13 @@ public class ModelHelper
              config.getRegionalTimesFilename(),
              config.getAcceptedSwimFilename(),
              config.getPbFilename(),
+             config.getClubEventFilename(),
              config, -1);
     }
 
     public ModelHelper(String clubsFilename, String countyTimesFilename, String regionalTimesFilename,
-                       String acceptedSwimFilename, String pbFilename, Config config, int testYear) throws IOException
+                       String acceptedSwimFilename, String pbFilename, String clubEventFilename,
+                       Config config, int testYear) throws IOException
     {
         year = testYear >= 2019 ? testYear : LocalDate.now().getYear();
 
@@ -82,6 +85,8 @@ public class ModelHelper
         loadCountyTimes(countyTimesFilename, acceptedSwimFilename, config);
         loadRegionalTimes(regionalTimesFilename, acceptedSwimFilename, config);
         loadPBTimes(pbFilename, config);
+
+        loadClubEvents(clubEventFilename, config);
     }
 
     public List<Event> getEvents()
@@ -370,7 +375,24 @@ public class ModelHelper
         }
     }
 
-    private void loadPBTimes(String pbFilename, Config config)
+    private void loadPBTimes(String filename, Config config)
+    {
+    }
+
+    private void loadClubEvents(String filename, Config config) throws IOException
+    {
+        try (BufferedReader reader = FileLoader.getBufferedReader(filename, config))
+        {
+            reader.lines().forEach(line -> clubEvents.add(line));
+        }
+    }
+
+    public List<String> getClubEvents()
+    {
+        return clubEvents;
+    }
+
+    private void loadClubEvent(String line, String filename)
     {
     }
 

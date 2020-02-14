@@ -22,9 +22,6 @@
  */
 package uk.org.bwscswim.scoreboard;
 
-import sun.nio.cs.StreamEncoder;
-
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 

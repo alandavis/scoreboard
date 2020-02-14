@@ -31,7 +31,7 @@ public class ClubScoreboardPanel extends JPanel
 
     public ClubScoreboardPanel(Config config)
     {
-        int leftGap = config.getInt(null, null, "clubLeftGap", 30);
+        int leftGap = config.getInt(null, null, "clubLeftGap", 60);
         int laneWidth = config.getInt(null, null, "clubLaneWidth", 60);
         int nameWidth = config.getInt(null, null, "clubNameWidth", 800);
         int scoreWidth = config.getInt(null, null, "clubScoreWidth", 156);
@@ -130,10 +130,10 @@ public class ClubScoreboardPanel extends JPanel
         for (int laneIndex = 0; laneIndex < laneCount; laneIndex++)
         {
             Club club = clubs.get(laneIndex);
-            int lane = laneIndex+1;
-            String laneText = lane <= 0 ? "" : Integer.toString(lane);
+            String name = event.getName(laneIndex);
+            String laneText = name.isEmpty() ? "" : Integer.toString(laneIndex+1);
             club.lane.setText(laneText);
-            Scoreboard.setTrimmedText(club.name, event.getName(laneIndex));
+            Scoreboard.setTrimmedText(club.name, name);
             Scoreboard.setTrimmedText(club.score, event.getScore(laneIndex));
             int place = event.getPlace(laneIndex);
             club.place.setText(place <= 0 ? " " : Integer.toString(place));

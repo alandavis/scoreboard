@@ -20,7 +20,7 @@ public class ClubEvent implements ScoreboardEvent
         {
             this.name = name;
             this.score = score;
-            this.place = place.isEmpty() ? 0 : Integer.parseInt(place);
+            this.place = score.isEmpty() || place.isEmpty() ? 0 : Integer.parseInt(place);
         }
     }
 
