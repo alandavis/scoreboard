@@ -5,6 +5,7 @@ import uk.org.bwscswim.scoreboard.event.EventPublisher;
 import uk.org.bwscswim.scoreboard.event.Observer;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicArrowButton;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,6 +29,8 @@ public class ClubRacePanel extends Container
     }
 
     private JTextField title = new JTextField();
+    private BasicArrowButton up = new BasicArrowButton(SwingConstants.NORTH);
+    private BasicArrowButton down = new BasicArrowButton(SwingConstants.SOUTH);
     private List<Club> clubs = new ArrayList<>();
     JButton publishButton;
     private int eventIndex = 0;
@@ -68,6 +71,8 @@ public class ClubRacePanel extends Container
 
         title.setFont(titleFont);
         title.setText(clubEvents.get(eventIndex));
+        up.addActionListener(e -> setTitle(-1));
+        down.addActionListener(e -> setTitle(+1));
 
         publishButton = new JButton("Publish");
         publishButton.setFont(publishFont);
@@ -100,7 +105,7 @@ public class ClubRacePanel extends Container
                     clubs.get(3).name.getText(), clubs.get(3).score.getText(), clubs.get(3).place.getText(),
                     clubs.get(4).name.getText(), clubs.get(4).score.getText(), clubs.get(4).place.getText(),
                     clubs.get(5).name.getText(), clubs.get(5).score.getText(), clubs.get(5).place.getText()));
-            setTitle(++eventIndex);
+            setTitle(+1);
         });
 
         String[] names = new String[] {
@@ -199,7 +204,9 @@ public class ClubRacePanel extends Container
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
                         .addGroup(layout.createSequentialGroup()
-                                .addComponent(title, PREFERRED_SIZE, titleWidth, PREFERRED_SIZE))
+                                .addComponent(title, PREFERRED_SIZE, titleWidth, PREFERRED_SIZE)
+                                .addComponent(down, PREFERRED_SIZE, height, PREFERRED_SIZE)
+                                .addComponent(up, PREFERRED_SIZE, height, PREFERRED_SIZE))
                         .addGroup(layout.createSequentialGroup()
                                 .addGroup(col2)
                                 .addGroup(col3)
@@ -211,7 +218,10 @@ public class ClubRacePanel extends Container
 
         layout.setVerticalGroup(
                 layout.createSequentialGroup()
-                        .addComponent(title, PREFERRED_SIZE, height, PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup().
+                                addComponent(title, PREFERRED_SIZE, height, PREFERRED_SIZE).
+                                addComponent(down, PREFERRED_SIZE, height, PREFERRED_SIZE).
+                                addComponent(up, PREFERRED_SIZE, height, PREFERRED_SIZE))
                         .addGap(preLaneGap)
                         .addGroup(rows));
 
@@ -298,16 +308,18 @@ public class ClubRacePanel extends Container
         return count;
     }
 
-    private void setTitle(int eventIndex)
+    private void setTitle(int inc)
     {
+        eventIndex += inc;
+        if (eventIndex < 0)
+        {
+            eventIndex = clubEvents.size()-1;
+        }
         if (eventIndex >= clubEvents.size())
         {
-            title.setText("Final Results");
+            eventIndex = 0;
         }
-        else
-        {
-            title.setText(clubEvents.get(eventIndex));
-        }
+        title.setText(clubEvents.get(eventIndex));
     }
 
     public EventPublisher getEventPublisher()
