@@ -61,7 +61,7 @@ public class Application
                 controlScoreboard.requestFocus();
             });
 
-            if (!config.getBoolean("clubEvent", false))
+            if (!config.getBoolean("TVJL", false))
             {
                 dataReader.readDataInBackground();
             }

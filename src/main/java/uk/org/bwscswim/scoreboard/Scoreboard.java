@@ -83,7 +83,7 @@ public class Scoreboard extends BaseScoreboard
             tabbedConfigPane.addTab("County", countyPanel);
             tabbedConfigPane.addTab("Regional", regionalPanel);
             tabbedConfigPane.addTab("Swimmers", swimmerPanel);
-            tabbedConfigPane.addTab("ClubRace", clubRacePanel);
+            tabbedConfigPane.addTab("TVJL", clubRacePanel);
             tabbedConfigPane.addTab("Exit", exitPanel);
             tabbedConfigPane.setSelectedComponent(racePanel);
             contentPane.add(tabbedConfigPane);

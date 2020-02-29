@@ -456,6 +456,6 @@ public class Config
 
     public String getClubEventFilename()
     {
-        return getString("clubEventFilename", ":ClubEvents.txt");
+        return getString("clubEventFilename", ":TVJL.txt");
     }
 }
