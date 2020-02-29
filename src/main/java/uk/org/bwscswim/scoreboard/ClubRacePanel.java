@@ -44,9 +44,8 @@ public class ClubRacePanel extends Container
     public ClubRacePanel(Config config, List<String> clubEvents, Observer observer)
     {
         eventPublisher.addObserver(observer);
-        this.clubEvents = clubEvents;
-
         int laneCount = config.getInt("laneCount", 6);
+        this.clubEvents = clubEvents.subList(laneCount, clubEvents.size());
 
         Font titleFont = config.getMonoFont(null, "clubRaceTitle");
         Font laneFont = config.getMonoFont(null, "clubRaceLane");
@@ -111,20 +110,14 @@ public class ClubRacePanel extends Container
             setTitle(+1);
         });
 
-        String[] names = new String[] {
-                "Amersham 'B'",
-                "Bracknell",
-                "Windsor",
-                "Maidenhead",
-                "Reading",
-                ""
-        };
+        List<String> names = clubEvents.subList(0, laneCount);
+
         for (int lane=1; lane<=laneCount; lane++)
         {
             Club club = new Club();
             clubs.add(club);
 
-            String name = names[lane - 1];
+            String name = names.get(lane-1);
             club.name.setText(name);
             boolean noClub = name.isEmpty();
             club.lane.setText(noClub ? "" : Integer.toString(lane));

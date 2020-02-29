@@ -65,7 +65,7 @@ public class ScoreboardTest
     {
         helper = new ModelHelper(":ClubsTest.txt", ":CountyTimesTest.txt",
                 ":RegionalTimesTest.txt", ":AcceptedTest.txt",
-                ":PBTest.txt", ":TVJL.txt", null, -1);
+                ":PBTest.txt", ":TVJLTest.txt", null, -1);
         events = helper.getEvents();
         java.awt.EventQueue.invokeAndWait(() ->
         {
