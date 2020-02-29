@@ -61,7 +61,7 @@ public class ClubRacePanel extends Container
         int titleWidth = config.getInt(null, null, "clubRaceTitleWidth", 700);
         int laneWidth = config.getInt(null, null, "clubRaceLaneWidth", 48);
         int nameWidth = config.getInt(null, null, "clubRaceNameWidth", 540);
-        int scoreWidth = config.getInt(null, null, "clubRaceScoreWidth", 96);
+        int scoreWidth = config.getInt(null, null, "clubRaceScoreWidth", 140);
         int placeWidth = config.getInt(null, null, "clubRacePlaceWidth", 48);
         int placeButtonWidth = config.getInt(null, null, "clubRacePlaceButtonWidth", 48);
         int publishWidth = config.getInt(null, null, "clubRacePublishWidth", 300);

@@ -33,8 +33,8 @@ public class ClubScoreboardPanel extends JPanel
     {
         int leftGap = config.getInt(null, null, "clubLeftGap", 60);
         int laneWidth = config.getInt(null, null, "clubLaneWidth", 60);
-        int nameWidth = config.getInt(null, null, "clubNameWidth", 800);
-        int scoreWidth = config.getInt(null, null, "clubScoreWidth", 156);
+        int nameWidth = config.getInt(null, null, "clubNameWidth", 720);
+        int scoreWidth = config.getInt(null, null, "clubScoreWidth", 236);
         int placeWidth = config.getInt(null, null, "clubPlaceWidth", 113);
         int rightGap = config.getInt(null, null, "clubRightGap", 0);
 
