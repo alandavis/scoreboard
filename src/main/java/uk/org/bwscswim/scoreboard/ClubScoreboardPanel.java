@@ -22,7 +22,7 @@ public class ClubScoreboardPanel extends JPanel
     {
         protected JLabel lane = new JLabel();
         protected JLabel name = new JLabel();
-        protected JLabel score = new JLabel("", SwingConstants.RIGHT);
+        protected JLabel score = new JLabel("", SwingConstants.LEFT);
         protected JLabel place = new JLabel("", SwingConstants.CENTER);
     }
 

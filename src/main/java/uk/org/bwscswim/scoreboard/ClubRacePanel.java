@@ -23,9 +23,10 @@ public class ClubRacePanel extends Container
     {
         protected JLabel lane = new JLabel();
         protected JTextField name = new JTextField();
-        protected JTextField score = new JTextField("", SwingConstants.CENTER);
+        protected JTextField score = new JTextField("", SwingConstants.LEFT);
         protected JLabel place = new JLabel("", SwingConstants.CENTER);
         JButton placeButton = new JButton();
+        float eventPoints;
     }
 
     private JTextField title = new JTextField();
@@ -38,6 +39,7 @@ public class ClubRacePanel extends Container
     private EventPublisher eventPublisher = new EventPublisher();
     private JButton placeButtonJustSet;
     private int placesSet;
+    private int numberOfClubs;
 
     public ClubRacePanel(Config config, List<String> clubEvents, Observer observer)
     {
@@ -83,14 +85,15 @@ public class ClubRacePanel extends Container
             clubs.forEach(club->
             {
                 club.placeButton.setText("");
+                club.eventPoints = 0;
                 int place = 0;
                 if (!club.name.getText().isEmpty())
                 {
-                    int score = getInt(club.score);
+                    float score = getFloat(club.score);
                     place = 1;
                     for (Club c : clubs)
                     {
-                        if (!c.name.getText().isEmpty() && score < getInt(c.score))
+                        if (!c.name.getText().isEmpty() && score < getFloat(c.score))
                         {
                             place++;
                         }
@@ -123,7 +126,10 @@ public class ClubRacePanel extends Container
 
             String name = names[lane - 1];
             club.name.setText(name);
-            club.lane.setText(name.isEmpty() ? "" : Integer.toString(lane));
+            boolean noClub = name.isEmpty();
+            club.lane.setText(noClub ? "" : Integer.toString(lane));
+            numberOfClubs += noClub ? 0 : 1;
+            // TODO add listener on the name to reset various fields including the numberOfClubs
 
             club.lane.setFont(laneFont);
             club.name.setFont(nameFont);
@@ -137,6 +143,7 @@ public class ClubRacePanel extends Container
                 {
                     int prevPosition = getInt(club.placeButton);
                     int position = prevPosition;
+                    // Club's position was blank
                     if (prevPosition == 0)
                     {
                         if (!club.name.getText().isEmpty())
@@ -147,6 +154,7 @@ public class ClubRacePanel extends Container
                     }
                     else
                     {
+                        // If a draw with previous club
                         if (placeButtonJustSet == club.placeButton)
                         {
                             position = 0;
@@ -161,33 +169,68 @@ public class ClubRacePanel extends Container
                         }
                         else
                         {
+                            // Clear positions
                             position = 0;
                             for (Club c:clubs)
                             {
                                 if (c != club)
                                 {
-                                    int prevP = getInt(c.placeButton);
-                                    setPlaceAndAdjustScore(c, 0, prevP);
+                                    setPlaceAndAdjustScore(c, 0);
                                 }
                             }
                         }
                         placeButtonJustSet = null;
                     }
-                    setPlaceAndAdjustScore(club, position, prevPosition);
+                    setPlaceAndAdjustScore(club, position);
                 }
-                private void setPlaceAndAdjustScore(Club club, int position, int prevPosition)
+
+                private void setPlaceAndAdjustScore(Club club, int position)
                 {
+                    int prevPosition = getInt(club.placeButton);
                     if (prevPosition != position)
                     {
                         setText(club.placeButton, position);
-
-                        int pointsIncrement = getPoints(position) - (getPoints(prevPosition));
-                        int prevScore = getInt(club.score);
-                        int score = prevScore + pointsIncrement;
-                        setText(club.score, score);
                         placesSet += position != 0 && prevPosition == 0 ? 1 : position == 0 ? -1 : 0;
-//                        System.out.println("----- " + club.name.getText() + " " + prevPosition + " " + position + " points=" + pointsIncrement + " score=" + prevScore + "->" + score + " placesSet=" + placesSet);
+
+                        for (Club c:clubs)
+                        {
+                            int p = getInt(c.placeButton);
+                            if (c == club || (p != 0 && (p == prevPosition || p == position)))
+                            {
+                                float points = getPoints(p);
+                                float prevScore = getFloat(c.score);
+                                float score = prevScore + points - c.eventPoints;
+                                setText(c.score, score);
+                                c.eventPoints = points;
+                            }
+                        }
                     }
+                }
+
+                private float getPoints(int position)
+                {
+                    if (position == 0)
+                    {
+                        return 0;
+                    }
+
+                    float sharedPoints = 0;
+                    int equalTeams = 0;
+                    for (Club c : clubs)
+                    {
+                        int p = getInt(c.placeButton);
+                        if (position == p)
+                        {
+                            sharedPoints += getSimplePoints(position + equalTeams);
+                            equalTeams++;
+                        }
+                    }
+                    return sharedPoints/equalTeams;
+                }
+
+                private float getSimplePoints(int position)
+                {
+                    return position == 0 ? 0 : numberOfClubs + 1 - position;
                 }
             });
         }
@@ -263,7 +306,31 @@ public class ClubRacePanel extends Container
         }
     }
 
+    private float getFloat(JTextField component)
+    {
+        try
+        {
+            return Float.parseFloat(component.getText());
+        }
+        catch (NumberFormatException e)
+        {
+            return 0;
+        }
+    }
+
     private int getInt(AbstractButton component)
+    {
+        try
+        {
+            return Integer.parseInt(component.getText());
+        }
+        catch (NumberFormatException e)
+        {
+            return 0;
+        }
+    }
+
+    private int getInt(JLabel component)
     {
         try
         {
@@ -280,6 +347,16 @@ public class ClubRacePanel extends Container
         component.setText(i <= 0 ? "" : Integer.toString(i));
     }
 
+    private void setText(JTextField component, float f)
+    {
+        String text = f <= 0.0 ? "" : Float.toString(f);
+        if (text.endsWith(".0"))
+        {
+            text = text.substring(0, text.length()-2);
+        }
+        component.setText(text);
+    }
+
     private void setText(JLabel component, int i)
     {
         component.setText(i <= 0 ? "" : Integer.toString(i));
@@ -288,11 +365,6 @@ public class ClubRacePanel extends Container
     private void setText(AbstractButton component, int i)
     {
         component.setText(i <= 0 ? "" : Integer.toString(i));
-    }
-
-    private int getPoints(int position)
-    {
-        return position == 0 ? 0 : 6+1-position;
     }
 
     private int clubCount()
