@@ -21,12 +21,12 @@ public class ClubRacePanel extends Container
 {
     private static class Club
     {
-        protected JLabel lane = new JLabel();
-        protected JTextField name = new JTextField();
-        protected JTextField score = new JTextField("", SwingConstants.LEFT);
-        protected JLabel place = new JLabel("", SwingConstants.CENTER);
-        JButton placeButton = new JButton();
-        float eventPoints;
+        private JLabel lane = new JLabel();
+        private JTextField name = new JTextField();
+        private JTextField score = new JTextField("", SwingConstants.LEFT);
+        private JLabel place = new JLabel("", SwingConstants.CENTER);
+        private JButton placeButton = new JButton();
+        private JLabel eventPoints = new JLabel("", SwingConstants.LEFT);
     }
 
     private JTextField title = new JTextField();
@@ -51,6 +51,7 @@ public class ClubRacePanel extends Container
         Font laneFont = config.getMonoFont(null, "clubRaceLane");
         Font nameFont = config.getMonoFont(null, "clubRaceName");
         Font clubTimeFont = config.getMonoFont(null, "clubRaceClubTime");
+        Font eventPointsFont = config.getMonoFont(null, "clubRaceEventPoints");
         Font placeFont = config.getMonoFont(null, "clubRacePlace");
         Font placeButtonFont = config.getMonoFont(null, "clubRacePlaceButton");
         Font publishFont = config.getFont(null, "clubRacePublishButton", Font.MONOSPACED, Font.PLAIN, 32);
@@ -58,9 +59,10 @@ public class ClubRacePanel extends Container
         int height = config.getInt(null, null, "clubRaceHeight", 48);
         int leftGap = config.getInt(null, null, "clubRaceLeftGap", 30);
         int titleWidth = config.getInt(null, null, "clubRaceTitleWidth", 700);
-        int laneWidth = config.getInt(null, null, "clubRaceLaneWidth", 48);
+        int laneWidth = config.getInt(null, null, "clubRaceLaneWidth", 36);
         int nameWidth = config.getInt(null, null, "clubRaceNameWidth", 540);
         int scoreWidth = config.getInt(null, null, "clubRaceScoreWidth", 140);
+        int eventPointsWidth = config.getInt(null, null, "clubRaceEventPointsWidth", 80);
         int placeWidth = config.getInt(null, null, "clubRacePlaceWidth", 48);
         int placeButtonWidth = config.getInt(null, null, "clubRacePlaceButtonWidth", 48);
         int publishWidth = config.getInt(null, null, "clubRacePublishWidth", 300);
@@ -84,7 +86,7 @@ public class ClubRacePanel extends Container
             clubs.forEach(club->
             {
                 club.placeButton.setText("");
-                club.eventPoints = 0;
+                club.eventPoints.setText("");
                 int place = 0;
                 if (!club.name.getText().isEmpty())
                 {
@@ -128,6 +130,7 @@ public class ClubRacePanel extends Container
             club.name.setFont(nameFont);
             club.score.setFont(clubTimeFont);
             club.place.setFont(placeFont);
+            club.eventPoints.setFont(eventPointsFont);
             club.placeButton.setFont(placeButtonFont);
             club.placeButton.addActionListener(new ActionListener()
             {
@@ -192,9 +195,9 @@ public class ClubRacePanel extends Container
                             {
                                 float points = getPoints(p);
                                 float prevScore = getFloat(c.score);
-                                float score = prevScore + points - c.eventPoints;
+                                float score = prevScore + points - getFloat(c.eventPoints);
                                 setText(c.score, score);
-                                c.eventPoints = points;
+                                setText(c.eventPoints, points);
                             }
                         }
                     }
@@ -231,6 +234,7 @@ public class ClubRacePanel extends Container
         GroupLayout layout = new GroupLayout(this);
         setLayout(layout);
 
+        GroupLayout.ParallelGroup col1 = layout.createParallelGroup();
         GroupLayout.ParallelGroup col2 = layout.createParallelGroup();
         GroupLayout.ParallelGroup col3 = layout.createParallelGroup();
         GroupLayout.ParallelGroup col4 = layout.createParallelGroup();
@@ -244,6 +248,7 @@ public class ClubRacePanel extends Container
                                 .addComponent(down, PREFERRED_SIZE, height, PREFERRED_SIZE)
                                 .addComponent(up, PREFERRED_SIZE, height, PREFERRED_SIZE))
                         .addGroup(layout.createSequentialGroup()
+                                .addGroup(col1)
                                 .addGroup(col2)
                                 .addGroup(col3)
                                 .addGroup(col4)
@@ -267,14 +272,17 @@ public class ClubRacePanel extends Container
             GroupLayout.ParallelGroup row = layout.createParallelGroup();
             rows.addGroup(row);
 
+            row.addComponent(club.lane, PREFERRED_SIZE, height, PREFERRED_SIZE);
+            col1.addComponent(club.lane, PREFERRED_SIZE, laneWidth, PREFERRED_SIZE);
+
             row.addComponent(club.name, PREFERRED_SIZE, height, PREFERRED_SIZE);
             col2.addComponent(club.name, PREFERRED_SIZE, nameWidth, PREFERRED_SIZE);
 
             row.addComponent(club.score, PREFERRED_SIZE, height, PREFERRED_SIZE);
             col3.addComponent(club.score, PREFERRED_SIZE, scoreWidth, PREFERRED_SIZE);
 
-            row.addComponent(club.lane, PREFERRED_SIZE, height, PREFERRED_SIZE);
-            col4.addComponent(club.lane, PREFERRED_SIZE, laneWidth, PREFERRED_SIZE);
+            row.addComponent(club.eventPoints, PREFERRED_SIZE, height, PREFERRED_SIZE);
+            col4.addComponent(club.eventPoints, PREFERRED_SIZE, eventPointsWidth, PREFERRED_SIZE);
 
             row.addComponent(club.placeButton, PREFERRED_SIZE, height, PREFERRED_SIZE);
             col5.addComponent(club.placeButton, PREFERRED_SIZE, placeButtonWidth, PREFERRED_SIZE);
@@ -302,6 +310,18 @@ public class ClubRacePanel extends Container
     }
 
     private float getFloat(JTextField component)
+    {
+        try
+        {
+            return Float.parseFloat(component.getText());
+        }
+        catch (NumberFormatException e)
+        {
+            return 0;
+        }
+    }
+
+    private float getFloat(JLabel component)
     {
         try
         {
@@ -355,6 +375,16 @@ public class ClubRacePanel extends Container
     private void setText(JLabel component, int i)
     {
         component.setText(i <= 0 ? "" : Integer.toString(i));
+    }
+
+    private void setText(JLabel component, float f)
+    {
+        String text = Float.toString(f);
+        if (text.endsWith(".0"))
+        {
+            text = text.substring(0, text.length()-2);
+        }
+        component.setText(f <= 0 ? "" : text);
     }
 
     private void setText(AbstractButton component, int i)
