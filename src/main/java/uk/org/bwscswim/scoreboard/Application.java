@@ -44,14 +44,14 @@ public class Application
         {
             helper = new ModelHelper(config);
             List<Event> events = helper.getEvents();
-            List<String> clubEvents = helper.getClubEvents();
+            List<String> clubNamesAndEvents = helper.getClubNamesAndEvents();
             DataReader dataReader = new DataReader(config);
             dataReader.setEvents(events);
 
             java.awt.EventQueue.invokeAndWait(() ->
             {
                 boolean multipleScreens = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length > 1;
-                Scoreboard controlScoreboard = new Scoreboard(config, dataReader, clubEvents, false, true);
+                Scoreboard controlScoreboard = new Scoreboard(config, dataReader, clubNamesAndEvents, false, true);
                 if (multipleScreens)
                 {
                     Scoreboard secondScoreboard = new Scoreboard(config, dataReader, null, true, false);

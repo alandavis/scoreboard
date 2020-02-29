@@ -56,7 +56,7 @@ public class ModelHelper
     private final Map<Integer, Event> events = new HashMap<>();
     private final Map<String, Swimmer> swimmers = new HashMap<>();
     private final int year;
-    private final List<String> clubEvents = new ArrayList<>();
+    private final List<String> clubNamesAndEvents = new ArrayList<>();
 
     private int lineNumber;
     private String prevStdEventName;
@@ -86,7 +86,7 @@ public class ModelHelper
         loadRegionalTimes(regionalTimesFilename, acceptedSwimFilename, config);
         loadPBTimes(pbFilename, config);
 
-        loadClubEvents(clubEventFilename, config);
+        loadClubNamesAndEvents(clubEventFilename, config);
     }
 
     public List<Event> getEvents()
@@ -379,17 +379,17 @@ public class ModelHelper
     {
     }
 
-    private void loadClubEvents(String filename, Config config) throws IOException
+    private void loadClubNamesAndEvents(String filename, Config config) throws IOException
     {
         try (BufferedReader reader = FileLoader.getBufferedReader(filename, config))
         {
-            reader.lines().forEach(line -> clubEvents.add(line));
+            reader.lines().forEach(line -> clubNamesAndEvents.add(line));
         }
     }
 
-    public List<String> getClubEvents()
+    public List<String> getClubNamesAndEvents()
     {
-        return clubEvents;
+        return clubNamesAndEvents;
     }
 
     private void loadClubEvent(String line, String filename)

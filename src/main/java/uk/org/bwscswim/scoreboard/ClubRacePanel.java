@@ -41,11 +41,11 @@ public class ClubRacePanel extends Container
     private int placesSet;
     private int numberOfClubs;
 
-    public ClubRacePanel(Config config, List<String> clubEvents, Observer observer)
+    public ClubRacePanel(Config config, List<String> clubNamesAndEvents, Observer observer)
     {
         eventPublisher.addObserver(observer);
         int laneCount = config.getInt("laneCount", 6);
-        this.clubEvents = clubEvents.subList(laneCount, clubEvents.size());
+        this.clubEvents = clubNamesAndEvents.subList(laneCount, clubNamesAndEvents.size());
 
         Font titleFont = config.getMonoFont(null, "clubRaceTitle");
         Font laneFont = config.getMonoFont(null, "clubRaceLane");
@@ -110,7 +110,7 @@ public class ClubRacePanel extends Container
             setTitle(+1);
         });
 
-        List<String> names = clubEvents.subList(0, laneCount);
+        List<String> names = clubNamesAndEvents.subList(0, laneCount);
 
         for (int lane=1; lane<=laneCount; lane++)
         {
@@ -285,6 +285,8 @@ public class ClubRacePanel extends Container
                 col6.addComponent(publishButton, PREFERRED_SIZE, publishWidth, PREFERRED_SIZE);
             }
         }
+
+        publishButton.doClick();
     }
 
     private int getInt(JTextField component)

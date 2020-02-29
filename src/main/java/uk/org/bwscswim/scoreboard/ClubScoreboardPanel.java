@@ -22,7 +22,7 @@ public class ClubScoreboardPanel extends JPanel
     {
         protected JLabel lane = new JLabel();
         protected JLabel name = new JLabel();
-        protected JLabel score = new JLabel("", SwingConstants.LEFT);
+        protected JLabel score = new JLabel("", SwingConstants.RIGHT);
         protected JLabel place = new JLabel("", SwingConstants.CENTER);
     }
 
@@ -134,7 +134,12 @@ public class ClubScoreboardPanel extends JPanel
             String laneText = name.isEmpty() ? "" : Integer.toString(laneIndex+1);
             club.lane.setText(laneText);
             Scoreboard.setTrimmedText(club.name, name);
-            Scoreboard.setTrimmedText(club.score, event.getScore(laneIndex));
+            String score = event.getScore(laneIndex);
+            if (!score.isEmpty() && !score.contains("."))
+            {
+                score = score+"   ";
+            }
+            Scoreboard.setTrimmedText(club.score, score);
             int place = event.getPlace(laneIndex);
             club.place.setText(place <= 0 ? " " : Integer.toString(place));
         }

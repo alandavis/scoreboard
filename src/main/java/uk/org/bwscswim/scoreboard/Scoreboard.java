@@ -56,7 +56,7 @@ public class Scoreboard extends BaseScoreboard
     private String currentPanel = MAIN_SCOREBOARD;
     private EventPublisher clubEventPublisher;
 
-    Scoreboard(Config config, DataReader dataReader, List<String> clubEvents, boolean useSecondScreen, boolean includeControls)
+    Scoreboard(Config config, DataReader dataReader, List<String> clubNamesAndEvents, boolean useSecondScreen, boolean includeControls)
     {
         super(config, dataReader, useSecondScreen, includeControls);
 
@@ -70,7 +70,7 @@ public class Scoreboard extends BaseScoreboard
             Container countyPanel = new QualificationTimePanel(config.getCountyTimesFilename(), config);
             Container regionalPanel = new QualificationTimePanel(config.getRegionalTimesFilename(), config);
             Container swimmerPanel = makeTextPanel("Swimmers");
-            ClubRacePanel clubRacePanel = new ClubRacePanel(config, clubEvents, this);
+            ClubRacePanel clubRacePanel = new ClubRacePanel(config, clubNamesAndEvents, this);
             clubEventPublisher = clubRacePanel.getEventPublisher();
             Container exitPanel = new ExitPanel(this);
 
