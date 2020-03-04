@@ -294,7 +294,7 @@ public class ClubRacePanel extends Container
             }
         }
 
-        publishButton.doClick();
+//        publishButton.doClick();
     }
 
     private int getInt(JTextField component)

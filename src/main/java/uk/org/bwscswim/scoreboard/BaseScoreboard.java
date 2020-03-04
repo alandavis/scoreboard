@@ -24,6 +24,7 @@ package uk.org.bwscswim.scoreboard;
 
 import uk.org.bwscswim.scoreboard.event.Observer;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -37,7 +38,7 @@ import java.awt.event.WindowEvent;
  *
  * @author adavis
  */
-public abstract class BaseScoreboard extends javax.swing.JFrame  implements Observer
+public abstract class BaseScoreboard extends JDialog implements Observer
 {
     protected final Config config;
     private final boolean useSecondScreen;
@@ -59,30 +60,31 @@ public abstract class BaseScoreboard extends javax.swing.JFrame  implements Obse
 
     protected void makeScoreboardVisible()
     {
-        pack();
-
-        String id = "Scoreboard " + (useSecondScreen ? "(second) " : "(laptop)");
-        System.out.println(id + " size=" + getSize());
-
         GraphicsEnvironment localGraphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice graphicsDevice = localGraphicsEnvironment.getDefaultScreenDevice();
+        boolean windows = System.getProperty("os.name").startsWith("Windows");
         if (useSecondScreen)
         {
             GraphicsDevice[] screenDevices = localGraphicsEnvironment.getScreenDevices();
             graphicsDevice = screenDevices[0].equals(graphicsDevice) ? screenDevices[1] : screenDevices[0];
 
-            javax.swing.JFrame dualview = new javax.swing.JFrame(graphicsDevice.getDefaultConfiguration());
-            setLocationRelativeTo(dualview);
-            dualview.dispose();
+            setUndecorated(true);
+            setFocusable(false);
             graphicsDevice.setFullScreenWindow(this);
         }
         else
         {
+            if (windows)
+            {
+                setUndecorated(true);
+            }
             addExitAndFullScreenListeners(graphicsDevice);
         }
+        pack();
         setVisible(true);
 
         DisplayMode displayMode = graphicsDevice.getDisplayMode();
+        String id = "Scoreboard " + (useSecondScreen ? "(second) " : "(laptop)");
         System.out.println(id+" \"" + graphicsDevice.getIDstring() + "\" " + displayMode.getWidth() + "x" + displayMode.getHeight());
         System.out.println(id + " size=" + getSize());
     }
