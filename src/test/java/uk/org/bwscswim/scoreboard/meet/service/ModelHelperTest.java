@@ -23,6 +23,7 @@
 package uk.org.bwscswim.scoreboard.meet.service;
 
 import org.junit.Test;
+import uk.org.bwscswim.scoreboard.Config;
 import uk.org.bwscswim.scoreboard.meet.model.Abbreviations;
 import uk.org.bwscswim.scoreboard.meet.model.Club;
 import uk.org.bwscswim.scoreboard.meet.model.Event;
@@ -41,11 +42,29 @@ import static org.junit.Assert.assertTrue;
 public class ModelHelperTest
 {
     @Test
+    public void mastersFullTest() throws IOException
+    {
+        Config config = new Config();
+        ModelHelper helper = new ModelHelper(":ClubsTest.txt", ":CountyTimesTest.txt",
+                ":RegionalTimesTest.txt", ":MastersAcceptedTest.txt",
+                ":MastersMensTest.txt", ":PBTest.txt", ":TvjlTest.txt", config,
+                2019);
+
+        List<Event> events = helper.getEvents();
+        assertEquals(24, events.size());
+
+        Event event = events.get(0);
+        assertEquals(1, event.getNumber());
+        assertEquals("Girls 200 Butterfly", event.getName());
+    }
+
+    @Test
     public void fullTest() throws IOException
     {
+        Config config = new Config();
         ModelHelper helper = new ModelHelper(":ClubsTest.txt", ":CountyTimesTest.txt",
                 ":RegionalTimesTest.txt", ":AcceptedTest.txt",
-                ":PBTest.txt", ":TvjlTest.txt", null,
+                ":MastersMensTest.txt", ":PBTest.txt", ":TvjlTest.txt", config,
                 2019);
 
         List<Event> events = helper.getEvents();
@@ -187,7 +206,13 @@ public class ModelHelperTest
                 {"Boys 100m Open Fly",           "Boys 100 Butterfly"},
                 {"Boys 100m Breast",             "Boys 100 Breaststroke"},
                 {"Boys 50m Back",                "Boys 50 Backstroke"},
-                {"Boys 400m IM",                 "Boys 400 IM"}})
+                {"Boys 400m IM",                 "Boys 400 IM",
+                "50m Free.",                     "50 Freestyle",
+                "100m Back.",                    "100 Backstroke",
+                "200m Breast.",                  "200 Breaststroke",
+                "200m Fly.",                     "200 Butterfly",
+                "200m Fly",                      "200 Butterfly",
+                "400m I.M.",                     "400 IM"}})
         {
             assertEquals(pair[1], Event.getStdName(pair[0]));
         }

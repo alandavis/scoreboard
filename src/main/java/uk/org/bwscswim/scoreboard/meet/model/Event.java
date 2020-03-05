@@ -39,6 +39,7 @@ public class Event implements Comparable<Event>
     private TreeMap<Integer, RaceTime> countyTimes;
     private TreeMap<Integer, RaceTime> regionalBaseTimes;
     private TreeMap<Integer, RaceTime> regionalAutoTimes;
+    private TreeMap<Integer, RaceTime> mastersTimes;
 
     public Event(int number, String name)
     {
@@ -52,10 +53,15 @@ public class Event implements Comparable<Event>
                 {" Open",             ""},
                 {"Individual Medley", "IM"},
                 {"Ind Medley",        "IM"},
+                {"I\\.M\\.",          "IM"},
                 {" Free$",            " Freestyle"},
+                {" Free\\.",          " Freestyle"},
                 {" Back$",            " Backstroke"},
-                {" Fly",              " Butterfly"},
+                {" Back\\.",          " Backstroke"},
+                {" Fly$",             " Butterfly"},
+                {" Fly\\.",           " Butterfly"},
                 {" Breast$",          " Breaststroke"},
+                {" Breast\\.",        " Breaststroke"},
                 {"m Freestyle",       " Freestyle"},
                 {"m Backstroke",      " Backstroke"},
                 {"m Butterfly",       " Butterfly"},
@@ -107,6 +113,21 @@ public class Event implements Comparable<Event>
         this.regionalAutoTimes = regionalAutoTimes;
     }
 
+    public boolean hasMastersTimes()
+    {
+        return mastersTimes != null;
+    }
+
+    public void setMastersTimes(TreeMap<Integer, RaceTime> mastersTimes)
+    {
+        this.mastersTimes = mastersTimes;
+    }
+
+    public TreeMap<Integer, RaceTime> getMastersTimes()
+    {
+        return mastersTimes;
+    }
+
     public void add(EventEntry eventEntry)
     {
         entries.add(eventEntry);
@@ -152,6 +173,11 @@ public class Event implements Comparable<Event>
     public RaceTime getRegionalAutoTime(Integer yearOfBirth)
     {
         return getTime(regionalAutoTimes, yearOfBirth);
+    }
+
+    public RaceTime getMastersTime(Integer yearOfBirth)
+    {
+        return getTime(mastersTimes, yearOfBirth);
     }
 
     public RaceTime getPb(Swimmer swimmer)

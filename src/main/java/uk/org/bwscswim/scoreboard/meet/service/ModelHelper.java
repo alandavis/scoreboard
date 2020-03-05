@@ -42,6 +42,8 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Reads the accepted swims file and populates data structures that may the be accessed via {@link #getEvents()}.
@@ -61,6 +63,7 @@ public class ModelHelper
     private int lineNumber;
     private String prevStdEventName;
     private int firstAge;
+    private int secondAge;
 
     public ModelHelper(Config config) throws IOException
     {
@@ -68,13 +71,14 @@ public class ModelHelper
              config.getCountyTimesFilename(),
              config.getRegionalTimesFilename(),
              config.getAcceptedSwimFilename(),
+             config.getMastersMensFilename(),
              config.getPbFilename(),
              config.getClubEventFilename(),
              config, -1);
     }
 
     public ModelHelper(String clubsFilename, String countyTimesFilename, String regionalTimesFilename,
-                       String acceptedSwimFilename, String pbFilename, String clubEventFilename,
+                       String acceptedSwimFilename, String mastersMensFilename, String pbFilename, String clubEventFilename,
                        Config config, int testYear) throws IOException
     {
         year = testYear >= 2019 ? testYear : LocalDate.now().getYear();
@@ -84,6 +88,7 @@ public class ModelHelper
         loadAcceptedSwimmers(acceptedSwimFilename, config);
         loadCountyTimes(countyTimesFilename, acceptedSwimFilename, config);
         loadRegionalTimes(regionalTimesFilename, acceptedSwimFilename, config);
+        loadMastersMensTimes(mastersMensFilename, acceptedSwimFilename, config);
         loadPBTimes(pbFilename, config);
 
         loadClubNamesAndEvents(clubEventFilename, config);
@@ -375,8 +380,90 @@ public class ModelHelper
         }
     }
 
+    private void loadMastersMensTimes(String filename, String acceptedSwimFilename, Config config) throws IOException
+    {
+        String mastersAgeRangePatternString = config.getString("mastersAgeRangePattern", "^(\\d+)-(\\d)$");
+        String mastersRecordPatternString = config.getString("mastersRecordPattern", "^(.+)\t.+\t.+\t(.+)\t.+\t.+$");
+
+        Pattern mastersAgeRangePattern = Pattern.compile(mastersAgeRangePatternString);
+        Pattern mastersRecordPattern = Pattern.compile(mastersRecordPatternString);
+
+        List<Event> events = getEvents();
+        StringJoiner missingEvents = new StringJoiner("\n    ",
+                "There are no events in "+acceptedSwimFilename+
+                        " that match the following regional events from "+filename+":\n    ", "\n");
+
+        prevStdEventName = null;
+        try (BufferedReader reader = FileLoader.getBufferedReader(filename, config))
+        {
+            AtomicInteger lineNumber = new AtomicInteger(1);
+            reader.lines().forEach(line -> loadMastersMensTimes(lineNumber.getAndIncrement(), line, events, missingEvents,
+                    mastersAgeRangePattern, mastersRecordPattern));
+        }
+
+        if (missingEvents.length() > 0)
+        {
+            System.err.println(missingEvents);
+        }
+        StringJoiner noCountyTimeEvents = new StringJoiner("\n    ",
+                "The following events from "+acceptedSwimFilename+
+                        " don't have regional times in "+filename+":\n    ", "\n");
+        for (Event event: events)
+        {
+            if (!event.hasRegionalAutoTimes())
+            {
+                noCountyTimeEvents.add(event.getName());
+            }
+        }
+        if (noCountyTimeEvents.length() > 0)
+        {
+            System.err.println(noCountyTimeEvents);
+        }
+    }
+
+    private void loadMastersMensTimes(int lineNumber, String line, List<Event> events, StringJoiner missingEvents,
+                                      Pattern mastersAgeRangePattern, Pattern mastersRecordPattern)
+    {
+        Matcher matcher = mastersAgeRangePattern.matcher(line);
+        if (matcher.matches())
+        {
+            String str = matcher.group(1);
+            firstAge = Integer.parseInt(str);
+            str = matcher.group(2);
+            secondAge = Integer.parseInt(str);
+        }
+        else
+        {
+            matcher = mastersRecordPattern.matcher(line);
+            if (matcher.matches())
+            {
+                String str = matcher.group(1);
+                String eventName = Event.getStdName(str);
+                Event event = lookupEvent(events, eventName);
+                if (event != null)
+                {
+                    TreeMap<Integer, RaceTime> times = event.getMastersTimes();
+                    if (times == null)
+                    {
+                        times = new TreeMap<>();
+                        event.setMastersTimes(times);
+                    }
+
+                    String timeStr = matcher.group(2);
+                    RaceTime time = RaceTime.create(timeStr);
+                    for (int age = firstAge; age <= secondAge; age++)
+                    {
+                        int baseYear = getYearOfBirth(age) + 1;
+                        times.put(baseYear, time);
+                    }
+                }
+            }
+        }
+    }
+
     private void loadPBTimes(String filename, Config config)
     {
+        // TODO
     }
 
     private void loadClubNamesAndEvents(String filename, Config config) throws IOException

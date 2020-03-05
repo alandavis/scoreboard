@@ -63,9 +63,11 @@ public class ScoreboardTest
     @Before
     public void setup() throws IOException, InvocationTargetException, InterruptedException
     {
+        Config config = new Config();
         helper = new ModelHelper(":ClubsTest.txt", ":CountyTimesTest.txt",
                 ":RegionalTimesTest.txt", ":AcceptedTest.txt",
-                ":PBTest.txt", ":TVJLTest.txt", null, -1);
+                ":MastersMensTest.txt", ":PBTest.txt", ":TVJLTest.txt",
+                config, -1);
         events = helper.getEvents();
         java.awt.EventQueue.invokeAndWait(() ->
         {

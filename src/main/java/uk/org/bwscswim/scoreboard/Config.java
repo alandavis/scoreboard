@@ -52,9 +52,20 @@ public class Config
     private final Properties properties;
     private final Map<String, String> fontFamilyNames = new HashMap<>();
 
-    Config(String configFilename)
+    public Config()
+    {
+        properties = new Properties();
+        setFontFamilyNames();
+    }
+
+    public Config(String configFilename)
     {
         properties = getProperties(configFilename);
+        setFontFamilyNames();
+    }
+
+    private void setFontFamilyNames()
+    {
         for (String fontFamilyName: GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames())
         {
             fontFamilyNames.put(fontFamilyName.toLowerCase(), fontFamilyName);
@@ -157,7 +168,7 @@ public class Config
         return defaultValue;
     }
 
-    String getString(String attributeName, String defaultValue)
+    public String getString(String attributeName, String defaultValue)
     {
         return getString(null, null, attributeName, defaultValue);
     }
@@ -457,5 +468,10 @@ public class Config
     public String getClubEventFilename()
     {
         return getString("clubEventFilename", ":TVJL.txt");
+    }
+
+    public String getMastersMensFilename()
+    {
+        return getString("mastersMensFilename", ":MastersMens.txt");
     }
 }

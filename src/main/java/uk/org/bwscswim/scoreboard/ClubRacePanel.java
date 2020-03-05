@@ -293,8 +293,6 @@ public class ClubRacePanel extends Container
                 col6.addComponent(publishButton, PREFERRED_SIZE, publishWidth, PREFERRED_SIZE);
             }
         }
-
-//        publishButton.doClick();
     }
 
     private int getInt(JTextField component)
