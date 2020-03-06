@@ -80,6 +80,7 @@ class DataReader
     private static final String CONTROL_LINE_SUFFIX = "004010";
     private        final String CONTROL_CLOCK;
     private static final int CONTROL_LINE_SUFFIX_LENGTH = CONTROL_LINE_SUFFIX.length();
+    private static final String CONTROL_TEST_PAD = "00000000"+CONTROL_LINE_SUFFIX; // Not sure it has all the leadig zeros
 
     private final Config config;
 
@@ -432,7 +433,16 @@ class DataReader
     private synchronized void handleTransmission(String control, String data) throws IOException
     {
         State state = text.getState();
-        if (control.startsWith(CONTROL_LINE_SUFFIX))
+        if (control.startsWith(CONTROL_TEST_PAD)) // We may be able to remove this if the leading zeros are ot sent
+        {
+            int position = getPosition(control);
+            int lineNumber = position / 100;
+            int offset = position % 100;
+            text.setText(lineNumber, offset, data);
+            publishEvent(new RawTextEvent(lineNumber, offset, data));
+            stateTrace.trace("Test PAD leading \"00000000\" was included");
+        }
+        else if (control.startsWith(CONTROL_LINE_SUFFIX))
         {
             int position = getPosition(control);
             int lineNumber = position / 100;

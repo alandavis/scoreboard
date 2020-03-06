@@ -20,21 +20,21 @@ public class RawTextPanel extends JPanel
     private static final int LINES = 15;
     private static final String[] TEST = new String[]
             {
-                "Ev131/3 50m Backstroke",
-                "Girls                  38.18",
-                "1  Danica Forster  CHWS    39.64 2",
-                "2  Ellie Smith     AMES  2:14.97 3    51.41",
-                "3  Olivia Callaman WINS  2:14.97 7    51.41",
-                "4  Olivia Callaman WINS  2:14.97 7    51.41",
-                "5  Olivia Callaman WINS  2:14.97 7    51.41",
-                "6  Olivia Callaman WINS  2:14.97 7    51.41",
-                "",
-                "Test",
-                "",
-                "12",
-                "13",
-                "Line 14",
-                "15"
+                "          Raw Text",
+                " ",
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6  Rob Moore       BRKS  2:14.97 7    51.41",
+                " ",
+                " ",
+                " ",
+                "line 12 of 15",
+                " ",
+                " ",
+                "Last line"
             };
 
     List<JLabel> lines = new ArrayList<>(LINES);
@@ -88,7 +88,8 @@ public class RawTextPanel extends JPanel
                 sb.append(' ');
             }
             sb.replace(offset, offset+text.length(), data);
-            line.setText(sb.toString());
+            text = sb.length() == 0 ? " " : sb.toString();
+            line.setText(text);
         }
     }
 }
