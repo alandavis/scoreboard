@@ -131,6 +131,11 @@ class DataReader
         commPorts = obtainSerialPorts();
     }
 
+    public EventPublisher getEventPublisher()
+    {
+        return eventPublisher;
+    }
+
     /**
      * @return a list of all ports to be tried. If the port has been specified as a config value, only that one is
      * returned. Also lists the ports known to the system.
@@ -536,7 +541,6 @@ class DataReader
             publishEvent(event);
         }
     }
-
 
     protected void publishEvent(ScoreboardEvent event)
     {

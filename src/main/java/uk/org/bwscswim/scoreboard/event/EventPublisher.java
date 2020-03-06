@@ -38,6 +38,8 @@ public class EventPublisher extends SwingWorker<Void, ScoreboardEvent>
     private final List<Observer> observers = new ArrayList<>();
 
     private StateTrace stateTrace;
+    private List<ScoreboardEvent> buffer = new ArrayList<>();
+    private long bufferUtil = 0;
 
     public void addObserver(Observer observer)
     {
@@ -55,7 +57,28 @@ public class EventPublisher extends SwingWorker<Void, ScoreboardEvent>
         {
             stateTrace.trace(event.toString());
         }
-        publish(event);
+        if (event instanceof MessageEvent)
+        {
+            bufferUtil = System.currentTimeMillis()+((MessageEvent)event).getMinDisplayTime();
+            publish(event);
+        }
+        else if (bufferUtil > 0)
+        {
+            if (System.currentTimeMillis() < bufferUtil)
+            {
+                buffer.add(event);
+            }
+            else
+            {
+                bufferUtil = 0;
+                buffer.forEach(e->publish(e));
+                publish(event);
+            }
+        }
+        else
+        {
+            publish(event);
+        }
     }
 
     @Override

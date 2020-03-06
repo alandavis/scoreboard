@@ -54,9 +54,7 @@ public class Application
                 Scoreboard controlScoreboard = new Scoreboard(config, dataReader, clubNamesAndEvents, false, true);
                 if (multipleScreens)
                 {
-                    Scoreboard secondScoreboard = new Scoreboard(config, dataReader, null, true, false);
-                    EventPublisher clubEventPublisher = controlScoreboard.getClubEventPublisher();
-                    clubEventPublisher.addObserver(secondScoreboard);
+                    new Scoreboard(config, dataReader, null, true, false);
                 }
                 controlScoreboard.requestFocus();
             });

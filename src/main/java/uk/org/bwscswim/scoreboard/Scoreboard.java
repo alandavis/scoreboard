@@ -24,6 +24,7 @@ package uk.org.bwscswim.scoreboard;
 
 import uk.org.bwscswim.scoreboard.event.ClubEvent;
 import uk.org.bwscswim.scoreboard.event.EventPublisher;
+import uk.org.bwscswim.scoreboard.event.MessageEvent;
 import uk.org.bwscswim.scoreboard.event.RawTextEvent;
 import uk.org.bwscswim.scoreboard.event.ScoreboardEvent;
 import uk.org.bwscswim.scoreboard.event.TimeOfDayEvent;
@@ -47,14 +48,15 @@ public class Scoreboard extends BaseScoreboard
     private TimeOfDayPanel timeOfDayPanel;
     private SplashPanel splashPanel;
     private MainScoreboardPanel mainScoreboardPanel;
+    private MessagePanel messagePanel;
     private ClubScoreboardPanel clubScoreboardPanel;
 
     private static final String TIME_OF_DAY = "timeOfDay";
     private static final String SPLASH = "splash";
     private static final String MAIN_SCOREBOARD = "mainScoreboard";
+    private static final String MESSAGE_SCOREBOARD = "messageScoreboard";
     private static final String CLUB_SCOREBOARD = "clubScoreboard";
     private String currentPanel = MAIN_SCOREBOARD;
-    private EventPublisher clubEventPublisher;
 
     Scoreboard(Config config, DataReader dataReader, List<String> clubNamesAndEvents, boolean useSecondScreen, boolean includeControls)
     {
@@ -63,6 +65,7 @@ public class Scoreboard extends BaseScoreboard
         Container contentPane = getContentPane();
         if (includeControls)
         {
+            EventPublisher eventPublisher = dataReader.getEventPublisher();
             racePanel = new JPanel();
             Container configPanel = makeTextPanel("Screen Configuration");
             rawTextPanel = new RawTextPanel(config);
@@ -70,8 +73,8 @@ public class Scoreboard extends BaseScoreboard
             Container countyPanel = new QualificationTimePanel(config.getCountyTimesFilename(), config);
             Container regionalPanel = new QualificationTimePanel(config.getRegionalTimesFilename(), config);
             Container swimmerPanel = makeTextPanel("Swimmers");
-            ClubRacePanel clubRacePanel = new ClubRacePanel(config, clubNamesAndEvents, this);
-            clubEventPublisher = clubRacePanel.getEventPublisher();
+            MessageRacePanel messageRacePanel = new MessageRacePanel(config, this, eventPublisher);
+            ClubRacePanel clubRacePanel = new ClubRacePanel(config, clubNamesAndEvents, this, eventPublisher);
             Container exitPanel = new ExitPanel(this);
 
             tabbedConfigPane = new JTabbedPane();
@@ -83,6 +86,7 @@ public class Scoreboard extends BaseScoreboard
             tabbedConfigPane.addTab("County", countyPanel);
             tabbedConfigPane.addTab("Regional", regionalPanel);
             tabbedConfigPane.addTab("Swimmers", swimmerPanel);
+            tabbedConfigPane.addTab("Message", messageRacePanel);
             tabbedConfigPane.addTab("TVJL", clubRacePanel);
             tabbedConfigPane.addTab("Exit", exitPanel);
             tabbedConfigPane.setSelectedComponent(racePanel);
@@ -106,6 +110,7 @@ public class Scoreboard extends BaseScoreboard
         timeOfDayPanel = new TimeOfDayPanel(config);
         splashPanel = new SplashPanel(config);
         mainScoreboardPanel = new MainScoreboardPanel(config);
+        messagePanel = new MessagePanel(config);
         clubScoreboardPanel = new ClubScoreboardPanel(config);
 
         int width = config.getInt("width", 1159);
@@ -114,17 +119,13 @@ public class Scoreboard extends BaseScoreboard
 
         racePanel.setLayout(cardLayout);
         racePanel.add(mainScoreboardPanel, MAIN_SCOREBOARD);
+        racePanel.add(messagePanel, MESSAGE_SCOREBOARD);
         racePanel.add(clubScoreboardPanel, CLUB_SCOREBOARD);
         racePanel.add(timeOfDayPanel, TIME_OF_DAY);
         racePanel.add(splashPanel, SPLASH);
         currentPanel = MAIN_SCOREBOARD;
 
         makeScoreboardVisible();
-    }
-
-    public EventPublisher getClubEventPublisher()
-    {
-        return clubEventPublisher;
     }
 
     @Override
@@ -183,6 +184,11 @@ public class Scoreboard extends BaseScoreboard
             clubScoreboardPanel.update((ClubEvent)event);
             switchPanel(CLUB_SCOREBOARD);
         }
+        else if (event instanceof MessageEvent)
+        {
+            messagePanel.update((MessageEvent) event);
+            switchPanel(MESSAGE_SCOREBOARD);
+        }
         else if (event instanceof RawTextEvent && includeControls)
         {
             rawTextPanel.update((RawTextEvent)event);
@@ -210,6 +216,7 @@ public class Scoreboard extends BaseScoreboard
             }
             text = text.substring(0, --length);
         }
+        text = text.length() == 0 ? " " : text;
         label.setText(text);
     }
 

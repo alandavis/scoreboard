@@ -36,13 +36,14 @@ public class ClubRacePanel extends Container
     JButton publishButton;
     private int eventIndex = 0;
     private List<String> clubEvents;
-    private EventPublisher eventPublisher = new EventPublisher();
+    private EventPublisher eventPublisher;
     private JButton placeButtonJustSet;
     private int placesSet;
     private int numberOfClubs;
 
-    public ClubRacePanel(Config config, List<String> clubNamesAndEvents, Observer observer)
+    public ClubRacePanel(Config config, List<String> clubNamesAndEvents, Observer observer, EventPublisher eventPublisher)
     {
+        this.eventPublisher = eventPublisher;
         eventPublisher.addObserver(observer);
         int laneCount = config.getInt("laneCount", 6);
         this.clubEvents = clubNamesAndEvents.subList(laneCount, clubNamesAndEvents.size());
