@@ -100,8 +100,8 @@ class DataReader
     private List<Text> queuedStateData = new ArrayList<>();
     private StateTimer stateTimer;
     private List<Event> events;
-    private EventPublisher eventPublisher = new EventPublisher();
-    private Sleeper sleeper= new Sleeper();
+    private EventPublisher eventPublisher;
+    private Sleeper sleeper;
 
     private final List<SerialPort> commPorts;
     private int nextPortIndex;
@@ -125,7 +125,10 @@ class DataReader
         tryNextPortOnZero = config.getBoolean("tryNextPortOnZero", true);
         waitBetweenConnects = config.getBoolean("waitBetweenConnects", false);
 
+        sleeper= new Sleeper();
         stateTrace = new StateTrace();
+        stateTrace.setSleeper(sleeper);
+        eventPublisher = new EventPublisher();
         eventPublisher.setStateTrace(stateTrace);
         rawTrace = new RawTrace(config, stateTrace);
         commPorts = obtainSerialPorts();
@@ -309,13 +312,11 @@ class DataReader
     void readInputStream(InputStream inputStream, float speedFactor) throws InterruptedException
     {
         this.inputStream = inputStream;
-        sleeper = new Sleeper();
         sleeper.setSpeedFactor(speedFactor);
         if (inputStream instanceof DummyInputStream)
         {
             ((DummyInputStream)inputStream).setSleeper(sleeper);
         }
-        stateTrace.setSleeper(sleeper);
         for (; ; )
         {
             try
