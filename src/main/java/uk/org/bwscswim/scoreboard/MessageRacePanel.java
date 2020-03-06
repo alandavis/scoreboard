@@ -28,20 +28,20 @@ public class MessageRacePanel extends Container
         eventPublisher.addObserver(observer);
         int laneCount = config.getInt("laneCount", 6);
 
-        Font titleFont = config.getMonoFont(null, "clubRaceTitle");
-        Font messageFont = config.getMonoFont(null, "messageRaceLane");
+        Font titleFont = config.getMonoFont(null, "messageRaceTitle");
+        Font messageFont = config.getMonoFont(null, "messageRaceMessage");
         Font publishFont = config.getFont(null, "messageRacePublishButton", Font.MONOSPACED, Font.PLAIN, 32);
 
-        int height = config.getInt(null, null, "clubRaceHeight", 48);
-        int leftGap = config.getInt(null, null, "clubRaceLeftGap", 30);
-        int titleWidth = config.getInt(null, null, "clubRaceTitleWidth", 700);
-        int messageWidth = config.getInt(null, null, "clubRaceMessageWidth", 892);
-        int publishWidth = config.getInt(null, null, "clubRacePublishWidth", 300);
-        int rightGap = config.getInt(null, null, "clubRaceRightGap", 0);
+        int height = config.getInt(null, null, "messageRaceHeight", 48);
+        int leftGap = config.getInt(null, null, "messageRaceLeftGap", 30);
+        int titleWidth = config.getInt(null, null, "messageRaceTitleWidth", 650);
+        int messageWidth = config.getInt(null, null, "messageRaceMessageWidth", 650);
+        int publishWidth = config.getInt(null, null, "messageRacePublishWidth", 300);
+        int rightGap = config.getInt(null, null, "messageRaceRightGap", 0);
 
-        int topGap = config.getInt(null, null, "clubRaceTopGap", 10);
-        int preLaneGap = config.getInt(null, null, "clubRacePreLaneGap", 50);
-        int bottomGap = config.getInt(null, null, "clubRaceBottomGap", 0);
+        int topGap = config.getInt(null, null, "messageRaceTopGap", 10);
+        int preLaneGap = config.getInt(null, null, "messageRacePreLaneGap", 50);
+        int bottomGap = config.getInt(null, null, "messageRaceBottomGap", 0);
 
         int minMessageDisplayTime = config.getInt(null, null, "minMessageDisplayTime", 5000);
 

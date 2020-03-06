@@ -1,11 +1,8 @@
 package uk.org.bwscswim.scoreboard;
 
-import uk.org.bwscswim.scoreboard.event.ClubEvent;
 import uk.org.bwscswim.scoreboard.event.MessageEvent;
-import uk.org.bwscswim.scoreboard.event.Observer;
 
 import javax.swing.*;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,15 +23,15 @@ public class MessagePanel extends JPanel
     public MessagePanel(Config config)
     {
         int leftGap = config.getInt(null, null, "messageLeftGap", 60);
-        int messageWidth = config.getInt(null, null, "messageWidth", 1129);
+        int messageWidth = config.getInt(null, null, "messageWidth", 1180);
         int rightGap = config.getInt(null, null, "messageRightGap", 0);
 
         int topGap = config.getInt(null, null, "messageTopGap", 10);
         int preLaneGap = config.getInt(null, null, "messagePreLaneGap", 10);
         int bottomGap = config.getInt(null, null, "messageBottomGap", 0);
 
-        Font titleFont = config.getFont(null, "title");
-        Font messageFont = config.getFont(null, "message");
+        Font titleFont = config.getFont(null, "messageTitle");
+        Font messageFont = config.getFont(null, "messageMessage");
 
         int laneCount = config.getInt("laneCount", 6);
 
