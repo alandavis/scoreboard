@@ -217,9 +217,9 @@ public class MainScoreboardPanel extends JPanel
         {
             lane++;
             swimmer.lane.setText(Integer.toString(lane));
-            setTrimmedText(swimmer.name, "Emma Atanasova");
+            setTrimmedText(swimmer.name, "Tess Davis");
             swimmer.place.setText("CT");
-            swimmer.clubTime.setText("2:38.23");
+            swimmer.clubTime.setText("2:38.13");
         }
     }
 

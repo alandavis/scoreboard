@@ -22,6 +22,8 @@
  */
 package uk.org.bwscswim.scoreboard.meet.model;
 
+import java.time.LocalDate;
+
 /**
  * @author adavis
  */
@@ -51,9 +53,13 @@ public class Improvement
             Integer yearOfBirth = swimmer.getYearOfBirth();
             if (yearOfBirth != null)
             {
-                countyTime = event.getCountyTime(yearOfBirth);
-                regionalBaseTime = event.getRegionalBaseTime(yearOfBirth);
-                regionalAutoTime = event.getRegionalAutoTime(yearOfBirth);
+                int age = getAge(yearOfBirth);
+                if (age < 25)
+                {
+                    countyTime = event.getCountyTime(yearOfBirth);
+                    regionalBaseTime = event.getRegionalBaseTime(yearOfBirth);
+                    regionalAutoTime = event.getRegionalAutoTime(yearOfBirth);
+                }
             }
             boolean isCountyTime = countyTime != null && raceTime.compareTo(countyTime) <= 0;
             boolean isRegionalBaseTime = regionalBaseTime != null && raceTime.compareTo(regionalBaseTime) <= 0;
@@ -68,6 +74,12 @@ public class Improvement
             level = isRegionalAutoTime ? "RT" : isRegionalBaseTime ? "rt" : isCountyTime ? "CT" : "";
             newBand = isNewBand;
         }
+    }
+
+    private int getAge(int yearOfBirth)
+    {
+        int year = LocalDate.now().getYear();
+        return year - yearOfBirth;
     }
 
     public String getReduction()
