@@ -47,7 +47,7 @@ public class MainScoreboardPanel extends JPanel
 
     public MainScoreboardPanel(Config config)
     {
-        int leftGap = config.getInt(null, null, "clubLeftGap", 30);
+        int leftGap = config.getInt(null, null, "clubLeftGap", 50);
         int laneWidth = config.getInt(null, null, "clubLaneWidth", 60);
         int nameWidth = config.getInt(null, null, "clubNameWidth", 669);
         int clubTimeWidth = config.getInt(null, null, "clubScoreWidth", 287);

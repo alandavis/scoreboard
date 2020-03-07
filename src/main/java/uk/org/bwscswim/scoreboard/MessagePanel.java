@@ -22,7 +22,7 @@ public class MessagePanel extends JPanel
 
     public MessagePanel(Config config)
     {
-        int leftGap = config.getInt(null, null, "messageLeftGap", 60);
+        int leftGap = config.getInt(null, null, "messageLeftGap", 50);
         int messageWidth = config.getInt(null, null, "messageWidth", 1180);
         int rightGap = config.getInt(null, null, "messageRightGap", 0);
 

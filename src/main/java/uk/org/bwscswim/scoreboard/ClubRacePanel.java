@@ -58,7 +58,7 @@ public class ClubRacePanel extends Container
         Font publishFont = config.getFont(null, "clubRacePublishButton", Font.MONOSPACED, Font.PLAIN, 32);
 
         int height = config.getInt(null, null, "clubRaceHeight", 48);
-        int leftGap = config.getInt(null, null, "clubRaceLeftGap", 30);
+        int leftGap = config.getInt(null, null, "clubRaceLeftGap", 50);
         int titleWidth = config.getInt(null, null, "clubRaceTitleWidth", 700);
         int laneWidth = config.getInt(null, null, "clubRaceLaneWidth", 36);
         int nameWidth = config.getInt(null, null, "clubRaceNameWidth", 540);
