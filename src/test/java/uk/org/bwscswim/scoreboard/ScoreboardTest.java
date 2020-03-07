@@ -59,6 +59,7 @@ public class ScoreboardTest
     private ModelHelper helper;
 
     private List<Event> events;
+    private boolean abrTitle = false;
 
     @Before
     public void setup() throws IOException, InvocationTargetException, InterruptedException
@@ -127,13 +128,13 @@ public class ScoreboardTest
                             "                                     \n" +
                             "                                     \n",
                     "    0.0 ");
-            publish(1000, new LineupEvent(text, 0));
-            publish(1000, new LineupEvent(text, 1));
+            publish(1000, new LineupEvent(text, 0, abrTitle));
+            publish(1000, new LineupEvent(text, 1, abrTitle));
             if (!skip)
             {
-                publish(1000, new LineupEvent(text, 2));
-                publish(1000, new LineupEvent(text, 3));
-                publish(1000, new LineupEvent(text, 4));
+                publish(1000, new LineupEvent(text, 2, abrTitle));
+                publish(1000, new LineupEvent(text, 3, abrTitle));
+                publish(1000, new LineupEvent(text, 4, abrTitle));
             }
 
             setText("Girls 50m Backstroke                 \n" +
@@ -253,7 +254,7 @@ public class ScoreboardTest
                 publish(70, new RaceTimerEvent("50.37"));
             }
             setText(4, "3  Holly Frampton   CROL    50.35 1  ");
-            publish(80, new RaceSplitTimeEvent(text, 0, 4));
+            publish(80, new RaceSplitTimeEvent(text, 0, 4, abrTitle));
 
             publish(70, new RaceTimerEvent("50.35"));
             publish(70, new RaceTimerEvent("50.42"));
@@ -272,7 +273,7 @@ public class ScoreboardTest
                 publish(80, new RaceTimerEvent("51.25"));
             }
             setText(3, "2  May Mackinder    WYCS    51.28 2  ");
-            publish(80, new RaceSplitTimeEvent(text, 1, 3));
+            publish(80, new RaceSplitTimeEvent(text, 1, 3, abrTitle));
 
             publish(70, new RaceTimerEvent("51.32"));
             publish(70, new RaceTimerEvent("51.40"));
@@ -302,13 +303,13 @@ public class ScoreboardTest
                 publish(70, new RaceTimerEvent("53.05"));
             }
             setText(5, "4  Shoshona Street  WYCS    53.17 3  ");
-            publish(80, new RaceSplitTimeEvent(text, 2, 5));
+            publish(80, new RaceSplitTimeEvent(text, 2, 5, abrTitle));
 
-            publish(1860, new RaceEvent(text, 0));
+            publish(1860, new RaceEvent(text, 0, abrTitle));
             if (!skip)
             {
-                publish(100, new RaceEvent(text, 1));
-                publish(1000, new RaceEvent(text, 2));
+                publish(100, new RaceEvent(text, 1, abrTitle));
+                publish(1000, new RaceEvent(text, 2, abrTitle));
             }
             setText("Girls 50m Backstroke                 \n" +
                             "Ev 17,  Ht 1                         \n" +
@@ -318,18 +319,18 @@ public class ScoreboardTest
                     "");
             text.setState(RESULTS);
 
-            publish(1000, new ResultEvent(text, 0, events));
-            publish(1000, new ResultEvent(text, 1, events));
+            publish(1000, new ResultEvent(text, 0, events, abrTitle));
+            publish(1000, new ResultEvent(text, 1, events, abrTitle));
             if (!skip)
             {
-                publish(1000, new ResultEvent(text, 2, events));
-                publish(1000, new ResultEvent(text, 3, events));
-                publish(1000, new ResultEvent(text, 4, events));
-                publish(1000, new ResultEvent(text, 5, events));
-                publish(1000, new ResultEvent(text, 6, events));
-                publish(1000, new ResultEvent(text, 7, events));
-                publish(1000, new ResultEvent(text, 8, events));
-                publish(1000, new ResultEvent(text, 9, events));
+                publish(1000, new ResultEvent(text, 2, events, abrTitle));
+                publish(1000, new ResultEvent(text, 3, events, abrTitle));
+                publish(1000, new ResultEvent(text, 4, events, abrTitle));
+                publish(1000, new ResultEvent(text, 5, events, abrTitle));
+                publish(1000, new ResultEvent(text, 6, events, abrTitle));
+                publish(1000, new ResultEvent(text, 7, events, abrTitle));
+                publish(1000, new ResultEvent(text, 8, events, abrTitle));
+                publish(1000, new ResultEvent(text, 9, events, abrTitle));
             }
         }
 
@@ -352,13 +353,13 @@ public class ScoreboardTest
                         "5  Phoebe Simpson   WYCS             \n" +
                         "6  Lucy Butler      WYCS             \n",
                 "    0.0 ");
-        publish(2000, new LineupEvent(text, 0));
-        publish(1000, new LineupEvent(text, 1));
+        publish(2000, new LineupEvent(text, 0, abrTitle));
+        publish(1000, new LineupEvent(text, 1, abrTitle));
         if (!skip)
         {
-            publish(1000, new LineupEvent(text, 2));
-            publish(1000, new LineupEvent(text, 3));
-            publish(1000, new LineupEvent(text, 4));
+            publish(1000, new LineupEvent(text, 2, abrTitle));
+            publish(1000, new LineupEvent(text, 3, abrTitle));
+            publish(1000, new LineupEvent(text, 4, abrTitle));
         }
     }
 

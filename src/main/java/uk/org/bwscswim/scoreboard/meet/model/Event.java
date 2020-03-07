@@ -73,6 +73,22 @@ public class Event implements Comparable<Event>
         return name;
     }
 
+    public static String getStdAbrName(String name)
+    {
+        for (String[] pair: new String[][]{
+                {" Team",             ""},
+                {"Mens/Womens",       "M/W"},
+                {"Men/Women",         "M/W"},
+                {"Breaststroke",      "Breast"},
+                {"Backstroke",        "Back"},
+                {"Freestyle",         "Free"},
+                {"Butterfly",         "Fly"}})
+        {
+            name = name.replaceFirst(pair[0], pair[1]);
+        }
+        return name;
+    }
+
     public int getNumber()
     {
         return number;

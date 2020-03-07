@@ -7,8 +7,8 @@ import uk.org.bwscswim.scoreboard.Text;
  */
 public class LineupEvent extends PageEvent
 {
-    public LineupEvent(Text text, int count)
+    public LineupEvent(Text text, int count, boolean abrTitle)
     {
-        super(text, count);
+        super(text, count, abrTitle);
     }
 }

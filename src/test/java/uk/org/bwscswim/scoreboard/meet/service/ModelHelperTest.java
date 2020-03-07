@@ -219,6 +219,23 @@ public class ModelHelperTest
     }
 
     @Test
+    public void eventStdAbrNameTest() throws IOException
+    {
+        for (String[] pair: new String[][]{
+                {"Mens/Womens 200 Freestyle", "M/W 200 Free"},
+                {"Mens 100 Breaststroke", "Mens 100 Breast"},
+                {"Womens 100 Breaststroke", "Womens 100 Breast"},
+                {"Mens 50 Backstroke", "Mens 50 Back"},
+                {"Womens 50 Backstroke", "Womens 50 Back"},
+                {"Mens/Womens 200 Butterfly", "M/W 200 Fly"},
+                {"Mixed 4x50 Freestyle Team", "Mixed 4x50 Free Team"},
+                {"Mixed 4x50 Freestyle Team", "Mixed 4x50 Free Team"}})
+        {
+            assertEquals(pair[1], Event.getStdAbrName(pair[0]));
+        }
+    }
+
+    @Test
     public void clubAbbreviationsTest() throws IOException
     {
         Abbreviations clubAbbreviations = new Abbreviations(":Clubs.txt", null);

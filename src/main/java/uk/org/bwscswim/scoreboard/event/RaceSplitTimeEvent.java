@@ -9,9 +9,9 @@ public class RaceSplitTimeEvent extends RaceEvent
 {
     private final int lineNumberWithSplitTime;
 
-    public RaceSplitTimeEvent(Text text, int count, int lineNumberWithSplitTime)
+    public RaceSplitTimeEvent(Text text, int count, int lineNumberWithSplitTime, boolean abrTitle)
     {
-        super(text, count);
+        super(text, count, abrTitle);
         this.lineNumberWithSplitTime = lineNumberWithSplitTime;
     }
 

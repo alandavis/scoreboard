@@ -109,10 +109,12 @@ class DataReader
     private int readTimeout = 0;
     private final boolean tryNextPortOnZero;
     private final boolean waitBetweenConnects;
+    private final boolean abrTitle;
 
     DataReader(Config config)
     {
         this.config = config;
+        abrTitle = config.getBoolean("abrTitle", true);
 
         text = new Text(config);
         CONTROL_CLOCK = CONTROL_LINE_SUFFIX+text.getClockFromRange();
@@ -534,12 +536,12 @@ class DataReader
         {
             PageEvent event =
                       state == TIME_OF_DAY ? new TimeOfDayEvent(count)
-                    : state == LINEUP_COMPLETE ? new LineupEvent(text, count)
+                    : state == LINEUP_COMPLETE ? new LineupEvent(text, count, abrTitle)
                     : state == RACE || state == RACE_FINISHING || state == RACE_COMPLETE
                               ? lineNumberWithSplitTime == -1
-                                ? new RaceEvent(text, count)
-                                : new RaceSplitTimeEvent(text, count, lineNumberWithSplitTime)
-                    : new   ResultEvent(text, count, events);
+                                ? new RaceEvent(text, count, abrTitle)
+                                : new RaceSplitTimeEvent(text, count, lineNumberWithSplitTime, abrTitle)
+                    : new   ResultEvent(text, count, events, abrTitle);
             publishEvent(event);
         }
     }

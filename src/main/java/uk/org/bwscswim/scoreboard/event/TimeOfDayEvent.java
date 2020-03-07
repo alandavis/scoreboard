@@ -15,7 +15,7 @@ public class TimeOfDayEvent extends PageEvent
 
     public TimeOfDayEvent(int count)
     {
-        super(null, count);
+        super(null, count, false);
 
         timeOfDay = dateFormat.format(new Date());
     }

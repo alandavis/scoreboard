@@ -14,9 +14,9 @@ public class ResultEvent extends PageEvent
 {
     private List<Improvement> improvements = new ArrayList<>();
 
-    public ResultEvent(Text text, int count, List<Event> events)
+    public ResultEvent(Text text, int count, List<Event> events, boolean abrTitle)
     {
-        super(text, count);
+        super(text, count, abrTitle);
         Event event = lookupEvent(events);
         int laneCount = getLaneCount();
         for (int i = 0; i < laneCount; i++)

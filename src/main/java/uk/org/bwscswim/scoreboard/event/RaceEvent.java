@@ -9,8 +9,8 @@ import uk.org.bwscswim.scoreboard.Text;
  */
 public class RaceEvent extends PageEvent
 {
-    public RaceEvent(Text text, int count)
+    public RaceEvent(Text text, int count, boolean abrTitle)
     {
-        super(text, count);
+        super(text, count, abrTitle);
     }
 }

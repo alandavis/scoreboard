@@ -12,11 +12,13 @@ public class PageEvent implements ScoreboardEvent
 {
     private final Text text;
     protected final int count;
+    private boolean abrTitle;
 
-    public PageEvent(Text text, int count)
+    public PageEvent(Text text, int count, boolean abrTitle)
     {
         this.text = text == null ? null : new Text(text);
         this.count = count;
+        this.abrTitle = abrTitle;
     }
 
     /**
@@ -32,6 +34,11 @@ public class PageEvent implements ScoreboardEvent
     public String getCombinedTitle()
     {
         String title = Event.getStdName(text.getTitle());
+        if (abrTitle)
+        {
+            title = Event.getStdAbrName(title);
+        }
+
         String subTitle = text.getSubtitle();
         if (subTitle.startsWith("Ev "))
         {
