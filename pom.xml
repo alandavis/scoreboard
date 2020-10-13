@@ -20,7 +20,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
 
         <jSerialComm.version>2.3.0</jSerialComm.version>
-        <junit.version>4.11</junit.version>
+        <junit.version>4.13.1</junit.version>
         <log4j.version>1.2.17</log4j.version>
         <mockito.version>1.9.0</mockito.version>
     </properties>
