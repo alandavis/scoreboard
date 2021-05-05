@@ -455,17 +455,18 @@ class DataReader
             if (control.equals(CONTROL_CLOCK))
             {
                 String clock = text.getClock();
-                if (state == LINEUP) // clock is probably 0.0
+                if (state == TIME_OF_DAY)
+                {
+                    // Looks like we started in a race or mid way through a lineup
+                    startRaceTimerIfClockIsNotZeror(clock);
+                }
+                else if (state == LINEUP) // clock is probably 0.0
                 {
                     setState(LINEUP_COMPLETE);
                 }
                 else if (state == LINEUP_COMPLETE) // clock is probably 0.1
                 {
-                    if (!"0.0".equals(clock.trim())) // Think we are getting another 0.0 sometimes with test runs on data system
-                    {
-                        setState(RACE);
-                        raceTimerThread = new RaceTimerThread(this, clock, sleeper);
-                    }
+                    startRaceTimerIfClockIsNotZeror(clock);
                 }
                 else if (state == RACE)
                 {
@@ -473,10 +474,6 @@ class DataReader
                     {
                         raceTimerThread.resetClock(clock);
                     }
-                }
-                else if (state == TIME_OF_DAY)
-                {
-                    // Ignore
                 }
             }
             else if (state == RESULTS && text.isLaneLineNumber(lineNumber) &&
@@ -515,6 +512,15 @@ class DataReader
         else if (CONTROL_TIME_OF_DAY.equals(control))
         {
             // ignore as we do our own
+        }
+    }
+
+    private void startRaceTimerIfClockIsNotZeror(String clock)
+    {
+        if (!"0.0".equals(clock.trim())) // Think we are getting another 0.0 sometimes with test runs on data system
+        {
+            setState(RACE);
+            raceTimerThread = new RaceTimerThread(this, clock, sleeper);
         }
     }
 

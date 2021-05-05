@@ -33,9 +33,9 @@ public class MainScoreboardPanel extends JPanel
     {
         JLabel lane = new JLabel();
         JLabel name = new JLabel();
-        String club;
-        String time;
-        Improvement improvement;
+        String club = "";
+        String time = "";
+        Improvement improvement = new Improvement();
         JLabel clubTime = new JLabel("", SwingConstants.RIGHT);
         JLabel place = new JLabel("", SwingConstants.CENTER);
     }
@@ -141,14 +141,21 @@ public class MainScoreboardPanel extends JPanel
     private void setClock(String clock)
     {
         this.clock = clock;
+        boolean textSet = false;
         for (int lane=1; lane<=laneCount; lane++)
         {
             Swimmer swimmer = swimmers.get(lane-1);
-            setclubTime(lane, swimmer, null, false);
+            textSet = textSet || setclubTime(lane, swimmer, null, false);
+        }
+        if (!textSet)
+        {
+            Swimmer swimmer = swimmers.get(0);
+            swimmer.clubTime.setText(clock.trim());
+            swimmer.clubTime.setForeground(WHITE);
         }
     }
 
-    private void setclubTime(int lane, Swimmer swimmer, PageEvent event, boolean hasImprovments)
+    private boolean setclubTime(int lane, Swimmer swimmer, PageEvent event, boolean hasImprovments)
     {
         int eventCount = event == null ? -1 : event.getCount();
         String clubTimeText = "";
@@ -168,6 +175,7 @@ public class MainScoreboardPanel extends JPanel
         }
         swimmer.clubTime.setText(clubTimeText);
         swimmer.clubTime.setForeground(normalFormat || !swimmer.improvement.isNewBand() ? WHITE : GREENISH);
+        return !clubTimeText.isBlank();
     }
 
     private int getLaneOfFirstBlankTime()
